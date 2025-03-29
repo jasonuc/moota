@@ -18,6 +18,7 @@ func (app *application) serve() error {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  1 * time.Minute,
+		ErrorLog:     app.logger,
 	}
 
 	serverShutdownErr := make(chan error, 1)
