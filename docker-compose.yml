@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:15.3
+    container_name: moota-postgres
+    environment:
+      POSTGRES_DB: moota
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - moota-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - moota-network
+
+networks:
+  moota-network:
+    driver: bridge
+
+volumes:
+  moota-data:
+    driver: local
