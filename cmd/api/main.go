@@ -5,6 +5,8 @@ import (
 	"os"
 )
 
+var version = "0.0.1"
+
 type application struct {
 	cfg    config
 	logger *log.Logger
