@@ -28,7 +28,7 @@ func parseConfig() config {
 
 	flag.IntVar(&cfg.server.port, "port", 8080, "port the http server would run on")
 
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "", "database connection string")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgresql://postgres:postgres@localhost:5432/moota?sslmode=disable&connect_timeout=10", "database connection string")
 	flag.IntVar(&cfg.db.maxOpenConns, "db-maxOpenConns", 15, "max open conns in the database connection pool (in-use/idle)")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-maxIdleConns", 10, "max idle conns in the database connection pool")
 	flag.StringVar(&cfg.db.connMaxIdleTime.input, "db-connMaxIdleTime", "1h", "max time an idle connection would live in the connection pool")
