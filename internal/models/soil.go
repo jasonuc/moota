@@ -29,6 +29,6 @@ func (s *Soil) ContainsPoint(p Coordinates) bool {
 
 func (s *Soil) OverlapsWith(other Soil) bool {
 	d := s.Centre.Distance(other.Centre)
-	// the two circles touching is included in this "overlap"
+	// the two circles touching is considered an overlap as well
 	return d <= s.RadiusM+other.RadiusM
 }
