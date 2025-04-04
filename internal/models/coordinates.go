@@ -28,5 +28,6 @@ func (p Coordinates) Distance(p2 Coordinates) float64 {
 	a := math.Sin(dLat/2)*math.Sin(dLat/2) + math.Cos(p.LatRad())*math.Cos(p2.LatRad())*math.Sin(dLng/2)*math.Sin(dLng/2)
 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
 
+	// Distance in metres
 	return EARTH_RADIUS * c
 }
