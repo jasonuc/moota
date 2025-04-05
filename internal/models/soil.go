@@ -1,6 +1,9 @@
 package models
 
-import "math"
+import (
+	"math"
+	"math/rand/v2"
+)
 
 type SoilType int
 
@@ -18,6 +21,16 @@ type Soil struct {
 	radiusM        float64
 	WaterRetention float64
 	Nutrients      float64
+}
+
+func NewSoil(soilType SoilType, centre Coordinates, radiusM float64) *Soil {
+	return &Soil{
+		Type:           soilType,
+		centre:         centre,
+		radiusM:        radiusM,
+		WaterRetention: rand.Float64() * 5,
+		Nutrients:      rand.Float64() * 5,
+	}
 }
 
 func (s *Soil) Centre() Coordinates {
