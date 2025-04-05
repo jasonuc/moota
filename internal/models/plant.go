@@ -19,11 +19,11 @@ func (p *Plant) RadiusM() float64 {
 }
 
 func (p *Plant) OverlapsWith(other SpatialObject) bool {
-	d := p.centre.Distance(other.Centre())
+	d := p.centre.DistanceM(other.Centre())
 	return d <= p.RadiusM()+other.RadiusM()
 }
 
 func (p *Plant) ContainsPoint(other Coordinates) bool {
-	distance := p.centre.Distance(other)
+	distance := p.centre.DistanceM(other)
 	return distance <= p.RadiusM()
 }

@@ -33,11 +33,11 @@ func (s *Soil) Area() float64 {
 }
 
 func (s *Soil) ContainsPoint(p Coordinates) bool {
-	distance := s.centre.Distance(p)
+	distance := s.centre.DistanceM(p)
 	return distance <= s.RadiusM()
 }
 
 func (s *Soil) OverlapsWith(other SpatialObject) bool {
-	d := s.centre.Distance(other.Centre())
+	d := s.centre.DistanceM(other.Centre())
 	return d <= s.RadiusM()+other.RadiusM()
 }
