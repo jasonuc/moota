@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Plant struct {
 	ID            string
 	Nickname      string
@@ -8,6 +10,11 @@ type Plant struct {
 	radiusM       float64 // interaction radius
 	SoilID        string
 	Health        float64
+	PlantedAt     time.Time
+	LastWateredAt time.Time
+	Xp            int64
+	Soil          *Soil
+	Tempers       Tempers
 }
 
 func (p *Plant) Centre() Coordinates {
