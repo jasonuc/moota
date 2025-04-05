@@ -8,7 +8,7 @@ import (
 type SoilType int
 
 const (
-	SoilTypeLoamy SoilType = iota
+	SoilTypeLoam SoilType = iota
 	SoilTypeSandy
 	SoilTypeSilt
 	SoilTypeClay
@@ -22,6 +22,8 @@ type Soil struct {
 	WaterRetention float64
 	Nutrients      float64
 }
+
+// TODO: Make Soild.radiusM definitive values like, Small, Medium and Large
 
 func NewSoil(soilType SoilType, centre Coordinates, radiusM float64) *Soil {
 	return &Soil{
