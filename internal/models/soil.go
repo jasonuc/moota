@@ -12,23 +12,32 @@ const (
 )
 
 type Soil struct {
-	ID      string
-	Type    SoilType
-	Centre  Coordinates
-	RadiusM float64 // radius in metres
+	ID             string
+	Type           SoilType
+	centre         Coordinates
+	radiusM        float64
+	WaterRetention float64
+	Nutrients      float64
+}
+
+func (s *Soil) Centre() Coordinates {
+	return s.centre
+}
+
+func (s *Soil) RadiusM() float64 {
+	return s.radiusM
 }
 
 func (s *Soil) Area() float64 {
-	return math.Pi * (s.RadiusM * s.RadiusM)
+	return math.Pi * (s.RadiusM() * s.RadiusM())
 }
 
 func (s *Soil) ContainsPoint(p Coordinates) bool {
-	distance := s.Centre.Distance(p)
-	return distance <= s.RadiusM
+	distance := s.centre.Distance(p)
+	return distance <= s.RadiusM()
 }
 
-func (s *Soil) OverlapsWith(other Soil) bool {
-	d := s.Centre.Distance(other.Centre)
-	// the two circles touching is considered an overlap as well
-	return d <= s.RadiusM+other.RadiusM
+func (s *Soil) OverlapsWith(other SpatialObject) bool {
+	d := s.centre.Distance(other.Centre())
+	return d <= s.RadiusM()+other.RadiusM()
 }
