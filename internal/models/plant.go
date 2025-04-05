@@ -8,7 +8,6 @@ type Plant struct {
 	BotanicalName string
 	centre        Coordinates
 	radiusM       float64 // interaction radius
-	SoilID        string
 	Health        float64
 	PlantedAt     time.Time
 	LastWateredAt time.Time
