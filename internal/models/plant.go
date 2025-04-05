@@ -5,7 +5,6 @@ import "time"
 type Plant struct {
 	ID            string
 	Nickname      string
-	BotanicalName string
 	centre        Coordinates
 	radiusM       float64 // interaction radius
 	Health        float64
@@ -14,6 +13,7 @@ type Plant struct {
 	Xp            int64
 	Soil          *Soil
 	Tempers       Tempers
+	SeedMeta
 }
 
 func (p *Plant) Centre() Coordinates {
