@@ -8,10 +8,10 @@ import (
 type SoilType int
 
 const (
-	TypeLoamy SoilType = iota
-	TypeSandy
-	TypeSilt
-	TypeClay
+	SoilTypeLoamy SoilType = iota
+	SoilTypeSandy
+	SoilTypeSilt
+	SoilTypeClay
 )
 
 type Soil struct {
