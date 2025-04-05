@@ -7,10 +7,10 @@ const (
 )
 
 type Tempers struct {
-	Woe    int64
-	Frolic int64
-	Dread  int64
-	Malice int64
+	Woe    int64 // -ve effect on Plant.Xp
+	Frolic int64 // +ve effect on Plant.Xp
+	Dread  int64 // -ve effect on Plant.Health
+	Malice int64 // -ve effect on Plant.Health for nearby plants
 }
 
 func NewTempers() *Tempers {
