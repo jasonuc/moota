@@ -1,5 +1,7 @@
 package models
 
+import "math/rand/v2"
+
 type SeedMeta struct {
 	BotanicalName string
 	OptimalSoil   SoilType
@@ -17,4 +19,53 @@ func (s SeedMeta) IsCompatibleWithSoil(target SoilType) bool {
 		target == SoilTypeLoam
 }
 
-// TODO: Add Seeds
+var SeedMetaCatalog = []SeedMeta{
+	{
+		BotanicalName: "Solanum lycopersicum", // Tomato
+		OptimalSoil:   SoilTypeLoam,
+	},
+	{
+		BotanicalName: "Zea mays", // Corn
+		OptimalSoil:   SoilTypeLoam,
+	},
+	{
+		BotanicalName: "Daucus carota", // Carrot
+		OptimalSoil:   SoilTypeSandy,
+	},
+	{
+		BotanicalName: "Oryza sativa", // Rice
+		OptimalSoil:   SoilTypeClay,
+	},
+	{
+		BotanicalName: "Cucumis sativus", // Cucumber
+		OptimalSoil:   SoilTypeLoam,
+	},
+	{
+		BotanicalName: "Pisum sativum", // Pea
+		OptimalSoil:   SoilTypeSilt,
+	},
+	{
+		BotanicalName: "Allium cepa", // Onion
+		OptimalSoil:   SoilTypeSandy,
+	},
+	{
+		BotanicalName: "Glycine max", // Soybean
+		OptimalSoil:   SoilTypeClay,
+	},
+	{
+		BotanicalName: "Spinacia oleracea", // Spinach
+		OptimalSoil:   SoilTypeLoam,
+	},
+	{
+		BotanicalName: "Helianthus annuus", // Sunflower
+		OptimalSoil:   SoilTypeSandy,
+	},
+}
+
+func NewSeed() *Seed {
+	return &Seed{
+		Health:   0.5,
+		Planted:  false,
+		SeedMeta: SeedMetaCatalog[rand.IntN(len(SeedMetaCatalog))],
+	}
+}
