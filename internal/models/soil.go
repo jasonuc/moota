@@ -14,11 +14,11 @@ const (
 )
 
 type Soil struct {
-	ID   string
-	Type SoilType
-	CircleMeta
+	ID             string
+	Type           SoilType
 	WaterRetention float64
 	Nutrients      float64
+	CircleMeta
 }
 
 // TODO: Make Soild.radiusM definitive values like, Small, Medium and Large
