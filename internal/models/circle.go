@@ -5,4 +5,5 @@ type Circle interface {
 	RadiusM() float64 // radius in metres
 	OverlapsWith(Circle) bool
 	ContainsPoint(Coordinates) bool
+	IsInside(Circle) bool
 }
