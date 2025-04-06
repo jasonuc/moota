@@ -1,6 +1,9 @@
 package models
 
-import "math/rand/v2"
+import (
+	"math/rand/v2"
+	"time"
+)
 
 type SeedMeta struct {
 	BotanicalName string
@@ -11,6 +14,7 @@ type Seed struct {
 	Health  float64 // used as plant's starting health
 	Planted bool
 	SeedMeta
+	CreatedAt time.Time
 }
 
 func (s SeedMeta) IsCompatibleWithSoil(target SoilType) bool {
