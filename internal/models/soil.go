@@ -52,7 +52,7 @@ func (s *Soil) ContainsPoint(p Coordinates) bool {
 	return distance <= s.RadiusM()
 }
 
-func (s *Soil) OverlapsWith(other SpatialObject) bool {
+func (s *Soil) OverlapsWith(other Circle) bool {
 	d := s.centre.DistanceM(other.Centre())
 	return d <= s.RadiusM()+other.RadiusM()
 }

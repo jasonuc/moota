@@ -24,7 +24,7 @@ func (p *Plant) RadiusM() float64 {
 	return p.radiusM
 }
 
-func (p *Plant) OverlapsWith(other SpatialObject) bool {
+func (p *Plant) OverlapsWith(other Circle) bool {
 	d := p.centre.DistanceM(other.Centre())
 	return d <= p.RadiusM()+other.RadiusM()
 }

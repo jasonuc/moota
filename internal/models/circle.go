@@ -1,8 +1,8 @@
 package models
 
-type SpatialObject interface {
+type Circle interface {
 	Centre() Coordinates
 	RadiusM() float64 // radius in metres
-	OverlapsWith(SpatialObject) bool
+	OverlapsWith(Circle) bool
 	ContainsPoint(Coordinates) bool
 }
