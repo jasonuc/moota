@@ -1,7 +1,6 @@
 package models
 
 import (
-	"math"
 	"math/rand/v2"
 )
 
@@ -15,10 +14,9 @@ const (
 )
 
 type Soil struct {
-	ID             string
-	Type           SoilType
-	centre         Coordinates
-	radiusM        float64
+	ID   string
+	Type SoilType
+	CircleMeta
 	WaterRetention float64
 	Nutrients      float64
 }
@@ -27,37 +25,12 @@ type Soil struct {
 
 func NewSoil(soilType SoilType, centre Coordinates, radiusM float64) *Soil {
 	return &Soil{
-		Type:           soilType,
-		centre:         centre,
-		radiusM:        radiusM,
+		Type: soilType,
+		CircleMeta: CircleMeta{
+			centre:  centre,
+			radiusM: radiusM,
+		},
 		WaterRetention: rand.Float64() * 5,
 		Nutrients:      rand.Float64() * 5,
 	}
-}
-
-func (s *Soil) Centre() Coordinates {
-	return s.centre
-}
-
-func (s *Soil) RadiusM() float64 {
-	return s.radiusM
-}
-
-func (s *Soil) Area() float64 {
-	return math.Pi * (s.RadiusM() * s.RadiusM())
-}
-
-func (s *Soil) ContainsPoint(p Coordinates) bool {
-	distance := s.centre.DistanceM(p)
-	return distance <= s.RadiusM()
-}
-
-func (s *Soil) OverlapsWith(other Circle) bool {
-	d := s.centre.DistanceM(other.Centre())
-	return d <= s.RadiusM()+other.RadiusM()
-}
-
-func (s *Soil) IsInside(other Circle) bool {
-	d := s.Centre().DistanceM(other.Centre())
-	return d+s.RadiusM() <= other.RadiusM()
 }
