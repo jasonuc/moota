@@ -21,10 +21,15 @@ func (c CircleMeta) RadiusM() float64 {
 }
 
 func (c CircleMeta) ContainsPoint(p Coordinates) bool {
-	return c.centre.DistanceM(p) <= c.RadiusM()
+	return c.Centre().DistanceM(p) <= c.RadiusM()
 }
 
 func (c CircleMeta) OverlapsWith(other Circle) bool {
-	d := c.centre.DistanceM(other.Centre())
+	d := c.Centre().DistanceM(other.Centre())
 	return d <= c.RadiusM()+other.RadiusM()
+}
+
+func IsInsideSoil(cm CircleMeta, soil *Soil) bool {
+	d := cm.Centre().DistanceM(soil.Centre())
+	return d+cm.RadiusM() <= soil.RadiusM()
 }
