@@ -33,3 +33,9 @@ func (p *Plant) ContainsPoint(other Coordinates) bool {
 	distance := p.centre.DistanceM(other)
 	return distance <= p.RadiusM()
 }
+
+func (p *Plant) IsInside(other Circle) bool {
+	d := p.Centre().DistanceM(other.Centre())
+	return d+p.RadiusM() <= other.RadiusM()
+}
+

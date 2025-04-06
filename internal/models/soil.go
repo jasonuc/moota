@@ -56,3 +56,8 @@ func (s *Soil) OverlapsWith(other Circle) bool {
 	d := s.centre.DistanceM(other.Centre())
 	return d <= s.RadiusM()+other.RadiusM()
 }
+
+func (s *Soil) IsInside(other Circle) bool {
+	d := s.Centre().DistanceM(other.Centre())
+	return d+s.RadiusM() <= other.RadiusM()
+}
