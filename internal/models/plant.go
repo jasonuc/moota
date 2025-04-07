@@ -9,6 +9,7 @@ import (
 const (
 	plantInteractionRadius = 2.0 // TODO: This value is up for debate
 	plantInitialLevel      = 1
+	wateringPlantXpGain    = 50 // TODO: Up for debate, meaning `xpRequiredForLevel` functionality might have to be changed in the future
 )
 
 type Plant struct {
@@ -73,17 +74,28 @@ func xpRequiredForLevel(level int64) int64 {
 
 func (p *Plant) AddXp(xp int64) bool {
 	p.Xp += xp
+	leveledUp := false
 
-	if nextLevelXpReq := xpRequiredForLevel(p.Level + 1); p.Xp >= nextLevelXpReq {
-		p.Xp -= nextLevelXpReq
-		p.LevelUp()
-		return true
+	// Handles scenario where plant needs to level up multiple times in one go
+	for {
+		nextLevelXpReq := xpRequiredForLevel(p.Level + 1)
+		if p.Xp >= nextLevelXpReq {
+			p.Xp -= nextLevelXpReq
+			p.LevelUp()
+			leveledUp = false
+		} else {
+			break
+		}
 	}
 
-	return false
+	return leveledUp
 }
 
 func (p *Plant) LevelUp() int64 {
 	p.Level += 1
 	return p.Level
+}
+
+func (p *Plant) Water() bool {
+	return p.AddXp(int64(wateringPlantXpGain))
 }
