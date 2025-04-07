@@ -2,10 +2,14 @@ package models
 
 import (
 	"fmt"
+	"math"
 	"time"
 )
 
-const PLANT_INTERACTION_RADIUSM = 2.0 // TODO: This value is up for debate
+const (
+	plantInteractionRadius = 2.0 // TODO: This value is up for debate
+	plantInitialLevel      = 1
+)
 
 type Plant struct {
 	ID            string
@@ -25,39 +29,61 @@ type Plant struct {
 func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 	nickname := "Atura" // TODO: Make a function to generate random whimsical names
 	seed.Planted = true
-	circleMeta := CircleMeta{radiusM: PLANT_INTERACTION_RADIUSM, centre: centre}
+	circleMeta := CircleMeta{radiusM: plantInteractionRadius, centre: centre}
 	if !IsInsideSoil(circleMeta, soil) {
 		return nil, fmt.Errorf("plant is not completely inside soil")
 	}
 
-	healthBonus := 0.0
+	healthOffset := 0.0
+	var xpBonus int64
 	if seed.SeedMeta.OptimalSoil == soil.Type {
-		healthBonus += 1.5
+		healthOffset += 1.5
+		xpBonus += 25
 	} else {
 		if seed.SeedMeta.IsCompatibleWithSoil(soil.Type) {
-			healthBonus += 0.5
+			healthOffset += 0.5
 		} else {
-			healthBonus -= 0.5
+			healthOffset -= 0.5
 		}
 	}
 
-	// TODO: Compe up with an Xp and Levelling system
-	// TODO: Work on giving plants bonus xp when planted on optimal soil
-
 	return &Plant{
 		Nickname:  nickname,
-		Health:    seed.Health + healthBonus,
+		Health:    seed.Health + healthOffset,
 		Soil:      soil,
+		Xp:        xpBonus,
+		Level:     plantInitialLevel,
 		Tempers:   NewTempers(),
 		PlantedAt: time.Now(),
 		SeedMeta:  seed.SeedMeta,
 		CircleMeta: CircleMeta{
 			centre:  centre,
-			radiusM: PLANT_INTERACTION_RADIUSM,
+			radiusM: plantInteractionRadius,
 		},
 	}, nil
 }
 
 func (p *Plant) Alive() bool {
 	return !p.Dead
+}
+
+func xpRequiredForLevel(level int64) int64 {
+	return int64(math.Round(75 * (math.Pow(float64(level), 2.0) - float64(level))))
+}
+
+func (p *Plant) AddXp(xp int64) bool {
+	p.Xp += xp
+
+	if nextLevelXpReq := xpRequiredForLevel(p.Level + 1); p.Xp >= nextLevelXpReq {
+		p.Xp -= nextLevelXpReq
+		p.LevelUp()
+		return true
+	}
+
+	return false
+}
+
+func (p *Plant) LevelUp() int64 {
+	p.Level += 1
+	return p.Level
 }
