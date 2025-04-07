@@ -11,10 +11,10 @@ type SeedMeta struct {
 }
 
 type Seed struct {
-	Health  float64 // used as plant's starting health
-	Planted bool
-	SeedMeta
+	Health    float64 // used as plant's starting health
+	Planted   bool
 	CreatedAt time.Time
+	SeedMeta
 }
 
 func (s SeedMeta) IsCompatibleWithSoil(target SoilType) bool {
@@ -66,10 +66,11 @@ var SeedMetaCatalog = []SeedMeta{
 	},
 }
 
-func NewSeed() *Seed {
+func NewSeed(createdAt time.Time) *Seed {
 	return &Seed{
-		Health:   0.5,
-		Planted:  false,
-		SeedMeta: SeedMetaCatalog[rand.IntN(len(SeedMetaCatalog))],
+		Health:    0.5,
+		Planted:   false,
+		SeedMeta:  SeedMetaCatalog[rand.IntN(len(SeedMetaCatalog))],
+		CreatedAt: createdAt,
 	}
 }

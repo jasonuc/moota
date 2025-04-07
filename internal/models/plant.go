@@ -26,7 +26,7 @@ type Plant struct {
 	CircleMeta
 }
 
-func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
+func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (*Plant, error) {
 	nickname := "Atura" // TODO: Make a function to generate random whimsical names
 	seed.Planted = true
 	circleMeta := CircleMeta{radiusM: plantInteractionRadius, centre: centre}
@@ -54,7 +54,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 		Xp:        xpBonus,
 		Level:     plantInitialLevel,
 		Tempers:   NewTempers(),
-		PlantedAt: time.Now(),
+		PlantedAt: plantedAt,
 		SeedMeta:  seed.SeedMeta,
 		CircleMeta: CircleMeta{
 			centre:  centre,
