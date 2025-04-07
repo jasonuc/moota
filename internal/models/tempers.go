@@ -3,7 +3,7 @@ package models
 import "math/rand/v2"
 
 const (
-	TEMPER_MAX_VALUE = 6 // non-inclusive
+	temperMaxVal = 6 // non-inclusive
 )
 
 type Tempers struct {
@@ -15,9 +15,9 @@ type Tempers struct {
 
 func NewTempers() *Tempers {
 	return &Tempers{
-		Woe:    rand.Int64N(TEMPER_MAX_VALUE),
-		Frolic: rand.Int64N(TEMPER_MAX_VALUE),
-		Dread:  rand.Int64N(TEMPER_MAX_VALUE),
-		Malice: rand.Int64N(TEMPER_MAX_VALUE),
+		Woe:    rand.Int64N(temperMaxVal),
+		Frolic: rand.Int64N(temperMaxVal),
+		Dread:  rand.Int64N(temperMaxVal),
+		Malice: rand.Int64N(temperMaxVal),
 	}
 }

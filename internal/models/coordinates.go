@@ -5,7 +5,7 @@ import (
 )
 
 // source: https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
-const EARTH_RADIUS_M = 6.378e+06 // in metres
+const earthRadiusM = 6.378e+06 // in metres
 
 type Coordinates struct {
 	Lat float64
@@ -29,5 +29,5 @@ func (p Coordinates) DistanceM(p2 Coordinates) float64 {
 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
 
 	// Distance in metres
-	return EARTH_RADIUS_M * c
+	return earthRadiusM * c
 }
