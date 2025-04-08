@@ -1,5 +1,3 @@
-// Reference:
-// - Calculate distance, bearing and more between Latitude/Longitude points: https://www.movable-type.co.uk/scripts/latlong.html
 package models
 
 import (
@@ -14,20 +12,23 @@ type Coordinates struct {
 	Lng float64
 }
 
-func (p Coordinates) LatRad() float64 {
+func (p Coordinates) latRad() float64 {
 	return p.Lat * (math.Pi / 180)
 }
 
-func (p Coordinates) LngRad() float64 {
+func (p Coordinates) lngRad() float64 {
 	return p.Lng * (math.Pi / 180)
 }
 
+// source: https://www.movable-type.co.uk/scripts/latlong.html#distance
 func (p Coordinates) DistanceM(p2 Coordinates) float64 {
-	dLat := p2.LatRad() - p.LatRad()
-	dLng := p2.LngRad() - p.LngRad()
+	dLat := p2.latRad() - p.latRad()
+	dLng := p2.lngRad() - p.lngRad()
 
 	// Haversine formula
-	a := math.Sin(dLat/2)*math.Sin(dLat/2) + math.Cos(p.LatRad())*math.Cos(p2.LatRad())*math.Sin(dLng/2)*math.Sin(dLng/2)
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(p.latRad())*math.Cos(p2.latRad())*
+			math.Sin(dLng/2)*math.Sin(dLng/2)
 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
 
 	// Distance in metres
