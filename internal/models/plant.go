@@ -31,7 +31,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (
 	nickname := "Atura" // TODO: Make a function to generate random whimsical names
 	seed.Planted = true
 	circleMeta := CircleMeta{radiusM: plantInteractionRadius, centre: centre}
-	if !soil.ContainsCircle(circleMeta) {
+	if !soil.ContainsFullCircle(circleMeta) {
 		return nil, fmt.Errorf("plant is not completely inside soil")
 	}
 
