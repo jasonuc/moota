@@ -21,7 +21,7 @@ func (c CircleMeta) RadiusM() float64 {
 }
 
 func (c CircleMeta) ContainsPoint(p Coordinates) bool {
-	return c.Centre().DistanceM(p) <= c.RadiusM()
+	return c.Centre().DistanceM(p) < c.RadiusM()
 }
 
 func (c CircleMeta) OverlapsWith(other Circle) bool {
