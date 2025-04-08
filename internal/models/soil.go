@@ -16,8 +16,7 @@ const (
 )
 
 type SoilMeta struct {
-	Type SoilType
-	// Min: 0.00; Max 5.00
+	Type           SoilType
 	WaterRetention float64
 	Nutrients      float64
 }
@@ -25,23 +24,23 @@ type SoilMeta struct {
 var (
 	SoilMetaLoam = SoilMeta{
 		Type:           SoilTypeLoam,
-		WaterRetention: 3.50,
-		Nutrients:      4.00,
+		WaterRetention: 0.55,
+		Nutrients:      0.75,
 	}
 	SoilMetaSandy = SoilMeta{
 		Type:           SoilTypeSandy,
-		WaterRetention: 1.50,
-		Nutrients:      2.00,
+		WaterRetention: 0.25,
+		Nutrients:      0.20,
 	}
 	SoilMetaSilt = SoilMeta{
 		Type:           SoilTypeSilt,
-		WaterRetention: 3.00,
-		Nutrients:      3.50,
+		WaterRetention: 0.65,
+		Nutrients:      0.55,
 	}
 	SoilMetaClay = SoilMeta{
 		Type:           SoilTypeClay,
-		WaterRetention: 4.50,
-		Nutrients:      2.50,
+		WaterRetention: 0.80,
+		Nutrients:      0.65,
 	}
 )
 
@@ -71,9 +70,11 @@ func NewLargeSizedSoil(soilMeta SoilMeta, centre Coordinates, createdAt time.Tim
 }
 
 func newSoil(soilMeta SoilMeta, centre Coordinates, createdAt time.Time, radiusM float64) *Soil {
-	// ±3 Offset
-	soilMeta.Nutrients += math.Round((rand.Float64()-0.5)*0.6*100) / 100
-	soilMeta.WaterRetention += math.Round((rand.Float64()-0.5)*0.6*100) / 100
+	randomOffset := math.Round((rand.Float64()-0.5)*0.2*100) / 100 // ≈±0.1
+	soilMeta.Nutrients = math.Max(0.05, math.Min(1.00, soilMeta.Nutrients+randomOffset))
+
+	randomOffset = math.Round((rand.Float64()-0.5)*0.2*100) / 100 // ≈±0.1
+	soilMeta.WaterRetention = math.Max(0.05, math.Min(1.00, soilMeta.WaterRetention+randomOffset))
 
 	return &Soil{
 		CircleMeta: CircleMeta{
