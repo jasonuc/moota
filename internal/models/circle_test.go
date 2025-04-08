@@ -6,58 +6,58 @@ import (
 
 func TestContainsPoint(t *testing.T) {
 	t.Run("return true if point is the centre of circle", func(t *testing.T) {
-		cm := CircleMeta{centre: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
+		circle := CircleMeta{centre: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
 		p := Coordinates{Lat: 10.0, Lng: 20.0}
 
-		got := cm.ContainsPoint(p)
+		got := circle.ContainsPoint(p)
 		exp := true
 
 		if got != exp {
-			distance := cm.Centre().DistanceM(p)
+			distance := circle.Centre().DistanceM(p)
 			t.Errorf("got %v but expected %v. Distance calculated: %v, Radius: %v",
-				got, exp, distance, cm.RadiusM())
+				got, exp, distance, circle.RadiusM())
 		}
 	})
 
 	t.Run("return true if point is inside the circle", func(t *testing.T) {
-		cm := CircleMeta{centre: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
+		circle := CircleMeta{centre: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
 		p := Coordinates{Lat: 10.003, Lng: 20.003}
 
-		got := cm.ContainsPoint(p)
+		got := circle.ContainsPoint(p)
 		exp := true
 
 		if got != exp {
-			distance := cm.Centre().DistanceM(p)
+			distance := circle.Centre().DistanceM(p)
 			t.Errorf("got %v but expected %v. Distance calculated: %v, Radius: %v",
-				got, exp, distance, cm.RadiusM())
+				got, exp, distance, circle.RadiusM())
 		}
 	})
 
 	t.Run("return false if circle does not contain the point", func(t *testing.T) {
-		cm := CircleMeta{centre: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
+		circle := CircleMeta{centre: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
 		p := Coordinates{Lat: 10.01, Lng: 20.01}
 
-		got := cm.ContainsPoint(p)
+		got := circle.ContainsPoint(p)
 		exp := false
 
 		if got != exp {
-			distance := cm.Centre().DistanceM(p)
+			distance := circle.Centre().DistanceM(p)
 			t.Errorf("got %v but expected %v. Distance calculated: %v, Radius: %v",
-				got, exp, distance, cm.RadiusM())
+				got, exp, distance, circle.RadiusM())
 		}
 	})
 
 	t.Run("return false if point is on the circumference of circle", func(t *testing.T) {
-		cm := CircleMeta{centre: Coordinates{Lat: 37.7749, Lng: -122.4194}, radiusM: 1000.0}
+		circle := CircleMeta{centre: Coordinates{Lat: 37.7749, Lng: -122.4194}, radiusM: 1000.0}
 		p := Coordinates{Lat: 37.7839, Lng: -122.4194}
 
-		got := cm.ContainsPoint(p)
+		got := circle.ContainsPoint(p)
 		exp := false
 
 		if got != exp {
-			distance := cm.Centre().DistanceM(p)
+			distance := circle.Centre().DistanceM(p)
 			t.Errorf("got %v but expected %v. Distance calculated: %v, Radius: %v",
-				got, exp, distance, cm.RadiusM())
+				got, exp, distance, circle.RadiusM())
 		}
 	})
 }
