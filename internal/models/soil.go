@@ -84,3 +84,8 @@ func newSoil(soilMeta SoilMeta, centre Coordinates, createdAt time.Time, radiusM
 		SoilMeta:  soilMeta,
 	}
 }
+
+func (s *Soil) ContainsCircle(cm CircleMeta) bool {
+	d := cm.Centre().DistanceM(s.Centre())
+	return d+cm.RadiusM() <= s.RadiusM()
+}
