@@ -5,7 +5,69 @@ import (
 	"time"
 )
 
-// TODO: add test for Action method
+func TestAction(t *testing.T) {
+	simTime := time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC)
+
+	plant := &Plant{
+		Hp:             100.0,
+		Level:          1,
+		Soil:           &Soil{SoilMeta: SoilMetaLoam},
+		PlantedAt:      simTime.Add(-24 * time.Hour),
+		LastWateredAt:  simTime.Add(-7 * time.Hour),
+		LastActionTime: simTime.Add(-7 * time.Hour),
+	}
+
+	t.Run("Water plant after cooldown", func(t *testing.T) {
+		now := simTime.Add(2 * time.Hour)
+
+		alive, err := plant.Action(PlantActionWater, now)
+
+		if err != nil {
+			t.Fatalf("expected no error, got: %v", err)
+		}
+
+		if !alive {
+			t.Errorf("expected plant to be alive")
+		}
+
+		if plant.LastWateredAt != now {
+			t.Errorf("expected LastWateredAt to be updated to %v, got: %v", now, plant.LastWateredAt)
+		}
+
+		if plant.LastActionTime != now {
+			t.Errorf("expected LastActionTime to be updated to %v, got: %v", now, plant.LastActionTime)
+		}
+
+		if plant.Xp != wateringPlantXpGain {
+			t.Errorf("expected xp %v, got: %v", wateringPlantXpGain, plant.Xp)
+		}
+	})
+
+	t.Run("Water plant during cooldown", func(t *testing.T) {
+		plant.LastWateredAt = simTime.Add(-1 * time.Hour)
+		plant.LastActionTime = simTime.Add(-1 * time.Hour)
+
+		now := simTime
+
+		alive, err := plant.Action(PlantActionWater, now)
+
+		if err != ErrPlantInCooldown {
+			t.Fatalf("expected ErrInCooldown, got: %v", err)
+		}
+
+		if !alive {
+			t.Errorf("expected plant to still be alive")
+		}
+
+		if plant.LastWateredAt.Equal(now) {
+			t.Errorf("LastWateredAt should not have been updated")
+		}
+
+		if plant.LastActionTime.Equal(now) {
+			t.Errorf("LastWateredAt should not have been updated")
+		}
+	})
+}
 
 func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases when plant has not been interacted with for over 12 hours", func(t *testing.T) {

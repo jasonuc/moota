@@ -77,10 +77,12 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (
 }
 
 func (p *Plant) Action(action PlantAction, t time.Time) (bool, error) {
+	// TODO: consider converting all time to UTC before carrying out any action
 	p.preActionHook(t)
 
 	switch action {
 	case PlantActionWater:
+		// TODO: move this to it's own function and make use of the Soil.WaterRetention
 		if t.Sub(p.LastWateredAt) > minWateringInterval {
 			p.addXp(wateringPlantXpGain)
 			p.LastWateredAt = t
