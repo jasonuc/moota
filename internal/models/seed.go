@@ -68,7 +68,7 @@ var SeedMetaCatalog = []SeedMeta{
 
 func NewSeed(createdAt time.Time) *Seed {
 	return &Seed{
-		Health:    0.5,
+		Health:    50.0,
 		Planted:   false,
 		SeedMeta:  SeedMetaCatalog[rand.IntN(len(SeedMetaCatalog))],
 		CreatedAt: createdAt,

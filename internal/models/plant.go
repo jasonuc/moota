@@ -1,28 +1,40 @@
 package models
 
 import (
-	"fmt"
+	"errors"
 	"math"
 	"time"
 )
 
 const (
-	plantInteractionRadius = 2.0 // TODO: This value is up for debate
-	plantInitialLevel      = 1
-	wateringPlantXpGain    = 50 // TODO: Up for debate, meaning `xpRequiredForLevel` functionality might have to be changed in the future
+	plantInteractionRadius = 3.0
+	wateringPlantXpGain    = 30 // TODO: Up for debate, meaning `xpRequiredForLevel` functionality might have to be changed in the future
+	minWateringInterval    = 6 * time.Hour
+)
+
+var (
+	ErrPlantInCooldown     = errors.New("error plant in cooldown mode")
+	ErrPlantNotFullyInSoil = errors.New("error plant not fully inside soil")
+)
+
+type PlantAction int
+
+const (
+	PlantActionWater PlantAction = iota
 )
 
 type Plant struct {
-	ID            string
-	Nickname      string
-	Health        float64
-	Xp            int64
-	Level         int64
-	Dead          bool
-	Soil          *Soil
-	Tempers       *Tempers
-	PlantedAt     time.Time
-	LastWateredAt time.Time
+	ID             string
+	Nickname       string
+	Hp             float64
+	Xp             int64
+	Level          int64
+	Dead           bool
+	Soil           *Soil
+	Tempers        *Tempers
+	PlantedAt      time.Time
+	LastWateredAt  time.Time
+	LastActionTime time.Time
 	SeedMeta
 	CircleMeta
 }
@@ -32,28 +44,28 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (
 	seed.Planted = true
 	circleMeta := CircleMeta{radiusM: plantInteractionRadius, centre: centre}
 	if !soil.ContainsFullCircle(circleMeta) {
-		return nil, fmt.Errorf("plant is not completely inside soil")
+		return nil, ErrPlantNotFullyInSoil
 	}
 
 	healthOffset := 0.0
 	var xpBonus int64
 	if seed.SeedMeta.OptimalSoil == soil.Type {
-		healthOffset += 1.5
+		healthOffset += 15.0
 		xpBonus += 25
 	} else {
 		if seed.SeedMeta.IsCompatibleWithSoil(soil.Type) {
-			healthOffset += 0.5
+			healthOffset += 5.0
 		} else {
-			healthOffset -= 0.5
+			healthOffset -= 5.0
 		}
 	}
 
 	return &Plant{
 		Nickname:  nickname,
-		Health:    seed.Health + healthOffset,
+		Hp:        seed.Health + healthOffset,
 		Soil:      soil,
 		Xp:        xpBonus,
-		Level:     plantInitialLevel,
+		Level:     1,
 		Tempers:   NewTempers(),
 		PlantedAt: plantedAt,
 		SeedMeta:  seed.SeedMeta,
@@ -64,6 +76,39 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (
 	}, nil
 }
 
+func (p *Plant) Action(action PlantAction, t time.Time) (bool, error) {
+	p.preActionHook(t)
+
+	switch action {
+	case PlantActionWater:
+		if t.Sub(p.LastWateredAt) > minWateringInterval {
+			p.addXp(wateringPlantXpGain)
+			p.LastWateredAt = t
+		} else {
+			return p.Alive(), ErrPlantInCooldown
+		}
+	}
+	p.LastActionTime = t
+
+	return p.Alive(), nil
+}
+
+func (p *Plant) preActionHook(t time.Time) {
+	// Hp reduction for plant neglect
+	hoursSinceLastAction := t.Sub(p.LastActionTime).Hours()
+	decreaseMult := math.Floor(hoursSinceLastAction - 12)
+	if decreaseMult > 0 {
+		p.changeHp(-5 * decreaseMult)
+	}
+
+	// Hp reduction for lack of watering
+	hoursSinceLastWatering := math.Floor(t.Sub(p.LastWateredAt).Hours())
+	decreaseMult = math.Floor(hoursSinceLastWatering - 7)
+	if decreaseMult > 0 {
+		p.changeHp(-1 * decreaseMult)
+	}
+}
+
 func (p *Plant) Alive() bool {
 	return !p.Dead
 }
@@ -72,30 +117,30 @@ func xpRequiredForLevel(level int64) int64 {
 	return int64(math.Round(75 * (math.Pow(float64(level), 2.0) - float64(level))))
 }
 
-func (p *Plant) AddXp(xp int64) bool {
+func (p *Plant) addXp(xp int64) {
 	p.Xp += xp
-	leveledUp := false
 
 	// Handles scenario where plant needs to level up multiple times in one go
 	for {
 		nextLevelXpReq := xpRequiredForLevel(p.Level + 1)
 		if p.Xp >= nextLevelXpReq {
 			p.Xp -= nextLevelXpReq
-			p.LevelUp()
-			leveledUp = false
+			p.levelUp()
 		} else {
 			break
 		}
 	}
-
-	return leveledUp
 }
 
-func (p *Plant) LevelUp() int64 {
+func (p *Plant) levelUp() int64 {
 	p.Level += 1
 	return p.Level
 }
 
-func (p *Plant) Water() bool {
-	return p.AddXp(int64(wateringPlantXpGain))
+func (p *Plant) changeHp(delta float64) bool {
+	p.Hp = math.Max(0, math.Min(100, p.Hp+delta)) // clamp hp between 0 and 100
+	if p.Hp == 0 {
+		p.Dead = true
+	}
+	return p.Alive()
 }
