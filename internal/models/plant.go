@@ -49,11 +49,11 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (
 
 	healthOffset := 0.0
 	var xpBonus int64
-	if seed.SeedMeta.OptimalSoil == soil.Type {
+	if seed.OptimalSoil == soil.Type {
 		healthOffset += 15.0
 		xpBonus += 25
 	} else {
-		if seed.SeedMeta.IsCompatibleWithSoil(soil.Type) {
+		if seed.IsCompatibleWithSoil(soil.Type) {
 			healthOffset += 5.0
 		} else {
 			healthOffset -= 5.0

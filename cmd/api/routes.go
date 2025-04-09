@@ -30,5 +30,7 @@ func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.WriteHeader(200)
-	w.Write(js)
+	if _, err := w.Write(js); err != nil {
+		app.logger.Println(err)
+	}
 }
