@@ -7,6 +7,15 @@ import (
 )
 
 type Store struct {
+	User interface {
+		Insert(*models.User) error
+		GetByEmail(string) (*models.User, error)
+		GetByID(string) (*models.User, error)
+		GetByUsername(string) (*models.User, error)
+		Update(*models.User) error
+		Delete(string) error
+	}
+
 	Plant interface {
 		Get(string) (*models.Plant, error)
 		Insert(*models.Plant) error
@@ -29,6 +38,7 @@ type Store struct {
 
 func NewStore(db *sql.DB) *Store {
 	return &Store{
+		User:  &userStore{db},
 		Seed:  &seedStore{db},
 		Plant: &plantStore{db},
 		Soil:  &soilStore{db},

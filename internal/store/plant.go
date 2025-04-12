@@ -10,18 +10,18 @@ type plantStore struct {
 	db *sql.DB
 }
 
-func (p *plantStore) Get(id string) (*models.Plant, error) {
+func (s *plantStore) Get(id string) (*models.Plant, error) {
 	return nil, nil
 }
 
-func (p *plantStore) Insert(plant *models.Plant) error {
+func (s *plantStore) Insert(plant *models.Plant) error {
 	return nil
 }
 
-func (p *plantStore) Update(updatedPlant *models.Plant) error {
+func (s *plantStore) Update(updatedPlant *models.Plant) error {
 	return nil
 }
 
-func (p *plantStore) Delete(id string) error {
+func (s *plantStore) Delete(id string) error {
 	return nil
 }
