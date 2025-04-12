@@ -10,8 +10,8 @@ func TestAction(t *testing.T) {
 
 	plant := &Plant{
 		Hp:             100.0,
-		Level:          1,
 		Soil:           &Soil{SoilMeta: SoilMetaLoam},
+		LevelMeta:      NewLeveLMeta(1, 0),
 		PlantedAt:      simTime.Add(-24 * time.Hour),
 		LastWateredAt:  simTime.Add(-7 * time.Hour),
 		LastActionTime: simTime.Add(-7 * time.Hour),
@@ -73,7 +73,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases when plant has not been interacted with for over 12 hours", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(14 * time.Hour)
-		plant := &Plant{Level: 1, Xp: 0, Hp: 50.0, LastActionTime: currentTime, LastWateredAt: futureTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredAt: futureTime}
 
 		plant.preActionHook(futureTime)
 
@@ -91,7 +91,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases when plant has not been watered for over 7 hours", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(10 * time.Hour)
-		plant := &Plant{Level: 1, Xp: 0, Hp: 50.0, LastActionTime: futureTime, LastWateredAt: currentTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: futureTime, LastWateredAt: currentTime}
 
 		plant.preActionHook(futureTime)
 
@@ -109,7 +109,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases down to zero if neglected for a long time", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(7 * 24 * time.Hour)
-		plant := &Plant{Level: 1, Xp: 0, Hp: 50.0, LastActionTime: currentTime, LastWateredAt: currentTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredAt: currentTime}
 
 		plant.preActionHook(futureTime)
 
@@ -127,7 +127,7 @@ func TestPreActionHook(t *testing.T) {
 
 func TestAddXpAndLeveUp(t *testing.T) {
 	t.Run("add xp but not enough to increase level", func(t *testing.T) {
-		plant := &Plant{Level: 1, Xp: 0}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}}
 		expPlant := struct {
 			Level int64
 			Xp    int64
@@ -145,7 +145,7 @@ func TestAddXpAndLeveUp(t *testing.T) {
 	})
 
 	t.Run("add enough xp for plant to level up once", func(t *testing.T) {
-		plant := &Plant{Level: 1, Xp: 0}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}}
 		expPlant := struct {
 			Level int64
 			Xp    int64
@@ -164,7 +164,7 @@ func TestAddXpAndLeveUp(t *testing.T) {
 	})
 
 	t.Run("add enough xp for plant to level up multiple times", func(t *testing.T) {
-		plant := &Plant{Level: 1, Xp: 0}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}}
 		expPlant := struct {
 			Level int64
 			Xp    int64

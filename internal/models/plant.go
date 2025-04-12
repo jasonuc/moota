@@ -27,8 +27,6 @@ type Plant struct {
 	ID             string
 	Nickname       string
 	Hp             float64
-	Xp             int64
-	Level          int64
 	Dead           bool
 	Soil           *Soil
 	Tempers        *Tempers
@@ -36,6 +34,7 @@ type Plant struct {
 	LastWateredAt  time.Time
 	LastActionTime time.Time
 	SeedMeta
+	LevelMeta
 	CircleMeta
 }
 
@@ -64,8 +63,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (
 		Nickname:  nickname,
 		Hp:        seed.Health + healthOffset,
 		Soil:      soil,
-		Xp:        xpBonus,
-		Level:     1,
+		LevelMeta: NewLeveLMeta(1, xpBonus),
 		Tempers:   NewTempers(),
 		PlantedAt: plantedAt,
 		SeedMeta:  seed.SeedMeta,
@@ -113,30 +111,6 @@ func (p *Plant) preActionHook(t time.Time) {
 
 func (p *Plant) Alive() bool {
 	return !p.Dead
-}
-
-func xpRequiredForLevel(level int64) int64 {
-	return int64(math.Round(75 * (math.Pow(float64(level), 2.0) - float64(level))))
-}
-
-func (p *Plant) addXp(xp int64) {
-	p.Xp += xp
-
-	// Handles scenario where plant needs to level up multiple times in one go
-	for {
-		nextLevelXpReq := xpRequiredForLevel(p.Level + 1)
-		if p.Xp >= nextLevelXpReq {
-			p.Xp -= nextLevelXpReq
-			p.levelUp()
-		} else {
-			break
-		}
-	}
-}
-
-func (p *Plant) levelUp() int64 {
-	p.Level += 1
-	return p.Level
 }
 
 func (p *Plant) changeHp(delta float64) bool {
