@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS seeds (
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+	owner_id UUID,
+	health REAL NOT NULL,
+	planted BOOLEAN NOT NULL DEFAULT FALSE,
+	optimal_soil INTEGER NOT NULL,
+	botanical_name TEXT NOT NULL,
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

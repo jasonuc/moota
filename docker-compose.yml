@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15.3
+    image: postgis/postgis:15-3.3
     container_name: moota-postgres
     environment:
       POSTGRES_DB: moota

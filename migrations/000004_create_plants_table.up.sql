@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS plants (
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+	nickname VARCHAR(255) NOT NULL,
+	hp REAL NOT NULL,
+	dead BOOLEAN NOT NULL DEFAULT FALSE,
+	owner_id UUID REFERENCES users (id),
+	planted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	last_watered_at TIMESTAMPTZ,
+	last_action_time TIMESTAMPTZ,
+	centre GEOGRAPHY (POINT) NOT NULL,
+	radius_m DOUBLE PRECISION NOT NULL,
+	woe INTEGER NOT NULL,
+	frolic INTEGER NOT NULL,
+	dread INTEGER NOT NULL,
+	malice INTEGER NOT NULL
+);
