@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS plants (
 	last_action_time TIMESTAMPTZ,
 	centre GEOGRAPHY (POINT) NOT NULL,
 	radius_m DOUBLE PRECISION NOT NULL,
+	soil_id UUID REFERENCES soils (id),
 	woe INTEGER NOT NULL,
 	frolic INTEGER NOT NULL,
 	dread INTEGER NOT NULL,
