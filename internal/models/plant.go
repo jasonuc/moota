@@ -28,7 +28,7 @@ type Plant struct {
 	Nickname       string
 	Hp             float64
 	Dead           bool
-	UserID         string
+	OwnerID        string
 	Soil           *Soil
 	Tempers        *Tempers
 	PlantedAt      time.Time
@@ -64,7 +64,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (
 		Nickname:  nickname,
 		Hp:        seed.Health + healthOffset,
 		Soil:      soil,
-		UserID:    seed.UserID,
+		OwnerID:   seed.OwnerID,
 		Dead:      false,
 		LevelMeta: NewLeveLMeta(1, xpBonus),
 		Tempers:   NewTempers(),
