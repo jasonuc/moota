@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
-type SoilType int
+type SoilType string
 
 const (
-	SoilTypeLoam SoilType = iota
-	SoilTypeSandy
-	SoilTypeSilt
-	SoilTypeClay
+	SoilTypeLoam  SoilType = "loam"
+	SoilTypeSandy SoilType = "sandy"
+	SoilTypeSilt  SoilType = "silt"
+	SoilTypeClay  SoilType = "clay"
 )
 
 type SoilMeta struct {
@@ -22,22 +22,22 @@ type SoilMeta struct {
 }
 
 var (
-	SoilMetaLoam = SoilMeta{
+	DefaultSoilMetaLoam = SoilMeta{
 		Type:           SoilTypeLoam,
 		WaterRetention: 0.55,
 		Nutrients:      0.75,
 	}
-	SoilMetaSandy = SoilMeta{
+	DefaultSoilMetaSandy = SoilMeta{
 		Type:           SoilTypeSandy,
 		WaterRetention: 0.25,
 		Nutrients:      0.20,
 	}
-	SoilMetaSilt = SoilMeta{
+	DefaultSoilMetaSilt = SoilMeta{
 		Type:           SoilTypeSilt,
 		WaterRetention: 0.65,
 		Nutrients:      0.55,
 	}
-	SoilMetaClay = SoilMeta{
+	DefaultSoilMetaClay = SoilMeta{
 		Type:           SoilTypeClay,
 		WaterRetention: 0.80,
 		Nutrients:      0.65,

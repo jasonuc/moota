@@ -10,7 +10,7 @@ func TestAction(t *testing.T) {
 
 	plant := &Plant{
 		Hp:             100.0,
-		Soil:           &Soil{SoilMeta: SoilMetaLoam},
+		Soil:           &Soil{SoilMeta: DefaultSoilMetaLoam},
 		LevelMeta:      NewLeveLMeta(1, 0),
 		PlantedAt:      simTime.Add(-24 * time.Hour),
 		LastWateredAt:  simTime.Add(-7 * time.Hour),
