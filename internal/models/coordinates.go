@@ -1,7 +1,10 @@
 package models
 
 import (
+	"errors"
 	"math"
+	"strconv"
+	"strings"
 )
 
 // source: https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
@@ -33,4 +36,26 @@ func (p Coordinates) DistanceM(p2 Coordinates) float64 {
 
 	// Distance in metres
 	return earthRadiusM * c
+}
+
+func CoordinatesFromPostGIS(pointText string) (Coordinates, error) {
+	pointText = strings.TrimPrefix(pointText, "POINT(")
+	pointText = strings.TrimSuffix(pointText, ")")
+
+	coords := strings.Split(pointText, " ")
+	if len(coords) != 2 {
+		return Coordinates{}, errors.New("invalid point format")
+	}
+
+	lng, err := strconv.ParseFloat(coords[0], 64)
+	if err != nil {
+		return Coordinates{}, err
+	}
+
+	lat, err := strconv.ParseFloat(coords[1], 64)
+	if err != nil {
+		return Coordinates{}, err
+	}
+
+	return Coordinates{Lat: lat, Lng: lng}, nil
 }

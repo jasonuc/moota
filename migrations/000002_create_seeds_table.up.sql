@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS seeds (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
 	owner_id UUID REFERENCES users (id),
-	health REAL NOT NULL,
+	hp REAL NOT NULL,
 	planted BOOLEAN NOT NULL DEFAULT FALSE,
 	optimal_soil VARCHAR(30) NOT NULL,
 	botanical_name TEXT NOT NULL,

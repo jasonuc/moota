@@ -8,7 +8,7 @@ import (
 
 const (
 	plantInteractionRadius = 3.0
-	wateringPlantXpGain    = 30 // TODO: Up for debate, meaning `xpRequiredForLevel` functionality might have to be changed in the future
+	wateringPlantXpGain    = 30 // TODO: Up for debate
 	minWateringInterval    = 6 * time.Hour
 )
 
@@ -66,7 +66,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (
 
 	return &Plant{
 		Nickname:  nickname,
-		Hp:        seed.Health + healthOffset,
+		Hp:        seed.Hp + healthOffset,
 		Soil:      soil,
 		OwnerID:   seed.OwnerID,
 		Dead:      false,

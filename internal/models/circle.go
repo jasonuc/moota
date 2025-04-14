@@ -12,6 +12,13 @@ type CircleMeta struct {
 	radiusM float64
 }
 
+func NewCircleMeta(centre Coordinates, radiusM float64) CircleMeta {
+	return CircleMeta{
+		centre:  centre,
+		radiusM: radiusM,
+	}
+}
+
 func (c CircleMeta) Centre() Coordinates {
 	return c.centre
 }
