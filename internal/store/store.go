@@ -18,6 +18,8 @@ type Store struct {
 
 	Plant interface {
 		Get(string) (*models.Plant, error)
+		GetAllByOwnerID(string) ([]*models.Plant, error)
+		GetAllNearCoordinates(models.Coordinates, float64) ([]*models.Plant, error)
 		Insert(*models.Plant) error
 		Update(*models.Plant) error
 		Delete(string) error
@@ -31,7 +33,9 @@ type Store struct {
 
 	Seed interface {
 		Get(string) (*models.Seed, error)
+		GetAllByOwnerID(string) ([]*models.Seed, error)
 		Insert(*models.Seed) error
+		MarkAsPlanted(*models.Seed) error
 		Delete(string) error
 	}
 }

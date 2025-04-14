@@ -10,6 +10,14 @@ type plantStore struct {
 	db *sql.DB
 }
 
+func (s *plantStore) GetAllByOwnerID(ownerID string) ([]*models.Plant, error) {
+	return nil, nil
+}
+
+func (s *plantStore) GetAllNearCoordinates(point models.Coordinates, distanceM float64) ([]*models.Plant, error) {
+	return nil, nil
+}
+
 func (s *plantStore) Get(id string) (*models.Plant, error) {
 	return nil, nil
 }
