@@ -11,6 +11,7 @@ type SeedMeta struct {
 }
 
 type Seed struct {
+	ID        string
 	Health    float64 // used as plant's starting health
 	Planted   bool
 	OwnerID   string
@@ -67,16 +68,15 @@ var SeedMetaCatalog = []SeedMeta{
 	},
 }
 
-func NewSeed(ownerID string, createdAt time.Time) *Seed {
+func NewSeed(ownerID string) *Seed {
 	if ownerID == "" {
 		ownerID = "user-id"
 	}
 
 	return &Seed{
-		Health:    50.0,
-		Planted:   false,
-		OwnerID:   ownerID,
-		SeedMeta:  SeedMetaCatalog[rand.IntN(len(SeedMetaCatalog))],
-		CreatedAt: createdAt,
+		Health:   50.0,
+		Planted:  false,
+		OwnerID:  ownerID,
+		SeedMeta: SeedMetaCatalog[rand.IntN(len(SeedMetaCatalog))],
 	}
 }
