@@ -1,9 +1,14 @@
 package models
 
 import (
+	"errors"
 	"math"
 	"math/rand/v2"
 	"time"
+)
+
+var (
+	ErrSoilNotFound = errors.New("soil not found")
 )
 
 type SoilType string
@@ -16,31 +21,31 @@ const (
 )
 
 type SoilMeta struct {
-	Type           SoilType
-	WaterRetention float64
-	Nutrients      float64
+	Type             SoilType
+	WaterRetention   float64
+	NutrientRichness float64
 }
 
 var (
 	DefaultSoilMetaLoam = SoilMeta{
-		Type:           SoilTypeLoam,
-		WaterRetention: 0.55,
-		Nutrients:      0.75,
+		Type:             SoilTypeLoam,
+		WaterRetention:   0.55,
+		NutrientRichness: 0.75,
 	}
 	DefaultSoilMetaSandy = SoilMeta{
-		Type:           SoilTypeSandy,
-		WaterRetention: 0.25,
-		Nutrients:      0.20,
+		Type:             SoilTypeSandy,
+		WaterRetention:   0.25,
+		NutrientRichness: 0.20,
 	}
 	DefaultSoilMetaSilt = SoilMeta{
-		Type:           SoilTypeSilt,
-		WaterRetention: 0.65,
-		Nutrients:      0.55,
+		Type:             SoilTypeSilt,
+		WaterRetention:   0.65,
+		NutrientRichness: 0.55,
 	}
 	DefaultSoilMetaClay = SoilMeta{
-		Type:           SoilTypeClay,
-		WaterRetention: 0.80,
-		Nutrients:      0.65,
+		Type:             SoilTypeClay,
+		WaterRetention:   0.80,
+		NutrientRichness: 0.65,
 	}
 )
 
@@ -71,7 +76,7 @@ func NewLargeSizedSoil(soilMeta SoilMeta, centre Coordinates, createdAt time.Tim
 
 func newSoil(soilMeta SoilMeta, centre Coordinates, createdAt time.Time, radiusM float64) *Soil {
 	randomOffset := math.Round((rand.Float64()-0.5)*0.2*100) / 100 // ≈±0.1
-	soilMeta.Nutrients = math.Max(0.05, math.Min(1.00, soilMeta.Nutrients+randomOffset))
+	soilMeta.NutrientRichness = math.Max(0.05, math.Min(1.00, soilMeta.NutrientRichness+randomOffset))
 
 	randomOffset = math.Round((rand.Float64()-0.5)*0.2*100) / 100 // ≈±0.1
 	soilMeta.WaterRetention = math.Max(0.05, math.Min(1.00, soilMeta.WaterRetention+randomOffset))
