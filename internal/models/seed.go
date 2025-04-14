@@ -1,8 +1,14 @@
 package models
 
 import (
+	"errors"
 	"math/rand/v2"
 	"time"
+)
+
+var (
+	ErrSeedNotFound       = errors.New("seed not found")
+	ErrSeedAlreadyPlanted = errors.New("seed already planted")
 )
 
 type SeedMeta struct {

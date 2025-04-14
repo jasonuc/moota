@@ -13,8 +13,8 @@ const (
 )
 
 var (
-	ErrPlantInCooldown     = errors.New("error plant in cooldown mode")
-	ErrPlantNotFullyInSoil = errors.New("error plant not fully inside soil")
+	ErrPlantInCooldown     = errors.New("plant in cooldown mode")
+	ErrPlantNotFullyInSoil = errors.New("plant not fully inside soil")
 )
 
 type PlantAction int
@@ -40,6 +40,10 @@ type Plant struct {
 }
 
 func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (*Plant, error) {
+	if seed.Planted {
+		return nil, ErrSeedAlreadyPlanted
+	}
+
 	nickname := "Atura" // TODO: Make a function to generate random whimsical names
 	seed.Planted = true
 	circleMeta := CircleMeta{radiusM: plantInteractionRadius, centre: centre}
