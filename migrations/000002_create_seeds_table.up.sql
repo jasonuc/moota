@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS seeds (
 	owner_id UUID REFERENCES users (id),
 	health REAL NOT NULL,
 	planted BOOLEAN NOT NULL DEFAULT FALSE,
-	optimal_soil INTEGER NOT NULL,
+	optimal_soil VARCHAR(30) NOT NULL,
 	botanical_name TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
