@@ -18,13 +18,14 @@ func (s *seedStore) GetAllByOwnerID(ownerID string) ([]*models.Seed, error) {
 	if err != nil {
 		return nil, err
 	}
+	//nolint:errcheck
 	defer rows.Close()
 
 	seeds := make([]*models.Seed, 0)
 
 	for rows.Next() {
 		seed := new(models.Seed)
-		err := rows.Scan(&seed.ID, &seed.OwnerID, &seed.Health, &seed.Planted, &seed.OptimalSoil, &seed.BotanicalName, &seed.CreatedAt)
+		err := rows.Scan(&seed.ID, &seed.OwnerID, &seed.Hp, &seed.Planted, &seed.OptimalSoil, &seed.BotanicalName, &seed.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -45,7 +46,7 @@ func (s *seedStore) Get(id string) (*models.Seed, error) {
 
 	seed := new(models.Seed)
 	err := s.db.QueryRow(q, id).Scan(
-		&seed.ID, &seed.OwnerID, &seed.Health, &seed.Planted, &seed.OptimalSoil, &seed.BotanicalName, &seed.CreatedAt,
+		&seed.ID, &seed.OwnerID, &seed.Hp, &seed.Planted, &seed.OptimalSoil, &seed.BotanicalName, &seed.CreatedAt,
 	)
 
 	if err != nil {
@@ -60,7 +61,7 @@ func (s *seedStore) Insert(seed *models.Seed) error {
 			VALUES ($1, $2, $3, $4, $5)
 			RETURNING id, created_at;`
 
-	err := s.db.QueryRow(q, seed.OwnerID, seed.Health, seed.Planted, seed.OptimalSoil, seed.BotanicalName).Scan(
+	err := s.db.QueryRow(q, seed.OwnerID, seed.Hp, seed.Planted, seed.OptimalSoil, seed.BotanicalName).Scan(
 		&seed.ID, &seed.CreatedAt,
 	)
 

@@ -15,6 +15,7 @@ const (
 var (
 	ErrPlantInCooldown     = errors.New("plant in cooldown mode")
 	ErrPlantNotFullyInSoil = errors.New("plant not fully inside soil")
+	ErrPlantNotFound       = errors.New("plant not found")
 )
 
 type PlantAction int
@@ -31,7 +32,7 @@ type Plant struct {
 	OwnerID        string
 	Soil           *Soil
 	Tempers        *Tempers
-	PlantedAt      time.Time
+	TimePlanted    time.Time
 	LastWateredAt  time.Time
 	LastActionTime time.Time
 	SeedMeta
@@ -39,7 +40,7 @@ type Plant struct {
 	CircleMeta
 }
 
-func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (*Plant, error) {
+func NewPlant(seed *Seed, soil *Soil, centre Coordinates, timePlanted time.Time) (*Plant, error) {
 	if seed.Planted {
 		return nil, ErrSeedAlreadyPlanted
 	}
@@ -65,15 +66,15 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, plantedAt time.Time) (
 	}
 
 	return &Plant{
-		Nickname:  nickname,
-		Hp:        seed.Hp + healthOffset,
-		Soil:      soil,
-		OwnerID:   seed.OwnerID,
-		Dead:      false,
-		LevelMeta: NewLeveLMeta(1, xpBonus),
-		Tempers:   NewTempers(),
-		PlantedAt: plantedAt,
-		SeedMeta:  seed.SeedMeta,
+		Nickname:    nickname,
+		Hp:          seed.Hp + healthOffset,
+		Soil:        soil,
+		OwnerID:     seed.OwnerID,
+		Dead:        false,
+		LevelMeta:   NewLeveLMeta(1, xpBonus),
+		Tempers:     NewTempers(),
+		TimePlanted: timePlanted,
+		SeedMeta:    seed.SeedMeta,
 		CircleMeta: CircleMeta{
 			centre:  centre,
 			radiusM: plantInteractionRadius,

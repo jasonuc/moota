@@ -19,7 +19,7 @@ type Store struct {
 	Plant interface {
 		Get(string) (*models.Plant, error)
 		GetAllByOwnerID(string) ([]*models.Plant, error)
-		GetAllNearCoordinates(models.Coordinates, float64) ([]*models.Plant, error)
+		GetByOwnerIDAndProximity(string, models.Coordinates, float64) ([]*models.Plant, error)
 		Insert(*models.Plant) error
 		Update(*models.Plant) error
 		Delete(string) error
@@ -27,6 +27,7 @@ type Store struct {
 
 	Soil interface {
 		Get(string) (*models.Soil, error)
+		GetAllInProximity(models.Coordinates, float64) ([]*models.Soil, error)
 		Insert(*models.Soil) error
 		Delete(string) error
 	}

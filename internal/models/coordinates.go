@@ -38,6 +38,8 @@ func (p Coordinates) DistanceM(p2 Coordinates) float64 {
 	return earthRadiusM * c
 }
 
+// TODO: Write tests for this function
+// CoordinatesFromPostGIS converts a PostGIS POINT string to Coordinates struct.
 func CoordinatesFromPostGIS(pointText string) (Coordinates, error) {
 	pointText = strings.TrimPrefix(pointText, "POINT(")
 	pointText = strings.TrimSuffix(pointText, ")")

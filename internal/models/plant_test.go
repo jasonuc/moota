@@ -12,7 +12,7 @@ func TestAction(t *testing.T) {
 		Hp:             100.0,
 		Soil:           &Soil{SoilMeta: DefaultSoilMetaLoam},
 		LevelMeta:      NewLeveLMeta(1, 0),
-		PlantedAt:      simTime.Add(-24 * time.Hour),
+		TimePlanted:    simTime.Add(-24 * time.Hour),
 		LastWateredAt:  simTime.Add(-7 * time.Hour),
 		LastActionTime: simTime.Add(-7 * time.Hour),
 	}
