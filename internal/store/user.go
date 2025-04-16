@@ -1,13 +1,11 @@
 package store
 
 import (
-	"database/sql"
-
 	"github.com/jasonuc/moota/internal/models"
 )
 
 type userStore struct {
-	db *sql.DB
+	db dbOrTx
 }
 
 func (s *userStore) Insert(user *models.User) error {

@@ -1,13 +1,11 @@
 package store
 
 import (
-	"database/sql"
-
 	"github.com/jasonuc/moota/internal/models"
 )
 
 type seedStore struct {
-	db *sql.DB
+	db dbOrTx
 }
 
 func (s *seedStore) GetAllByOwnerID(ownerID string) ([]*models.Seed, error) {

@@ -8,7 +8,7 @@ import (
 )
 
 type soilStore struct {
-	db *sql.DB
+	db dbOrTx
 }
 
 func (s *soilStore) Get(id string) (*models.Soil, error) {

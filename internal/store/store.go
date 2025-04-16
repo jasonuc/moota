@@ -7,6 +7,8 @@ import (
 )
 
 type Store struct {
+	db *sql.DB
+
 	User interface {
 		Insert(*models.User) error
 		GetByEmail(string) (*models.User, error)
@@ -43,9 +45,27 @@ type Store struct {
 
 func NewStore(db *sql.DB) *Store {
 	return &Store{
+		db:    db,
 		User:  &userStore{db},
 		Seed:  &seedStore{db},
 		Plant: &plantStore{db},
 		Soil:  &soilStore{db},
+	}
+}
+
+func (s *Store) Begin() (*Transaction, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	return &Transaction{tx: tx}, nil
+}
+
+func (s *Store) WithTx(tx *Transaction) *Store {
+	return &Store{
+		User:  &userStore{tx.tx},
+		Seed:  &seedStore{tx.tx},
+		Plant: &plantStore{tx.tx},
+		Soil:  &soilStore{tx.tx},
 	}
 }
