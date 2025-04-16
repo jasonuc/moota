@@ -5,7 +5,7 @@ import (
 )
 
 type userStore struct {
-	db dbOrTx
+	db Querier
 }
 
 func (s *userStore) Insert(user *models.User) error {

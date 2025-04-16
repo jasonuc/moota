@@ -7,7 +7,7 @@ import (
 )
 
 type plantStore struct {
-	db dbOrTx
+	db Querier
 }
 
 func (s *plantStore) GetAllByOwnerID(ownerID string) ([]*models.Plant, error) {

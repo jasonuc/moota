@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/jasonuc/moota/internal/models"
@@ -41,6 +42,15 @@ type Store struct {
 		MarkAsPlanted(*models.Seed) error
 		Delete(string) error
 	}
+}
+
+type Querier interface {
+	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
+	Exec(query string, args ...any) (sql.Result, error)
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
+	Query(query string, args ...any) (*sql.Rows, error)
+	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
+	QueryRow(query string, args ...any) *sql.Row
 }
 
 func NewStore(db *sql.DB) *Store {

@@ -5,7 +5,7 @@ import (
 )
 
 type seedStore struct {
-	db dbOrTx
+	db Querier
 }
 
 func (s *seedStore) GetAllByOwnerID(ownerID string) ([]*models.Seed, error) {
