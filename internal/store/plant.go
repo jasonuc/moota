@@ -10,11 +10,12 @@ type plantStore struct {
 	db Querier
 }
 
-func (s *plantStore) GetAllInSoil(soilID string) ([]*models.Plant, error) {
+func (s *plantStore) GetAllInSoilAndInProximity(soilID string, point models.Coordinates, distanceM float64) ([]*models.Plant, error) {
 	q := `SELECT id, nickname, hp, dead, owner_id, planted_at, last_watered_at, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice FROM plants
-			WHERE soil_id = $1 AND dead = false;`
+			WHERE soil_id = $1 AND dead = false
+			AND ST_DWithin(centre, ST_Point($2, $3)::GEOGRAPHY, $4);`
 
-	rows, err := s.db.Query(q, soilID)
+	rows, err := s.db.Query(q, soilID, point.Lng, point.Lat, distanceM)
 	if err != nil {
 		return nil, err
 	}
