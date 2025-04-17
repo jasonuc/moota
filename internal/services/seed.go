@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/store"
@@ -30,6 +31,25 @@ var (
 	ErrUnauthorizedSeedPlanting = errors.New("not authorised to plant this seed")
 	ErrNotPossibleToPlantSeed   = errors.New("not possible to plant seed")
 )
+
+func (s *SeedService) GetUserSeeds(ownerID string) ([]*models.Seed, error) {
+	seeds, err := s.store.Seed.GetAllByOwnerID(ownerID)
+	if err != nil {
+		return nil, err
+	}
+	return seeds, nil
+}
+
+func (s *SeedService) GetSeed(ownerID, seedID string) (*models.Seed, error) {
+	seed, err := s.store.Seed.Get(seedID)
+	if err != nil {
+		return nil, err
+	}
+	if seed.OwnerID == ownerID {
+		return nil, fmt.Errorf("access denied: you do not own this plant")
+	}
+	return seed, nil
+}
 
 func (s *SeedService) PlantSeed(dto PlantSeedDto) (*models.Plant, error) {
 	seed, err := s.store.Seed.Get(dto.SeedID)

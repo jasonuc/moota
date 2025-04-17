@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/store"
@@ -20,6 +21,25 @@ func NewPlantService(store *store.Store) *PlantService {
 var (
 	ErrNotPossibleToCreatePlant = errors.New("not possible to create plant here")
 )
+
+func (s *PlantService) GetUserPlants(ownerID string) ([]*models.Plant, error) {
+	plants, err := s.store.Plant.GetAllByOwnerID(ownerID)
+	if err != nil {
+		return nil, err
+	}
+	return plants, nil
+}
+
+func (s *PlantService) GetPlant(ownerID, plantID string) (*models.Plant, error) {
+	plant, err := s.store.Plant.Get(plantID)
+	if err != nil {
+		return nil, err
+	}
+	if plant.OwnerID != ownerID {
+		return nil, fmt.Errorf("access denied: you do not own this plant")
+	}
+	return plant, nil
+}
 
 func (s *PlantService) CreatePlant(tx *store.Store, soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
 	plantCircleMeta := models.NewCircleMeta(soil.Centre(), models.PlantInteractionRadius)
