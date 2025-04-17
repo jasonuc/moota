@@ -140,17 +140,26 @@ func (s *plantStore) GetByOwnerIDAndProximity(ownerID string, point models.Coord
 }
 
 func (s *plantStore) Get(id string) (*models.Plant, error) {
-	q := `SELECT id, nickname, hp, dead, owner_id, planted_at, last_watered_at, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice FROM plants
-			WHERE id = $1;`
-	var centreText string
-	var radiusM float64
+	q := `SELECT 
+			p.id, p.nickname, p.hp, p.dead, p.owner_id, p.planted_at, p.last_watered_at, p.last_action_time, ST_AsText(p.centre), 
+			p.radius_m, p.soil_id, p.optimal_soil, p.botanical_name, p.level, p.xp, p.woe, p.frolic, p.dread, p.malice, 
+			ST_AsText(s.centre), s.radius_m, s.soil_type, s.water_retention, s.nutrient_richness, s.created_at
+			FROM plants p JOIN soils s ON p.soil_id = s.id
+			WHERE p.id = $1;`
+
+	var plantCentreText string
+	var plantRadiusM float64
+
+	var soilCentreText string
+	var soilRadiusM float64
 	plant := new(models.Plant)
 
 	err := s.db.QueryRow(q, id).Scan(
 		&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
-		&plant.TimePlanted, &plant.LastWateredAt, &plant.LastActionTime, &centreText,
-		&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.Xp,
+		&plant.TimePlanted, &plant.LastWateredAt, &plant.LastActionTime, &plantCentreText,
+		&plantRadiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.Xp,
 		&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice,
+		&soilCentreText, &soilRadiusM, &plant.Soil.Type, &plant.Soil.WaterRetention, &plant.Soil.NutrientRichness, &plant.Soil.CreatedAt,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -159,11 +168,17 @@ func (s *plantStore) Get(id string) (*models.Plant, error) {
 		return nil, err
 	}
 
-	centre, err := models.CoordinatesFromPostGIS(centreText)
+	plantCentre, err := models.CoordinatesFromPostGIS(plantCentreText)
 	if err != nil {
 		return nil, err
 	}
-	plant.CircleMeta = models.NewCircleMeta(centre, radiusM)
+	plant.CircleMeta = models.NewCircleMeta(plantCentre, plantRadiusM)
+
+	soilCentre, err := models.CoordinatesFromPostGIS(soilCentreText)
+	if err != nil {
+		return nil, err
+	}
+	plant.Soil.CircleMeta = models.NewCircleMeta(soilCentre, soilRadiusM)
 
 	return plant, nil
 }
