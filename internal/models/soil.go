@@ -57,24 +57,69 @@ type Soil struct {
 }
 
 const (
+	SoilRadiusMZero   = 0.0
 	SoilRadiusMSmall  = 8.92  // For ≈250 sq. meters
 	SoilRadiusMMedium = 17.84 // For ≈1,000 sq. meters
 	SoilRadiusMLarge  = 30.90 // For ≈3,000 sq. meters
 )
 
-func NewSmallSizedSoil(soilMeta SoilMeta, centre Coordinates, createdAt time.Time) *Soil {
-	return newSoil(soilMeta, centre, createdAt, SoilRadiusMSmall)
+func RandomSoilRadius(filterRadius float64) float64 {
+	soilRadii := []float64{
+		SoilRadiusMSmall,
+		SoilRadiusMMedium,
+		SoilRadiusMLarge,
+	}
+
+	if filterRadius > 0 {
+		filteredSoilRadii := []float64{}
+		for _, radius := range soilRadii {
+			if radius <= filterRadius {
+				filteredSoilRadii = append(filteredSoilRadii, radius)
+			}
+		}
+		soilRadii = filteredSoilRadii
+	}
+
+	if len(soilRadii) == 0 {
+		return SoilRadiusMZero
+	}
+	randInt := rand.IntN(len(soilRadii))
+	return soilRadii[randInt]
 }
 
-func NewMediumSizedSoil(soilMeta SoilMeta, centre Coordinates, createdAt time.Time) *Soil {
-	return newSoil(soilMeta, centre, createdAt, SoilRadiusMMedium)
+func MapToNewSizedSoilFn(radius float64) func(SoilMeta, Coordinates) *Soil {
+	fns := map[float64]func(SoilMeta, Coordinates) *Soil{
+		SoilRadiusMSmall:  NewSmallSizedSoil,
+		SoilRadiusMMedium: NewMediumSizedSoil,
+		SoilRadiusMLarge:  NewLargeSizedSoil,
+	}
+	return fns[radius]
 }
 
-func NewLargeSizedSoil(soilMeta SoilMeta, centre Coordinates, createdAt time.Time) *Soil {
-	return newSoil(soilMeta, centre, createdAt, SoilRadiusMLarge)
+func RandomSoilMeta() SoilMeta {
+	soilMetas := []SoilMeta{
+		DefaultSoilMetaLoam,
+		DefaultSoilMetaSandy,
+		DefaultSoilMetaSilt,
+		DefaultSoilMetaClay,
+	}
+	randInt := rand.IntN(len(soilMetas))
+	return soilMetas[randInt]
 }
 
-func newSoil(soilMeta SoilMeta, centre Coordinates, createdAt time.Time, radiusM float64) *Soil {
+func NewSmallSizedSoil(soilMeta SoilMeta, centre Coordinates) *Soil {
+	return newSoil(soilMeta, centre, SoilRadiusMSmall)
+}
+
+func NewMediumSizedSoil(soilMeta SoilMeta, centre Coordinates) *Soil {
+	return newSoil(soilMeta, centre, SoilRadiusMMedium)
+}
+
+func NewLargeSizedSoil(soilMeta SoilMeta, centre Coordinates) *Soil {
+	return newSoil(soilMeta, centre, SoilRadiusMLarge)
+}
+
+func newSoil(soilMeta SoilMeta, centre Coordinates, radiusM float64) *Soil {
 	randomOffset := math.Round((rand.Float64()-0.5)*0.2*100) / 100 // ≈±0.1
 	soilMeta.NutrientRichness = math.Max(0.05, math.Min(1.00, soilMeta.NutrientRichness+randomOffset))
 
@@ -86,8 +131,7 @@ func newSoil(soilMeta SoilMeta, centre Coordinates, createdAt time.Time, radiusM
 			centre:  centre,
 			radiusM: radiusM,
 		},
-		CreatedAt: createdAt,
-		SoilMeta:  soilMeta,
+		SoilMeta: soilMeta,
 	}
 }
 

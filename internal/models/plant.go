@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	plantInteractionRadius = 3.0
+	PlantInteractionRadius = 3.0
 	wateringPlantXpGain    = 30 // TODO: Up for debate
 	minWateringInterval    = 6 * time.Hour
 )
@@ -47,7 +47,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, timePlanted time.Time)
 
 	nickname := "Atura" // TODO: Make a function to generate random whimsical names
 	seed.Planted = true
-	circleMeta := CircleMeta{radiusM: plantInteractionRadius, centre: centre}
+	circleMeta := CircleMeta{radiusM: PlantInteractionRadius, centre: centre}
 	if !soil.ContainsFullCircle(circleMeta) {
 		return nil, ErrPlantNotFullyInSoil
 	}
@@ -77,7 +77,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, timePlanted time.Time)
 		SeedMeta:    seed.SeedMeta,
 		CircleMeta: CircleMeta{
 			centre:  centre,
-			radiusM: plantInteractionRadius,
+			radiusM: PlantInteractionRadius,
 		},
 	}, nil
 }
