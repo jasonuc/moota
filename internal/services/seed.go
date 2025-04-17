@@ -1,0 +1,89 @@
+package services
+
+import (
+	"errors"
+
+	"github.com/jasonuc/moota/internal/models"
+	"github.com/jasonuc/moota/internal/store"
+)
+
+type SeedService struct {
+	soilService  *SoilService
+	plantService *PlantService
+	store        *store.Store
+}
+
+func NewSeedService(store *store.Store) *SeedService {
+	return &SeedService{
+		store: store,
+	}
+}
+
+type PlantSeedDto struct {
+	Longitude float64
+	Latitude  float64
+	SeedID    string
+	OwnerID   string
+}
+
+var (
+	ErrUnauthorizedSeedPlanting = errors.New("not authorised to plant this seed")
+	ErrNotPossibleToPlantSeed   = errors.New("not possible to plant seed")
+)
+
+func (s *SeedService) PlantSeed(dto PlantSeedDto) (*models.Plant, error) {
+	seed, err := s.store.Seed.Get(dto.SeedID)
+	if err != nil {
+		return nil, err
+	}
+
+	if seed.OwnerID != dto.OwnerID {
+		return nil, ErrUnauthorizedSeedPlanting
+	}
+
+	targetCentre := models.Coordinates{Lat: dto.Latitude, Lng: dto.Longitude}
+	plantCircleMeta := models.NewCircleMeta(targetCentre, models.PlantInteractionRadius)
+
+	nearbySoils, err := s.store.Soil.GetAllInProximity(targetCentre, models.SoilRadiusMLarge)
+	if err != nil {
+		return nil, err
+	}
+
+	transaction, err := s.store.Begin()
+	if err != nil {
+		return nil, store.ErrTransactionCouldNotStart
+	}
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	if len(nearbySoils) == 0 {
+		soil, err := s.soilService.CreateSoil(tx, targetCentre, nearbySoils)
+		if err != nil {
+			return nil, err
+		}
+		nearbySoils = append(nearbySoils, soil)
+	}
+
+	var targetSoil *models.Soil = nil
+	for _, soil := range nearbySoils {
+		if soil.ContainsFullCircle(plantCircleMeta) {
+			targetSoil = soil
+		}
+	}
+
+	if targetSoil == nil {
+		return nil, ErrNotPossibleToPlantSeed
+	}
+
+	plant, err := s.plantService.CreatePlant(tx, targetSoil, seed, targetCentre)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Seed.MarkAsPlanted(seed.ID); err != nil {
+		return nil, err
+	}
+	return plant, nil
+}
