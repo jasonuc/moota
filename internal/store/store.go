@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/jasonuc/moota/internal/models"
 )
@@ -44,6 +45,10 @@ type Store struct {
 		Delete(string) error
 	}
 }
+
+var (
+	ErrTransactionCouldNotStart = errors.New("transaction could not be started")
+)
 
 type Querier interface {
 	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
