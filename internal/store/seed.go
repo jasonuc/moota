@@ -1,6 +1,9 @@
 package store
 
 import (
+	"database/sql"
+	"errors"
+
 	"github.com/jasonuc/moota/internal/models"
 )
 
@@ -48,7 +51,12 @@ func (s *seedStore) Get(id string) (*models.Seed, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, models.ErrSeedNotFound
+		default:
+			return nil, err
+		}
 	}
 
 	return seed, nil
@@ -91,16 +99,12 @@ func (s *seedStore) Delete(id string) error {
 	return nil
 }
 
-func (s *seedStore) MarkAsPlanted(seed *models.Seed) error {
-	if !seed.Planted {
-		return models.ErrSeedAlreadyPlanted
-	}
-
+func (s *seedStore) MarkAsPlanted(seedID string) error {
 	q := `UPDATE seeds
-		SET planted = $2
+		SET planted = True
 		WHERE id = $1;`
 
-	res, err := s.db.Exec(q, seed.ID, seed.Planted)
+	res, err := s.db.Exec(q, seedID)
 	if err != nil {
 		return err
 	}

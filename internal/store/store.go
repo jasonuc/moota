@@ -40,7 +40,7 @@ type Store struct {
 		Get(string) (*models.Seed, error)
 		GetAllByOwnerID(string) ([]*models.Seed, error)
 		Insert(*models.Seed) error
-		MarkAsPlanted(*models.Seed) error
+		MarkAsPlanted(string) error
 		Delete(string) error
 	}
 }
