@@ -58,9 +58,9 @@ type Soil struct {
 
 const (
 	SoilRadiusMZero   = 0.0
-	SoilRadiusMSmall  = 8.92  // For ≈250 sq. meters
-	SoilRadiusMMedium = 17.84 // For ≈1,000 sq. meters
-	SoilRadiusMLarge  = 30.90 // For ≈3,000 sq. meters
+	SoilRadiusMSmall  = 17.5  // For ≈962.11 sq. meters
+	SoilRadiusMMedium = 22.0  // For ≈1,520.53 sq. meters
+	SoilRadiusMLarge  = 30.90 // For ≈3,000.00 sq. meters
 )
 
 func RandomSoilRadius(filterRadius float64) float64 {
