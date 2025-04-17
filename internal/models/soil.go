@@ -58,27 +58,27 @@ type Soil struct {
 
 const (
 	SoilRadiusMZero   = 0.0
-	SoilRadiusMSmall  = 17.5  // For ≈962.11 sq. meters
-	SoilRadiusMMedium = 22.0  // For ≈1,520.53 sq. meters
-	SoilRadiusMLarge  = 30.90 // For ≈3,000.00 sq. meters
+	SoilRadiusMSmall  = 17.5  // Circle Area is ≈962.11 sq. meters
+	SoilRadiusMMedium = 22.0  // Circle Area is ≈1,520.53 sq. meters
+	SoilRadiusMLarge  = 30.90 // Circle Area is ≈3,000.00 sq. meters
 )
 
-func RandomSoilRadius(filterRadius float64) float64 {
+type RandomSoilRadiusParam struct{ MaxRadius float64 }
+
+func RandomSoilRadius(filter RandomSoilRadiusParam) float64 {
 	soilRadii := []float64{
 		SoilRadiusMSmall,
 		SoilRadiusMMedium,
 		SoilRadiusMLarge,
 	}
 
-	if filterRadius > 0 {
-		filteredSoilRadii := []float64{}
-		for _, radius := range soilRadii {
-			if radius <= filterRadius {
-				filteredSoilRadii = append(filteredSoilRadii, radius)
-			}
+	filteredSoilRadii := []float64{}
+	for _, radius := range soilRadii {
+		if radius <= filter.MaxRadius {
+			filteredSoilRadii = append(filteredSoilRadii, radius)
 		}
-		soilRadii = filteredSoilRadii
 	}
+	soilRadii = filteredSoilRadii
 
 	if len(soilRadii) == 0 {
 		return SoilRadiusMZero
