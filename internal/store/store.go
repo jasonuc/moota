@@ -22,6 +22,7 @@ type Store struct {
 	Plant interface {
 		Get(string) (*models.Plant, error)
 		GetAllByOwnerID(string) ([]*models.Plant, error)
+		GetAllInSoil(string) ([]*models.Plant, error)
 		GetByOwnerIDAndProximity(string, models.Coordinates, float64) ([]*models.Plant, error)
 		Insert(*models.Plant) error
 		Update(*models.Plant) error

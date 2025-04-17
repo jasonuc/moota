@@ -40,7 +40,7 @@ type Plant struct {
 	CircleMeta
 }
 
-func NewPlant(seed *Seed, soil *Soil, centre Coordinates, timePlanted time.Time) (*Plant, error) {
+func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 	if seed.Planted {
 		return nil, ErrSeedAlreadyPlanted
 	}
@@ -66,15 +66,14 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates, timePlanted time.Time)
 	}
 
 	return &Plant{
-		Nickname:    nickname,
-		Hp:          seed.Hp + healthOffset,
-		Soil:        soil,
-		OwnerID:     seed.OwnerID,
-		Dead:        false,
-		LevelMeta:   NewLeveLMeta(1, xpBonus),
-		Tempers:     NewTempers(),
-		TimePlanted: timePlanted,
-		SeedMeta:    seed.SeedMeta,
+		Nickname:  nickname,
+		Hp:        seed.Hp + healthOffset,
+		Soil:      soil,
+		OwnerID:   seed.OwnerID,
+		Dead:      false,
+		LevelMeta: NewLeveLMeta(1, xpBonus),
+		Tempers:   NewTempers(),
+		SeedMeta:  seed.SeedMeta,
 		CircleMeta: CircleMeta{
 			centre:  centre,
 			radiusM: PlantInteractionRadius,

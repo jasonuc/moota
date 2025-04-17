@@ -10,6 +10,50 @@ type plantStore struct {
 	db Querier
 }
 
+func (s *plantStore) GetAllInSoil(soilID string) ([]*models.Plant, error) {
+	q := `SELECT id, nickname, hp, dead, owner_id, planted_at, last_watered_at, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice FROM plants
+			WHERE soil_id = $1 AND dead = false;`
+
+	rows, err := s.db.Query(q, soilID)
+	if err != nil {
+		return nil, err
+	}
+	//nolint:errcheck
+	defer rows.Close()
+
+	plants := make([]*models.Plant, 0)
+	for rows.Next() {
+		var centreText string
+		var radiusM float64
+
+		plant := new(models.Plant)
+		err := rows.Scan(
+			&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
+			&plant.TimePlanted, &plant.LastWateredAt, &plant.LastActionTime, &centreText,
+			&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.Xp,
+			&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		centre, err := models.CoordinatesFromPostGIS(centreText)
+		if err != nil {
+			return nil, err
+		}
+
+		plant.CircleMeta = models.NewCircleMeta(centre, radiusM)
+
+		plants = append(plants, plant)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return plants, nil
+}
+
 func (s *plantStore) GetAllByOwnerID(ownerID string) ([]*models.Plant, error) {
 	q := `SELECT id, nickname, hp, dead, owner_id, planted_at, last_watered_at, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice FROM plants
 			WHERE owner_id = $1 AND dead = false;`
