@@ -31,7 +31,6 @@ func (s *PlantService) ConfirmPlantCreation(plantID string) (*models.Plant, erro
 		return nil, fmt.Errorf("plant already activated")
 	}
 
-	plant.Activated = true
 	if err := s.store.Plant.ActivatePlant(plant.ID); err != nil {
 		return nil, err
 	}
