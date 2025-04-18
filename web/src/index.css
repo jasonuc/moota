@@ -21,6 +21,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+body {
+  @apply bg-background;
+}
+
 :root {
   --background: oklch(96.47% 0.0401 157.79);
   --secondary-background: oklch(100% 0 0);

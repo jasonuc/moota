@@ -4,7 +4,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 export const Route = createRootRoute({
     component: () => (
         <>
-            <div className="font-archivo p-10 bg-background min-h-screen w-full">
+            <div className="font-archivo p-5 md:p-10 min-h-screen w-full">
                 <Outlet />
             </div>
             <TanStackRouterDevtools />

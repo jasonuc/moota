@@ -5,7 +5,7 @@ export default function MyNearbyPlants() {
         <div className="flex flex-col">
             <h1 className="text-3xl font-heading mb-5">My Nearby Plants</h1>
 
-            <div className="flex flex-col space-y-4 h-[40rem]">
+            <div className="flex flex-col space-y-5">
                 {[1, 2, 3, 4].map((_, key) => (
                     <Plant key={key} nickname="Sproutlet" botanicalName="Monstera deliciosa" hp={50} />
                 ))}
