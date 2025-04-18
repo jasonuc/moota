@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS plants (
 	time_planted TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	last_watered_at TIMESTAMPTZ,
 	last_action_time TIMESTAMPTZ,
+	activated BOOLEAN NOT NULL DEFAULT FALSE,
 	centre GEOGRAPHY (POINT) NOT NULL,
 	radius_m DOUBLE PRECISION NOT NULL,
 	soil_id UUID REFERENCES soils (id),

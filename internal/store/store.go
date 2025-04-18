@@ -25,6 +25,7 @@ type Store struct {
 		GetAllByOwnerID(string) ([]*models.Plant, error)
 		GetAllInSoilAndInProximity(string, models.Coordinates, float64) ([]*models.Plant, error)
 		GetByOwnerIDAndProximity(string, models.Coordinates, float64) ([]*models.Plant, error)
+		ActivatePlant(string, string) error
 		Insert(*models.Plant) error
 		Update(*models.Plant) error
 		Delete(string) error
