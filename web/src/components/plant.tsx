@@ -10,8 +10,8 @@ type PlantProps = {
 
 export default function Plant({ nickname, botanicalName, hp }: PlantProps) {
     return (
-        <Button asChild className="relative overflow-hidden group">
-            <Card className="min-h-fit gap-y-1.5 bg-background flex w-full">
+        <Button asChild className="relative overflow-hidden group h-fit">
+            <Card className="gap-y-1.5 bg-background flex w-full">
                 <CardContent className="flex justify-end w-full p-0 pt-1.5">
                     <div className="flex items-center gap-x-2">
                         <Heart size={15} />
