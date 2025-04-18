@@ -1,4 +1,4 @@
-import HomeHeader from '@/components/home-header'
+import DashboardHeader from '@/components/dashboard-header'
 import MyNearbyPlants from '@/components/my-nearby-plants';
 import { Button } from '@/components/ui/button';
 import { createFileRoute } from '@tanstack/react-router'
@@ -13,7 +13,7 @@ function RouteComponent() {
 
     return (
         <div className='flex flex-col space-y-6'>
-            <HomeHeader seedCount={seedCount} />
+            <DashboardHeader seedCount={seedCount} />
 
             <MyNearbyPlants />
 
