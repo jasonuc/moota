@@ -10,3 +10,9 @@ dbu:
 
 dbd:
 	@migrate -path=$(MIGRATIONS_PATH) -database=$(DB_ADDR) -verbose down $(filter-out $@,$(MAKECMDGOALS))
+
+wdev:
+	@cd web/ && pnpm run dev
+
+ideps:
+	@cd web/ && pnpm i
