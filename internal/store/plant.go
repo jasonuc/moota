@@ -10,6 +10,51 @@ type plantStore struct {
 	db Querier
 }
 
+func (s *plantStore) GetByOwnerIDAndOrderByProximity(ownerID string, point models.Coordinates) ([]*models.Plant, error) {
+	q := `SELECT id, nickname, hp, dead, owner_id, planted_at, last_watered_at, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice FROM plants
+			WHERE owner_id = $1 AND activated = true AND dead = false
+			ORDER BY ST_Distance(centre, ST_SetSRID(ST_MakePoint($2, $3), 4326)::GEOGRAPHY);`
+
+	rows, err := s.db.Query(q, ownerID, point.Lng, point.Lat)
+	if err != nil {
+		return nil, err
+	}
+	//nolint:errcheck
+	defer rows.Close()
+
+	plants := make([]*models.Plant, 0)
+	for rows.Next() {
+		var centreText string
+		var radiusM float64
+
+		plant := new(models.Plant)
+		err := rows.Scan(
+			&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
+			&plant.TimePlanted, &plant.LastWateredAt, &plant.LastActionTime, &centreText,
+			&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.Xp,
+			&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.Activated,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		centre, err := models.CoordinatesFromPostGIS(centreText)
+		if err != nil {
+			return nil, err
+		}
+
+		plant.CircleMeta = models.NewCircleMeta(centre, radiusM)
+
+		plants = append(plants, plant)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return plants, nil
+}
+
 func (s *plantStore) GetPendingPlant(plantID string, soilID string) (*models.Plant, error) {
 	q := `SELECT id, nickname, hp, dead, owner_id, planted_at, last_watered_at, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, activated FROM plants
 			WHERE id = $1 AND soil_id = $2 AND dead = false AND activated = false;`
@@ -133,7 +178,7 @@ func (s *plantStore) GetAllByOwnerID(ownerID string) ([]*models.Plant, error) {
 
 func (s *plantStore) GetByOwnerIDAndProximity(ownerID string, point models.Coordinates, distanceM float64) ([]*models.Plant, error) {
 	q := `SELECT id, nickname, hp, dead, owner_id, planted_at, last_watered_at, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, activated FROM plants
-			WHERE ST_DWithin(centre, ST_Point($1, $2)::GEOGRAPHY, $3) AND owner_id = $4 AND activated = true;`
+			WHERE ST_DWithin(centre, ST_Point($1, $2)::GEOGRAPHY, $3) AND owner_id = $4 AND activated = true AND dead = false;`
 
 	rows, err := s.db.Query(q, point.Lng, point.Lat, distanceM, ownerID)
 	if err != nil {
@@ -177,7 +222,7 @@ func (s *plantStore) Get(id string) (*models.Plant, error) {
 			p.radius_m, p.soil_id, p.optimal_soil, p.botanical_name, p.level, p.xp, p.woe, p.frolic, p.dread, p.malice, p.activated, 
 			ST_AsText(s.centre), s.radius_m, s.soil_type, s.water_retention, s.nutrient_richness, s.created_at
 			FROM plants p JOIN soils s ON p.soil_id = s.id
-			WHERE p.id = $1 AND p.activated = true;`
+			WHERE p.id = $1 AND p.activated = true AND p.dead = false;`
 
 	var plantCentreText string
 	var plantRadiusM float64
