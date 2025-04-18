@@ -22,6 +22,22 @@ var (
 	ErrNotPossibleToCreatePlant = errors.New("not possible to create plant here")
 )
 
+func (s *PlantService) ConfirmPlantCreation(plantID string) (*models.Plant, error) {
+	plant, err := s.store.Plant.Get(plantID)
+	if err != nil {
+		return nil, err
+	}
+	if plant.Activated {
+		return nil, fmt.Errorf("plant already activated")
+	}
+
+	plant.Activated = true
+	if err := s.store.Plant.ActivatePlant(plant.ID); err != nil {
+		return nil, err
+	}
+	return s.store.Plant.Get(plant.ID)
+}
+
 func (s *PlantService) GetUserPlants(ownerID string) ([]*models.Plant, error) {
 	plants, err := s.store.Plant.GetAllByOwnerID(ownerID)
 	if err != nil {

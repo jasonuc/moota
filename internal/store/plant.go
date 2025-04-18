@@ -266,11 +266,11 @@ func (s *plantStore) Update(plant *models.Plant) error {
 	return nil
 }
 
-func (s *plantStore) ActivatePlant(plantID string, ownerID string) error {
+func (s *plantStore) ActivatePlant(plantID string) error {
 	q := `UPDATE plants 
-          SET activated = true, owner_id = $1
-          WHERE id = $2 AND activated = false;`
-	res, err := s.db.Exec(q, ownerID, plantID)
+          SET activated = true
+          WHERE id = $1 AND activated = false;`
+	res, err := s.db.Exec(q, plantID)
 	if err != nil {
 		return err
 	}
