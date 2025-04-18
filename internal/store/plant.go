@@ -90,7 +90,7 @@ func (s *plantStore) GetPendingPlant(plantID string, soilID string) (*models.Pla
 func (s *plantStore) GetAllInSoilAndInProximity(soilID string, point models.Coordinates, distanceM float64) ([]*models.Plant, error) {
 	q := `SELECT id, nickname, hp, dead, owner_id, planted_at, last_watered_at, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, activated FROM plants
 			WHERE soil_id = $1 AND dead = false AND activated = true
-			AND ST_DWithin(centre, ST_Point($2, $3)::GEOGRAPHY, $4);`
+			AND ST_DWithin(centre, ST_SetSRID(ST_MakePoint($2, $3), 4326)::GEOGRAPHY, $4);`
 
 	rows, err := s.db.Query(q, soilID, point.Lng, point.Lat, distanceM)
 	if err != nil {
@@ -178,7 +178,7 @@ func (s *plantStore) GetAllByOwnerID(ownerID string) ([]*models.Plant, error) {
 
 func (s *plantStore) GetByOwnerIDAndProximity(ownerID string, point models.Coordinates, distanceM float64) ([]*models.Plant, error) {
 	q := `SELECT id, nickname, hp, dead, owner_id, planted_at, last_watered_at, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, activated FROM plants
-			WHERE ST_DWithin(centre, ST_Point($1, $2)::GEOGRAPHY, $3) AND owner_id = $4 AND activated = true AND dead = false;`
+			WHERE ST_DWithin(centre, ST_SetSRID(ST_MakePoint($1, $2), 4326)::GEOGRAPHY, $3) AND owner_id = $4 AND activated = true;`
 
 	rows, err := s.db.Query(q, point.Lng, point.Lat, distanceM, ownerID)
 	if err != nil {

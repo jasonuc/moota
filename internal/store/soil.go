@@ -42,7 +42,7 @@ func (s *soilStore) Get(id string) (*models.Soil, error) {
 
 func (s *soilStore) GetAllInProximity(point models.Coordinates, distanceM float64) ([]*models.Soil, error) {
 	q := `SELECT id, ST_AsText(centre) as centre, radius_m, soil_type, water_retention, nutrient_richness, created_at FROM soils
-			WHERE ST_DWithin(centre, ST_Point($1, $2)::GEOGRAPHY, $3);`
+			WHERE ST_DWithin(centre, ST_SetSRID(ST_MakePoint($1, $2), 4326)::GEOGRAPHY, $3);`
 
 	rows, err := s.db.Query(q, point.Lng, point.Lat, distanceM)
 	if err != nil {
