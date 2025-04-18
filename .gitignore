@@ -62,3 +62,6 @@ go.work.sum
 
 # env file
 .env
+
+web/node_modules/
+web/.vite
