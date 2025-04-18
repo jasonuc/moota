@@ -1,22 +1,34 @@
 import { Heart } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Link } from "@tanstack/react-router";
+import { Button } from "./ui/button";
 
-export default function Plant() {
+type PlantProps = {
+    nickname: string
+    botanicalName: string
+    hp: number
+}
+
+export default function Plant({ nickname, botanicalName, hp }: PlantProps) {
     return (
-        <Link to="/dashboard">
-            <Card className="w-full min-h-fit gap-y-1.5 active:scale-[98%] transition-all duration-150 bg-secondary">
-                <CardContent className="flex justify-end">
+        <Button asChild className="relative overflow-hidden group">
+            <Card className="min-h-fit gap-y-1.5 bg-background flex w-full">
+                <CardContent className="flex justify-end w-full p-0 pt-1.5">
                     <div className="flex items-center gap-x-2">
                         <Heart size={15} />
-                        50%
+                        {hp}%
                     </div>
                 </CardContent>
-                <CardHeader>
-                    <CardTitle className="text-xl font-bold">Sproutlet</CardTitle>
-                    <CardDescription className="italic">Monstera deliciosa</CardDescription>
+                <CardHeader className="w-full p-0 pb-3">
+                    <CardTitle className="text-lg font-bold">{nickname}</CardTitle>
+                    <CardDescription className="italic">{botanicalName}</CardDescription>
                 </CardHeader>
+
+                <img
+                    src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${nickname}&backgroundColor=${"transparent"}`}
+                    alt="avatar"
+                    className="size-20 absolute -bottom-1/4 right-0 group-hover:-bottom-5 transition-all duration-100 rounded-l-md"
+                />
             </Card >
-        </Link>
+        </Button>
     )
 }

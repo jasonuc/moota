@@ -18,11 +18,12 @@ function RouteComponent() {
             <MyNearbyPlants />
 
             <div className="w-full grid grid-cols-2 gap-3">
-                <Button>
+                <Button className='hover:cursor-pointer'>
                     My Plants
                     <SproutIcon className="ml-2" />
                 </Button>
-                <Button>
+
+                <Button className='hover:cursor-pointer'>
                     Plant Seed
                     <BeanIcon className="ml-2" />
                 </Button>

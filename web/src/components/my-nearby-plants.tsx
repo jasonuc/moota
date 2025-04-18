@@ -6,8 +6,8 @@ export default function MyNearbyPlants() {
             <h1 className="text-3xl font-heading mb-5">My Nearby Plants</h1>
 
             <div className="flex flex-col space-y-4 h-[40rem]">
-                {[1,2,3,4].map((_, key) => (
-                    <Plant key={key} />
+                {[1, 2, 3, 4].map((_, key) => (
+                    <Plant key={key} nickname="Sproutlet" botanicalName="Monstera deliciosa" hp={50} />
                 ))}
             </div>
         </div>
