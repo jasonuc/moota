@@ -37,7 +37,7 @@ func (s *PlantService) ConfirmPlantCreation(plantID string) (*models.Plant, erro
 	return s.store.Plant.Get(plant.ID)
 }
 
-func (s *PlantService) GetUserPlants(ownerID string) ([]*models.Plant, error) {
+func (s *PlantService) GetAllUserPlants(ownerID string) ([]*models.Plant, error) {
 	plants, err := s.store.Plant.GetAllByOwnerID(ownerID)
 	if err != nil {
 		return nil, err

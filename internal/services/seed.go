@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/store"
@@ -28,11 +27,12 @@ type PlantSeedDto struct {
 }
 
 var (
-	ErrUnauthorizedSeedPlanting = errors.New("not authorised to plant this seed")
-	ErrNotPossibleToPlantSeed   = errors.New("not possible to plant seed")
+	ErrUnauthorizedSeedPlanting  = errors.New("not authorised to plant this seed")
+	ErrNotPossibleToPlantSeed    = errors.New("not possible to plant seed")
+	ErrInvalidPermissionsForSeed = errors.New("invalid permissions to retreive seed")
 )
 
-func (s *SeedService) GetUserSeeds(ownerID string) ([]*models.Seed, error) {
+func (s *SeedService) GetAllUserSeeds(ownerID string) ([]*models.Seed, error) {
 	seeds, err := s.store.Seed.GetAllByOwnerID(ownerID)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (s *SeedService) GetSeed(ownerID, seedID string) (*models.Seed, error) {
 		return nil, err
 	}
 	if seed.OwnerID == ownerID {
-		return nil, fmt.Errorf("access denied: you do not own this plant")
+		return nil, ErrInvalidPermissionsForSeed
 	}
 	return seed, nil
 }
