@@ -11,10 +11,24 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as SeedsImport } from './routes/seeds'
+import { Route as PlantsImport } from './routes/plants'
 import { Route as IndexImport } from './routes/index'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
 
 // Create/Update Routes
+
+const SeedsRoute = SeedsImport.update({
+  id: '/seeds',
+  path: '/seeds',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PlantsRoute = PlantsImport.update({
+  id: '/plants',
+  path: '/plants',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -39,6 +53,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/plants': {
+      id: '/plants'
+      path: '/plants'
+      fullPath: '/plants'
+      preLoaderRoute: typeof PlantsImport
+      parentRoute: typeof rootRoute
+    }
+    '/seeds': {
+      id: '/seeds'
+      path: '/seeds'
+      fullPath: '/seeds'
+      preLoaderRoute: typeof SeedsImport
+      parentRoute: typeof rootRoute
+    }
     '/dashboard/': {
       id: '/dashboard/'
       path: '/dashboard'
@@ -53,36 +81,46 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/plants': typeof PlantsRoute
+  '/seeds': typeof SeedsRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/plants': typeof PlantsRoute
+  '/seeds': typeof SeedsRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/plants': typeof PlantsRoute
+  '/seeds': typeof SeedsRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard'
+  fullPaths: '/' | '/plants' | '/seeds' | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard'
-  id: '__root__' | '/' | '/dashboard/'
+  to: '/' | '/plants' | '/seeds' | '/dashboard'
+  id: '__root__' | '/' | '/plants' | '/seeds' | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PlantsRoute: typeof PlantsRoute
+  SeedsRoute: typeof SeedsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PlantsRoute: PlantsRoute,
+  SeedsRoute: SeedsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
@@ -97,11 +135,19 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/plants",
+        "/seeds",
         "/dashboard/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/plants": {
+      "filePath": "plants.tsx"
+    },
+    "/seeds": {
+      "filePath": "seeds.tsx"
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx"

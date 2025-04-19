@@ -32,7 +32,7 @@ export default function Plant({ nickname, botanicalName, hp, distance }: PlantPr
                     src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${nickname}&backgroundColor=${"transparent"}`}
                     alt="avatar"
                     draggable={false}
-                    className="size-20 absolute -bottom-1/4 right-0 group-hover:-bottom-5 group-active:-bottom-5 transition-all duration-100 rounded-l-md"
+                    className="size-20 pointer-events-none absolute -bottom-1/4 right-0 group-hover:-bottom-5 group-active:-bottom-5 transition-all duration-100 rounded-l-md"
                 />
             </Card >
         </Button>
