@@ -1,4 +1,4 @@
-import { Heart } from "lucide-react";
+import { Heart, LocateFixed } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "./ui/button";
 
@@ -6,16 +6,21 @@ type PlantProps = {
     nickname: string
     botanicalName: string
     hp: number
+    distance: number
 }
 
-export default function Plant({ nickname, botanicalName, hp }: PlantProps) {
+export default function Plant({ nickname, botanicalName, hp, distance }: PlantProps) {
     return (
         <Button asChild className="relative overflow-hidden group h-fit">
             <Card className="gap-y-1.5 bg-background flex w-full">
-                <CardContent className="flex justify-end w-full p-0 pt-1.5">
-                    <div className="flex items-center gap-x-2">
+                <CardContent className="flex justify-end w-full gap-x-2 p-0 pt-1.5">
+                    <div className="flex items-center gap-x-1.5">
                         <Heart size={15} />
                         {hp}%
+                    </div>
+                    <div className="flex items-center gap-x-1.5">
+                        <LocateFixed size={15} />
+                        {distance}m
                     </div>
                 </CardContent>
                 <CardHeader className="w-full p-0 pb-3">
