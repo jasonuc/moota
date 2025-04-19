@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/store"
@@ -12,6 +13,15 @@ type PlantService struct {
 	store *store.Store
 }
 
+type ActionOnPlantReqDto struct {
+	Action    int
+	Longitude float64
+	Latitude  float64
+	Time      time.Time
+	UserID    string
+	PlantID   string
+}
+
 func NewPlantService(store *store.Store) *PlantService {
 	return &PlantService{
 		store: store,
@@ -19,7 +29,9 @@ func NewPlantService(store *store.Store) *PlantService {
 }
 
 var (
-	ErrNotPossibleToCreatePlant = errors.New("not possible to create plant here")
+	ErrNotPossibleToCreatePlant      = errors.New("not possible to create plant here")
+	ErrOutsidePlantInteractionRadius = errors.New("user is not within plant interaction radius")
+	ErrInvalidPlantAction            = errors.New("invalid plant action")
 )
 
 func (s *PlantService) ConfirmPlantCreation(plantID string) (*models.Plant, error) {
@@ -87,4 +99,32 @@ func (s *PlantService) IsPlantValidForSoil(plantCircleMeta models.CircleMeta, ne
 
 	_, ok := plantsOverlapMap[true]
 	return !ok
+}
+
+func (s *PlantService) ActionOnPlant(dto ActionOnPlantReqDto) (*models.Plant, error) {
+	if !models.ValidPlantAction(dto.Action) {
+		return nil, ErrInvalidPlantAction
+	}
+
+	plant, err := s.GetPlant(dto.UserID, dto.PlantID)
+	if err != nil {
+		return nil, err
+	}
+
+	userCoords := models.Coordinates{Lng: dto.Longitude, Lat: dto.Latitude}
+	if !plant.ContainsPoint(userCoords) {
+		return nil, ErrOutsidePlantInteractionRadius
+	}
+
+	_, err = plant.Action(models.PlantAction(dto.Action), dto.Time)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.store.Plant.Update(plant)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.GetPlant(plant.OwnerID, dto.PlantID)
 }

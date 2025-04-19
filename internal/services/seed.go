@@ -19,7 +19,7 @@ func NewSeedService(store *store.Store) *SeedService {
 	}
 }
 
-type PlantSeedDto struct {
+type PlantSeedReqDto struct {
 	Longitude float64
 	Latitude  float64
 	SeedID    string
@@ -51,7 +51,7 @@ func (s *SeedService) GetSeed(ownerID, seedID string) (*models.Seed, error) {
 	return seed, nil
 }
 
-func (s *SeedService) PlantSeed(dto PlantSeedDto) (*models.Plant, error) {
+func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 	seed, err := s.store.Seed.Get(dto.SeedID)
 	if err != nil {
 		return nil, err

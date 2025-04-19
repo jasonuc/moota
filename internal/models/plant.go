@@ -24,6 +24,13 @@ const (
 	PlantActionWater PlantAction = iota
 )
 
+func ValidPlantAction(action int) bool {
+	m := map[PlantAction]bool{
+		PlantActionWater: true,
+	}
+	return m[PlantAction(action)]
+}
+
 type Plant struct {
 	ID             string
 	Nickname       string
