@@ -22,14 +22,14 @@ function RouteComponent() {
                 <Button
                     onClick={() => navigate({ to: "/dashboard" })}
                     className='hover:cursor-pointer grow'>
-                    My Plants
+                    Plants
                     <SproutIcon className="ml-2" />
                 </Button>
 
                 <Button
                     onClick={() => navigate({ to: "/dashboard" })}
                     className='hover:cursor-pointer grow'>
-                    Plant Seed
+                    Seeds
                     <BeanIcon className="ml-2" />
                 </Button>
             </div>
