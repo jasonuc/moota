@@ -1,6 +1,7 @@
 import Header from '@/components/header'
 import { Button } from '@/components/ui/button'
 import { createFileRoute } from '@tanstack/react-router'
+import { AudioLinesIcon } from 'lucide-react'
 
 export const Route = createFileRoute('/seeds')({
   component: RouteComponent,
@@ -55,9 +56,18 @@ function RouteComponent() {
       <div className="grid grid-cols-3 md:grid-cols-4 gap-5">
         {seeds.map(({ id, botanicalName, count }) => (
           <Button asChild className="relative h-36" key={id}>
-            <div className="size-full">
-              {count > 1 && <small className="absolute right-2 -top-2 bg-background px-2 rounded-full">x{count}</small>}
-              <p className="text-wrap text-center">{botanicalName}</p>
+            <div className="size-full relative">
+              <AudioLinesIcon
+                className="absolute bottom-0 left-0 rotate-45" />
+              <AudioLinesIcon
+                className="absolute bottom-0 right-0 -rotate-45" />
+              <AudioLinesIcon
+                className="absolute top-0 right-0 rotate-45" />
+              {!(count > 1) && <AudioLinesIcon
+                className="absolute top-0 left-0 -rotate-45" />}
+
+              {count > 1 && <small className="absolute left-1 -top-2 bg-background px-2 rounded-full">x{count}</small>}
+              <p className="italic text-wrap text-center">{botanicalName}</p>
             </div>
           </Button>
         ))}
