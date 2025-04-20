@@ -28,6 +28,12 @@ func NewPlantService(store *store.Store) *PlantService {
 	}
 }
 
+func (s *PlantService) WithStore(store *store.Store) *PlantService {
+	copy := *s
+	copy.store = store
+	return &copy
+}
+
 var (
 	ErrNotPossibleToCreatePlant      = errors.New("not possible to create plant here")
 	ErrOutsidePlantInteractionRadius = errors.New("user is not within plant interaction radius")
@@ -68,9 +74,9 @@ func (s *PlantService) GetPlant(ownerID, plantID string) (*models.Plant, error) 
 	return plant, nil
 }
 
-func (s *PlantService) CreatePlant(tx *store.Store, soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
+func (s *PlantService) CreatePlant(soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
 	plantCircleMeta := models.NewCircleMeta(soil.Centre(), models.PlantInteractionRadius)
-	nearbyPlants, err := tx.Plant.GetAllInSoilAndInProximity(soil.ID, centre, models.PlantInteractionRadius+1)
+	nearbyPlants, err := s.store.Plant.GetAllInSoilAndInProximity(soil.ID, centre, models.PlantInteractionRadius+1)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +89,7 @@ func (s *PlantService) CreatePlant(tx *store.Store, soil *models.Soil, seed *mod
 		return nil, err
 	}
 
-	err = tx.Plant.Insert(plant)
+	err = s.store.Plant.Insert(plant)
 	if err != nil {
 		return nil, err
 	}

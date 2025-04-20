@@ -18,6 +18,12 @@ func NewSoilSerivce(store *store.Store) *SoilService {
 	}
 }
 
+func (s *SoilService) WithStore(store *store.Store) *SoilService {
+	copy := *s
+	copy.store = store
+	return &copy
+}
+
 var (
 	ErrNoSoilGenerated = errors.New("no soil generated")
 )

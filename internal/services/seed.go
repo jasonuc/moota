@@ -19,6 +19,12 @@ func NewSeedService(store *store.Store) *SeedService {
 	}
 }
 
+func (s *SeedService) WithStore(store *store.Store) *SeedService {
+	copy := *s
+	copy.store = store
+	return &copy
+}
+
 type PlantSeedReqDto struct {
 	Longitude float64
 	Latitude  float64
@@ -60,6 +66,8 @@ func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 	defer transaction.Rollback()
 
 	tx := s.store.WithTx(transaction)
+	soilService := s.soilService.WithStore(tx)
+	plantService := s.plantService.WithStore(tx)
 
 	seed, err := tx.Seed.Get(dto.SeedID)
 	if err != nil {
@@ -79,7 +87,7 @@ func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 	}
 
 	if len(nearbySoils) == 0 {
-		soil, err := s.soilService.CreateSoil(tx, targetCentre, nearbySoils)
+		soil, err := soilService.CreateSoil(tx, targetCentre, nearbySoils)
 		if err != nil {
 			return nil, err
 		}
@@ -97,7 +105,7 @@ func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 		return nil, ErrNotPossibleToPlantSeed
 	}
 
-	plant, err := s.plantService.CreatePlant(tx, targetSoil, seed, targetCentre)
+	plant, err := plantService.CreatePlant(targetSoil, seed, targetCentre)
 	if err != nil {
 		return nil, err
 	}
