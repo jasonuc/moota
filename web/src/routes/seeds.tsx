@@ -1,4 +1,4 @@
-import DashboardHeader from '@/components/dashboard-header'
+import Header from '@/components/header'
 import { Button } from '@/components/ui/button'
 import { createFileRoute } from '@tanstack/react-router'
 
@@ -30,7 +30,7 @@ function RouteComponent() {
       id: 4,
       botanicalName: "Monstera deliciosa",
       createdAt: "2023-10-04",
-      count: 1,
+      count: 2,
     },
     {
       id: 5,
@@ -48,7 +48,7 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col space-y-5 pb-10">
-      <DashboardHeader seedCount={10} />
+      <Header seedCount={10} />
 
       <h1 className="text-3xl font-heading mb-5">My Seeds</h1>
 

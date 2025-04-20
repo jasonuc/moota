@@ -1,4 +1,4 @@
-import DashboardHeader from '@/components/dashboard-header'
+import Header from '@/components/header'
 import PlantsList from '@/components/plants-list';
 import { createFileRoute } from '@tanstack/react-router'
 
@@ -62,7 +62,7 @@ function RouteComponent() {
 
     return (
         <div className='flex flex-col space-y-5 pb-10'>
-            <DashboardHeader seedCount={seedCount} />
+            <Header seedCount={seedCount} />
 
             <h1 className="text-3xl font-heading mb-5">My Plants ({plants.length})</h1>
 

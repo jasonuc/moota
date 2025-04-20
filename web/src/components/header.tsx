@@ -2,11 +2,11 @@ import Seed from "./seed";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Link } from "@tanstack/react-router";
 
-type DashboardHeaderProps = {
+type HeaderProps = {
     seedCount: number
 };
 
-export default function DashboardHeader({ seedCount }: DashboardHeaderProps) {
+export default function Header({ seedCount }: HeaderProps) {
     return (
         <div className="flex w-full items-center justify-between">
             <Link to="/dashboard" className="flex items-center space-x-2">
@@ -25,7 +25,7 @@ export default function DashboardHeader({ seedCount }: DashboardHeaderProps) {
                 </div>
 
                 <Avatar>
-                    <AvatarImage src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${"jasonuc"}`} />
+                    <AvatarImage src={`https://api.dicebear.com/9.x/glass/svg?seed=${"jasonuc"}`} />
                     <AvatarFallback>
                         JA
                     </AvatarFallback>
