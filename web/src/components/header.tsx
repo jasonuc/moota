@@ -1,6 +1,7 @@
 import Seed from "./seed";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Link } from "@tanstack/react-router";
+import { Button } from "./ui/button";
 
 type HeaderProps = {
     seedCount: number
@@ -18,18 +19,18 @@ export default function Header({ seedCount }: HeaderProps) {
             </Link>
 
             <div className="flex items-center space-x-5">
-                <div className="">
-                    <div className="flex items-center space-x-0.5">
-                        <Seed number={seedCount} size={35} />
-                    </div>
+                <div className="flex items-center space-x-3">
+                    <Seed number={seedCount} size={40} />
                 </div>
 
-                <Avatar>
-                    <AvatarImage src={`https://api.dicebear.com/9.x/glass/svg?seed=${"jasonuc"}`} />
-                    <AvatarFallback>
-                        JA
-                    </AvatarFallback>
-                </Avatar>
+                <Button asChild className="p-0 border-0" variant="reverse">
+                    <Avatar>
+                        <AvatarImage className="size-[45px]" src={`https://api.dicebear.com/9.x/glass/svg?seed=${"jasonuc"}`} />
+                        <AvatarFallback>
+                            JA
+                        </AvatarFallback>
+                    </Avatar>
+                </Button>
             </div>
         </div>
     )
