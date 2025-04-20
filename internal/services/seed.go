@@ -52,7 +52,16 @@ func (s *SeedService) GetSeed(ownerID, seedID string) (*models.Seed, error) {
 }
 
 func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
-	seed, err := s.store.Seed.Get(dto.SeedID)
+	transaction, err := s.store.Begin()
+	if err != nil {
+		return nil, store.ErrTransactionCouldNotStart
+	}
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	seed, err := tx.Seed.Get(dto.SeedID)
 	if err != nil {
 		return nil, err
 	}
@@ -64,19 +73,10 @@ func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 	targetCentre := models.Coordinates{Lat: dto.Latitude, Lng: dto.Longitude}
 	plantCircleMeta := models.NewCircleMeta(targetCentre, models.PlantInteractionRadius)
 
-	nearbySoils, err := s.store.Soil.GetAllInProximity(targetCentre, models.SoilRadiusMLarge)
+	nearbySoils, err := tx.Soil.GetAllInProximity(targetCentre, models.SoilRadiusMLarge)
 	if err != nil {
 		return nil, err
 	}
-
-	transaction, err := s.store.Begin()
-	if err != nil {
-		return nil, store.ErrTransactionCouldNotStart
-	}
-	//nolint:errcheck
-	defer transaction.Rollback()
-
-	tx := s.store.WithTx(transaction)
 
 	if len(nearbySoils) == 0 {
 		soil, err := s.soilService.CreateSoil(tx, targetCentre, nearbySoils)

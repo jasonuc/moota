@@ -79,11 +79,11 @@ func (s *Store) Begin() (*Transaction, error) {
 	return &Transaction{tx: tx}, nil
 }
 
-func (s *Store) WithTx(tx *Transaction) *Store {
+func (s *Store) WithTx(transaction *Transaction) *Store {
 	return &Store{
-		User:  &userStore{tx.tx},
-		Seed:  &seedStore{tx.tx},
-		Plant: &plantStore{tx.tx},
-		Soil:  &soilStore{tx.tx},
+		User:  &userStore{transaction.tx},
+		Seed:  &seedStore{transaction.tx},
+		Plant: &plantStore{transaction.tx},
+		Soil:  &soilStore{transaction.tx},
 	}
 }

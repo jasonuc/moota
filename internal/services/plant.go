@@ -70,7 +70,7 @@ func (s *PlantService) GetPlant(ownerID, plantID string) (*models.Plant, error) 
 
 func (s *PlantService) CreatePlant(tx *store.Store, soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
 	plantCircleMeta := models.NewCircleMeta(soil.Centre(), models.PlantInteractionRadius)
-	nearbyPlants, err := s.store.Plant.GetAllInSoilAndInProximity(soil.ID, centre, models.PlantInteractionRadius+1)
+	nearbyPlants, err := tx.Plant.GetAllInSoilAndInProximity(soil.ID, centre, models.PlantInteractionRadius+1)
 	if err != nil {
 		return nil, err
 	}
