@@ -31,12 +31,12 @@ function RouteComponent() {
       hp: 80,
       distance: 150
     },
-    {
-      nickname: "Sproutlet",
-      botanicalName: "Monstera deliciosa",
-      hp: 50,
-      distance: 200
-    },
+    // {
+    //   nickname: "Sproutlet",
+    //   botanicalName: "Monstera deliciosa",
+    //   hp: 50,
+    //   distance: 200
+    // },
   ]
 
   return (
@@ -46,6 +46,8 @@ function RouteComponent() {
       <h1 className="text-3xl font-heading mb-5">My Nearby Plants</h1>
 
       <PlantsList plants={nearbyPlants} />
+
+      <div className='pt-20' />
 
       <div className="fixed left-0 bottom-0 w-full flex gap-x-5 p-5 md:p-10">
         <Button

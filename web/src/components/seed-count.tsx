@@ -1,11 +1,11 @@
 import { HexagonIcon } from "lucide-react"
 
-type SeedProps = {
+type SeedCountProps = {
     number: number
     size: number
 }
 
-export default function Seed({ number, size }: SeedProps) {
+export default function SeedCount({ number, size }: SeedCountProps) {
     return (
         <div className="relative inline-flex">
             <HexagonIcon size={size} strokeWidth={1} />

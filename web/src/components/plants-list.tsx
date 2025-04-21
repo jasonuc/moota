@@ -12,7 +12,6 @@ type PlantProps = {
     }[]
 }
 
-// TODO: Complete empty state
 export default function PlantsList({ plants, maxPlants = 4 }: PlantProps) {
     return (
         <div className="flex flex-col grow">
@@ -28,12 +27,14 @@ export default function PlantsList({ plants, maxPlants = 4 }: PlantProps) {
                     <div className="flex flex-col grow items-center justify-center gap-y-5 py-40">
                         <div className="flex flex-col items-center gap-y-1.5">
                             <h3 className="text-xl font-heading">{"Hello, there! 👋"}</h3>
-                            <p>You don't have any plants yet. Try adding some!</p>
+                            <p>You don't have any plants yet. Try planting some!</p>
                         </div>
                         <div className="flex flex-col md:flex-row gap-x-5 gap-y-5">
-                            <Button>
-                                Plant a seed
-                            </Button>
+                            <Link to="/seeds">
+                                <Button>
+                                    Plant a seed
+                                </Button>
+                            </Link>
                             <Link to="/">
                                 <Button variant="neutral">
                                     <p className="text-blue-600">Learn more</p>
@@ -42,6 +43,19 @@ export default function PlantsList({ plants, maxPlants = 4 }: PlantProps) {
                         </div>
                     </div>
                 )}
+
+            {
+                (plants.length < 4 && plants.length != 0) && (
+                    <div className="flex flex-col items-center gap-y-1.5 py-10">
+                        <h3 className="text-lg font-heading">{"Not enough plants :("}</h3>
+                        <Link
+                            to="/seeds"
+                            className="text-blue-700 underline underline-offset-2">
+                            <p>Try and make it to 4 plants. It's more fun that way!</p>
+                        </Link>
+                    </div>
+                )
+            }
         </div>
     )
 }
