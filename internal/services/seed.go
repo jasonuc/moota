@@ -19,12 +19,6 @@ func NewSeedService(store *store.Store) *SeedService {
 	}
 }
 
-func (s *SeedService) WithStore(store *store.Store) *SeedService {
-	copy := *s
-	copy.store = store
-	return &copy
-}
-
 type PlantSeedReqDto struct {
 	Longitude float64
 	Latitude  float64
@@ -66,8 +60,8 @@ func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 	defer transaction.Rollback()
 
 	tx := s.store.WithTx(transaction)
-	soilServiceWithTx := s.soilService.WithStore(tx)
-	plantServiceWithTx := s.plantService.WithStore(tx)
+	soilServiceWithTx := s.soilService.withStore(tx)
+	plantServiceWithTx := s.plantService.withStore(tx)
 
 	seed, err := tx.Seed.Get(dto.SeedID)
 	if err != nil {

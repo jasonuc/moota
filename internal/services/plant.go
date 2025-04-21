@@ -28,7 +28,7 @@ func NewPlantService(store *store.Store) *PlantService {
 	}
 }
 
-func (s *PlantService) WithStore(store *store.Store) *PlantService {
+func (s *PlantService) withStore(store *store.Store) *PlantService {
 	copy := *s
 	copy.store = store
 	return &copy

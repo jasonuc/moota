@@ -18,7 +18,7 @@ func NewSoilSerivce(store *store.Store) *SoilService {
 	}
 }
 
-func (s *SoilService) WithStore(store *store.Store) *SoilService {
+func (s *SoilService) withStore(store *store.Store) *SoilService {
 	copy := *s
 	copy.store = store
 	return &copy
@@ -51,7 +51,7 @@ func (s *SoilService) CreateSoil(centre models.Coordinates, nearbySoils []*model
 
 	filterForRadius := models.RandomSoilRadiusParam{MaxRadius: math.Inf(1)}
 	for _, soil := range overlappingSoils {
-		filterForRadius.MaxRadius = math.Min(filterForRadius.MaxRadius, s.MaxSoilRadius(newSoilCircleMeta, soil))
+		filterForRadius.MaxRadius = math.Min(filterForRadius.MaxRadius, s.maxSoilRadius(newSoilCircleMeta, soil))
 	}
 
 	radius = models.RandomSoilRadius(filterForRadius)
@@ -68,7 +68,7 @@ func (s *SoilService) CreateSoil(centre models.Coordinates, nearbySoils []*model
 	return soil, nil
 }
 
-func (s *SoilService) MaxSoilRadius(circleMeta models.CircleMeta, nearbySoil *models.Soil) float64 {
+func (s *SoilService) maxSoilRadius(circleMeta models.CircleMeta, nearbySoil *models.Soil) float64 {
 	d := circleMeta.Centre().DistanceM(nearbySoil.Centre())
 	maxRadius := d - nearbySoil.RadiusM() - 0.1 // the reason for the 0.1 subtraction is to prevent a possible case of tangential soils
 	return math.Max(0.0, maxRadius)
