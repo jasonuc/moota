@@ -7,6 +7,13 @@ import (
 	"github.com/jasonuc/moota/internal/models"
 )
 
+type SoilStore interface {
+	Get(string) (*models.Soil, error)
+	GetAllInProximity(models.Coordinates, float64) ([]*models.Soil, error)
+	Insert(*models.Soil) error
+	Delete(string) error
+}
+
 type soilStore struct {
 	db Querier
 }

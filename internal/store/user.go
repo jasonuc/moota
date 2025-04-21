@@ -4,6 +4,15 @@ import (
 	"github.com/jasonuc/moota/internal/models"
 )
 
+type UserStore interface {
+	Insert(*models.User) error
+	GetByEmail(string) (*models.User, error)
+	GetByID(string) (*models.User, error)
+	GetByUsername(string) (*models.User, error)
+	Update(*models.User) error
+	Delete(string) error
+}
+
 type userStore struct {
 	db Querier
 }

@@ -7,6 +7,14 @@ import (
 	"github.com/jasonuc/moota/internal/models"
 )
 
+type SeedStore interface {
+	Get(string) (*models.Seed, error)
+	GetAllByOwnerID(string) ([]*models.Seed, error)
+	Insert(*models.Seed) error
+	MarkAsPlanted(string) error
+	Delete(string) error
+}
+
 type seedStore struct {
 	db Querier
 }

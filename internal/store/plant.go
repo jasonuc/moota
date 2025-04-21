@@ -6,6 +6,18 @@ import (
 	"github.com/jasonuc/moota/internal/models"
 )
 
+type PlantStore interface {
+	Get(string) (*models.Plant, error)
+	GetAllByOwnerID(string) ([]*models.Plant, error)
+	GetAllInSoilAndInProximity(string, models.Coordinates, float64) ([]*models.Plant, error)
+	GetByOwnerIDAndProximity(string, models.Coordinates, float64) ([]*models.Plant, error)
+	GetByOwnerIDAndOrderByProximity(string, models.Coordinates) ([]*models.Plant, error)
+	ActivatePlant(string) error
+	Insert(*models.Plant) error
+	Update(*models.Plant) error
+	Delete(string) error
+}
+
 type plantStore struct {
 	db Querier
 }
