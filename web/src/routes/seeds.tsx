@@ -48,7 +48,7 @@ function RouteComponent() {
   ]
 
   return (
-    <div className="flex flex-col space-y-5 pb-10">
+    <div className="flex flex-col space-y-5 pb-10 w-full">
       <Header seedCount={10} />
 
       <h1 className="text-3xl font-heading mb-5">My Seeds</h1>
