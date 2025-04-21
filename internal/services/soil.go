@@ -28,7 +28,7 @@ var (
 	ErrNoSoilGenerated = errors.New("no soil generated")
 )
 
-func (s *SoilService) CreateSoil(tx *store.Store, centre models.Coordinates, nearbySoils []*models.Soil) (*models.Soil, error) {
+func (s *SoilService) CreateSoil(centre models.Coordinates, nearbySoils []*models.Soil) (*models.Soil, error) {
 	radius := models.RandomSoilRadius(models.RandomSoilRadiusParam{MaxRadius: math.Inf(1)})
 	newSoilCircleMeta := models.NewCircleMeta(centre, radius)
 	soilMeta := models.RandomSoilMeta()
@@ -42,7 +42,7 @@ func (s *SoilService) CreateSoil(tx *store.Store, centre models.Coordinates, nea
 
 	if len(overlappingSoils) == 0 {
 		newSoil := models.MapToNewSizedSoilFn(radius)(soilMeta, centre)
-		err := tx.Soil.Insert(newSoil)
+		err := s.store.Soil.Insert(newSoil)
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +60,7 @@ func (s *SoilService) CreateSoil(tx *store.Store, centre models.Coordinates, nea
 	}
 
 	soil := models.MapToNewSizedSoilFn(radius)(soilMeta, centre)
-	err := tx.Soil.Insert(soil)
+	err := s.store.Soil.Insert(soil)
 	if err != nil {
 		return nil, err
 	}

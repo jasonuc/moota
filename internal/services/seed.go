@@ -29,7 +29,7 @@ type PlantSeedReqDto struct {
 	Longitude float64
 	Latitude  float64
 	SeedID    string
-	OwnerID   string
+	UserID    string
 }
 
 var (
@@ -38,20 +38,20 @@ var (
 	ErrInvalidPermissionsForSeed = errors.New("invalid permissions to retreive seed")
 )
 
-func (s *SeedService) GetAllUserSeeds(ownerID string) ([]*models.Seed, error) {
-	seeds, err := s.store.Seed.GetAllByOwnerID(ownerID)
+func (s *SeedService) GetAllUserSeeds(userID string) ([]*models.Seed, error) {
+	seeds, err := s.store.Seed.GetAllByOwnerID(userID)
 	if err != nil {
 		return nil, err
 	}
 	return seeds, nil
 }
 
-func (s *SeedService) GetSeed(ownerID, seedID string) (*models.Seed, error) {
+func (s *SeedService) GetSeed(userID, seedID string) (*models.Seed, error) {
 	seed, err := s.store.Seed.Get(seedID)
 	if err != nil {
 		return nil, err
 	}
-	if seed.OwnerID == ownerID {
+	if seed.OwnerID == userID {
 		return nil, ErrInvalidPermissionsForSeed
 	}
 	return seed, nil
@@ -66,15 +66,15 @@ func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 	defer transaction.Rollback()
 
 	tx := s.store.WithTx(transaction)
-	soilService := s.soilService.WithStore(tx)
-	plantService := s.plantService.WithStore(tx)
+	soilServiceWithTx := s.soilService.WithStore(tx)
+	plantServiceWithTx := s.plantService.WithStore(tx)
 
 	seed, err := tx.Seed.Get(dto.SeedID)
 	if err != nil {
 		return nil, err
 	}
 
-	if seed.OwnerID != dto.OwnerID {
+	if seed.OwnerID != dto.UserID {
 		return nil, ErrUnauthorizedSeedPlanting
 	}
 
@@ -87,7 +87,7 @@ func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 	}
 
 	if len(nearbySoils) == 0 {
-		soil, err := soilService.CreateSoil(tx, targetCentre, nearbySoils)
+		soil, err := soilServiceWithTx.CreateSoil(targetCentre, nearbySoils)
 		if err != nil {
 			return nil, err
 		}
@@ -105,7 +105,7 @@ func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 		return nil, ErrNotPossibleToPlantSeed
 	}
 
-	plant, err := plantService.CreatePlant(targetSoil, seed, targetCentre)
+	plant, err := plantServiceWithTx.CreatePlant(targetSoil, seed, targetCentre)
 	if err != nil {
 		return nil, err
 	}
