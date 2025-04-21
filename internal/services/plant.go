@@ -41,8 +41,8 @@ var (
 	ErrPlantAlreadyActivated         = errors.New("plant already activated")
 )
 
-func (s *PlantService) GetAllUserPlants(ownerID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
-	plants, err := s.store.Plant.GetAllByOwnerID(ownerID)
+func (s *PlantService) GetAllUserPlants(userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
+	plants, err := s.store.Plant.GetAllByOwnerID(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -58,12 +58,20 @@ func (s *PlantService) GetAllUserPlants(ownerID string, point models.Coordinates
 	return plantsWithDistanceM, nil
 }
 
-func (s *PlantService) GetPlant(ownerID, plantID string) (*models.Plant, error) {
+func (s *PlantService) Get4ClosestPlants(userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
+	plants, err := s.GetAllUserPlants(userID, point)
+	if err != nil {
+		return nil, err
+	}
+	return plants[:4], err
+}
+
+func (s *PlantService) GetPlant(userID, plantID string) (*models.Plant, error) {
 	plant, err := s.store.Plant.Get(plantID)
 	if err != nil {
 		return nil, err
 	}
-	if plant.OwnerID != ownerID {
+	if plant.OwnerID != userID {
 		return nil, fmt.Errorf("access denied: you do not own this plant")
 	}
 	return plant, nil

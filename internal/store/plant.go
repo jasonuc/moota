@@ -13,7 +13,7 @@ type plantStore struct {
 func (s *plantStore) GetByOwnerIDAndOrderByProximity(ownerID string, point models.Coordinates) ([]*models.Plant, error) {
 	q := `SELECT id, nickname, hp, dead, owner_id, planted_at, last_watered_at, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice FROM plants
 			WHERE owner_id = $1 AND activated = true AND dead = false
-			ORDER BY ST_Distance(centre, ST_SetSRID(ST_MakePoint($2, $3), 4326)::GEOGRAPHY);`
+			ORDER BY ST_Distance(centre, ST_SetSRID(ST_MakePoint($2, $3), 4326)::GEOGRAPHY) DESC;`
 
 	rows, err := s.db.Query(q, ownerID, point.Lng, point.Lat)
 	if err != nil {
