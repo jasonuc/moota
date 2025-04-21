@@ -38,29 +38,24 @@ var (
 	ErrNotPossibleToCreatePlant      = errors.New("not possible to create plant here")
 	ErrOutsidePlantInteractionRadius = errors.New("user is not within plant interaction radius")
 	ErrInvalidPlantAction            = errors.New("invalid plant action")
+	ErrPlantAlreadyActivated         = errors.New("plant already activated")
 )
 
-func (s *PlantService) ConfirmPlantCreation(plantID string) (*models.Plant, error) {
-	plant, err := s.store.Plant.Get(plantID)
-	if err != nil {
-		return nil, err
-	}
-	if plant.Activated {
-		return nil, fmt.Errorf("plant already activated")
-	}
-
-	if err := s.store.Plant.ActivatePlant(plant.ID); err != nil {
-		return nil, err
-	}
-	return s.store.Plant.Get(plant.ID)
-}
-
-func (s *PlantService) GetAllUserPlants(ownerID string) ([]*models.Plant, error) {
+func (s *PlantService) GetAllUserPlants(ownerID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
 	plants, err := s.store.Plant.GetAllByOwnerID(ownerID)
 	if err != nil {
 		return nil, err
 	}
-	return plants, nil
+
+	plantsWithDistanceM := make([]*models.PlantWithDistanceMFromUser, 0)
+	for _, p := range plants {
+		plantsWithDistanceM = append(plantsWithDistanceM, &models.PlantWithDistanceMFromUser{
+			Plant:     *p,
+			DistanceM: p.Centre().DistanceM(point),
+		})
+	}
+
+	return plantsWithDistanceM, nil
 }
 
 func (s *PlantService) GetPlant(ownerID, plantID string) (*models.Plant, error) {
@@ -74,13 +69,28 @@ func (s *PlantService) GetPlant(ownerID, plantID string) (*models.Plant, error) 
 	return plant, nil
 }
 
+func (s *PlantService) ConfirmPlantCreation(plantID string) (*models.Plant, error) {
+	plant, err := s.store.Plant.Get(plantID)
+	if err != nil {
+		return nil, err
+	}
+	if plant.Activated {
+		return nil, ErrPlantAlreadyActivated
+	}
+
+	if err := s.store.Plant.ActivatePlant(plant.ID); err != nil {
+		return nil, err
+	}
+	return s.store.Plant.Get(plant.ID)
+}
+
 func (s *PlantService) CreatePlant(soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
 	plantCircleMeta := models.NewCircleMeta(soil.Centre(), models.PlantInteractionRadius)
 	nearbyPlants, err := s.store.Plant.GetAllInSoilAndInProximity(soil.ID, centre, models.PlantInteractionRadius+1)
 	if err != nil {
 		return nil, err
 	}
-	if !s.IsPlantValidForSoil(plantCircleMeta, nearbyPlants) {
+	if !s.isPlantValidForSoil(plantCircleMeta, nearbyPlants) {
 		return nil, ErrNotPossibleToCreatePlant
 	}
 
@@ -95,16 +105,6 @@ func (s *PlantService) CreatePlant(soil *models.Soil, seed *models.Seed, centre 
 	}
 
 	return plant, nil
-}
-
-func (s *PlantService) IsPlantValidForSoil(plantCircleMeta models.CircleMeta, nearbyPlants []*models.Plant) bool {
-	plantsOverlapMap := make(map[bool]struct{})
-	for _, nearbyPlant := range nearbyPlants {
-		plantsOverlapMap[plantCircleMeta.OverlapsWith(nearbyPlant)] = struct{}{}
-	}
-
-	_, ok := plantsOverlapMap[true]
-	return !ok
 }
 
 func (s *PlantService) ActionOnPlant(dto ActionOnPlantReqDto) (*models.Plant, error) {
@@ -133,4 +133,14 @@ func (s *PlantService) ActionOnPlant(dto ActionOnPlantReqDto) (*models.Plant, er
 	}
 
 	return s.GetPlant(plant.OwnerID, dto.PlantID)
+}
+
+func (s *PlantService) isPlantValidForSoil(plantCircleMeta models.CircleMeta, nearbyPlants []*models.Plant) bool {
+	plantsOverlapMap := make(map[bool]struct{})
+	for _, nearbyPlant := range nearbyPlants {
+		plantsOverlapMap[plantCircleMeta.OverlapsWith(nearbyPlant)] = struct{}{}
+	}
+
+	_, ok := plantsOverlapMap[true]
+	return !ok
 }

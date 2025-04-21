@@ -48,6 +48,11 @@ type Plant struct {
 	CircleMeta
 }
 
+type PlantWithDistanceMFromUser struct {
+	Plant
+	DistanceM float64
+}
+
 func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 	if seed.Planted {
 		return nil, ErrSeedAlreadyPlanted
