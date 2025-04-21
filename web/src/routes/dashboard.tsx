@@ -56,14 +56,14 @@ function RouteComponent() {
       <div className="fixed left-0 bottom-0 w-full flex gap-x-5 p-5 md:p-10">
         <Button
           onClick={() => navigate({ to: "/plants" })}
-          className='hover:cursor-pointer grow'>
+          className='hover:cursor-pointer grow md:min-h-12'>
           Plants
           <SproutIcon className="ml-2" />
         </Button>
 
         <Button
           onClick={() => navigate({ to: "/seeds" })}
-          className='hover:cursor-pointer grow'>
+          className='hover:cursor-pointer grow md:min-h-12'>
           Seeds
           <BeanIcon className="ml-2" />
         </Button>

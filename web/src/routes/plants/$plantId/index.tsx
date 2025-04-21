@@ -25,8 +25,9 @@ function RouteComponent() {
         <div className='flex flex-col space-y-5 grow'>
             <Header seedCount={10} />
 
-            <div className='grid grid-cols-2'>
-                <img className='mx-auto' width={200} height={200} src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${id}&backgroundColor=${"transparent"}`} />
+            <div className='grid md:flex grid-cols-2 md:justify-center md:items-center gap-x-10'>
+                <img className='mx-auto md:mx-0' width={200} height={200} draggable={false}
+                    src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${id}&backgroundColor=${"transparent"}&shapeRotation=-20`} />
 
                 <div className="flex flex-col items-center justify-center gap-y-2">
                     <h1 className="text-2xl font-heading">{nickname}</h1>
@@ -47,19 +48,20 @@ function RouteComponent() {
 
             <PlantMap />
 
-            <div className='flex flex-col gap-y-5 grow justify-end'>
-                <div className='grid grid-cols-3 gap-x-5'>
-                    <Button className='col-span-1 flex items-center justify-center space-x-1.5 bg-red-400'>
+            <div className='flex flex-col grow justify-end'>
+                <div className='grid grid-cols-3 gap-x-5 gap-y-5'>
+                    <Button className='md:min-h-12 col-span-1 flex items-center justify-center space-x-1.5 bg-red-400'>
                         Kill <SkullIcon />
                     </Button>
 
-                    <Button className='col-span-2 flex items-center justify-center space-x-1.5'>
+                    <Button className='md:min-h-12 col-span-2 md:col-span-1 flex items-center justify-center space-x-1.5'>
                         Water <DropletIcon />
                     </Button>
+
+                    <Button className='md:min-h-12 col-span-3 md:col-span-1 flex items-center justify-center space-x-1.5' variant='neutral'>
+                        more <MenuIcon />
+                    </Button>
                 </div>
-                <Button className='flex items-center justify-center space-x-1.5' variant='neutral'>
-                    more <MenuIcon />
-                </Button>
             </div>
         </div>
     )

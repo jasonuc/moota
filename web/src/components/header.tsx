@@ -15,6 +15,7 @@ export default function Header({ seedCount }: HeaderProps) {
                     src="/moota.png"
                     alt="Moota"
                     width={45} height={45}
+                    draggable={false}
                 />
             </Link>
 
@@ -25,7 +26,8 @@ export default function Header({ seedCount }: HeaderProps) {
 
                 <Button asChild className="p-0 border-0" variant="reverse">
                     <Avatar>
-                        <AvatarImage className="size-[45px]" src={`https://api.dicebear.com/9.x/glass/svg?seed=${"jasonuc"}`} />
+                        <AvatarImage className="size-[45px]" src={`https://api.dicebear.com/9.x/glass/svg?seed=${"jasonuc"}`}
+                            draggable={false} />
                         <AvatarFallback>
                             JA
                         </AvatarFallback>

@@ -32,7 +32,7 @@ export default function Plant({ id, nickname, botanicalName, hp, distance }: Pla
                     </CardHeader>
 
                     <img
-                        src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${nickname}&backgroundColor=${"transparent"}`}
+                        src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${nickname}&backgroundColor=${"transparent"}&shapeRotation=-20`}
                         alt="avatar"
                         draggable={false}
                         className="size-20 pointer-events-none absolute -bottom-1/4 right-0 group-hover:-bottom-5 group-active:-bottom-5 transition-all duration-100 rounded-l-md"
