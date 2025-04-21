@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 type PlantProps = {
     maxPlants?: number;
     plants: {
+        id: string
         nickname: string;
         botanicalName: string;
         hp: number;

@@ -12,7 +12,7 @@ export default function Header({ seedCount }: HeaderProps) {
         <div className="flex w-full items-center justify-between">
             <Link to="/dashboard" className="flex items-center space-x-2">
                 <img
-                    src="./moota.png"
+                    src="/moota.png"
                     alt="Moota"
                     width={45} height={45}
                 />

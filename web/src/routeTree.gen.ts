@@ -12,21 +12,16 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as SeedsImport } from './routes/seeds'
-import { Route as PlantsImport } from './routes/plants'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as IndexImport } from './routes/index'
+import { Route as PlantsIndexImport } from './routes/plants/index'
+import { Route as PlantsPlantIdIndexImport } from './routes/plants/$plantId/index'
 
 // Create/Update Routes
 
 const SeedsRoute = SeedsImport.update({
   id: '/seeds',
   path: '/seeds',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const PlantsRoute = PlantsImport.update({
-  id: '/plants',
-  path: '/plants',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,6 +34,18 @@ const DashboardRoute = DashboardImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PlantsIndexRoute = PlantsIndexImport.update({
+  id: '/plants/',
+  path: '/plants/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PlantsPlantIdIndexRoute = PlantsPlantIdIndexImport.update({
+  id: '/plants/$plantId/',
+  path: '/plants/$plantId/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -60,18 +67,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardImport
       parentRoute: typeof rootRoute
     }
-    '/plants': {
-      id: '/plants'
-      path: '/plants'
-      fullPath: '/plants'
-      preLoaderRoute: typeof PlantsImport
-      parentRoute: typeof rootRoute
-    }
     '/seeds': {
       id: '/seeds'
       path: '/seeds'
       fullPath: '/seeds'
       preLoaderRoute: typeof SeedsImport
+      parentRoute: typeof rootRoute
+    }
+    '/plants/': {
+      id: '/plants/'
+      path: '/plants'
+      fullPath: '/plants'
+      preLoaderRoute: typeof PlantsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/plants/$plantId/': {
+      id: '/plants/$plantId/'
+      path: '/plants/$plantId'
+      fullPath: '/plants/$plantId'
+      preLoaderRoute: typeof PlantsPlantIdIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -82,46 +96,57 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/plants': typeof PlantsRoute
   '/seeds': typeof SeedsRoute
+  '/plants': typeof PlantsIndexRoute
+  '/plants/$plantId': typeof PlantsPlantIdIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/plants': typeof PlantsRoute
   '/seeds': typeof SeedsRoute
+  '/plants': typeof PlantsIndexRoute
+  '/plants/$plantId': typeof PlantsPlantIdIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/plants': typeof PlantsRoute
   '/seeds': typeof SeedsRoute
+  '/plants/': typeof PlantsIndexRoute
+  '/plants/$plantId/': typeof PlantsPlantIdIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/plants' | '/seeds'
+  fullPaths: '/' | '/dashboard' | '/seeds' | '/plants' | '/plants/$plantId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/plants' | '/seeds'
-  id: '__root__' | '/' | '/dashboard' | '/plants' | '/seeds'
+  to: '/' | '/dashboard' | '/seeds' | '/plants' | '/plants/$plantId'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/seeds'
+    | '/plants/'
+    | '/plants/$plantId/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
-  PlantsRoute: typeof PlantsRoute
   SeedsRoute: typeof SeedsRoute
+  PlantsIndexRoute: typeof PlantsIndexRoute
+  PlantsPlantIdIndexRoute: typeof PlantsPlantIdIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
-  PlantsRoute: PlantsRoute,
   SeedsRoute: SeedsRoute,
+  PlantsIndexRoute: PlantsIndexRoute,
+  PlantsPlantIdIndexRoute: PlantsPlantIdIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -136,8 +161,9 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/dashboard",
-        "/plants",
-        "/seeds"
+        "/seeds",
+        "/plants/",
+        "/plants/$plantId/"
       ]
     },
     "/": {
@@ -146,11 +172,14 @@ export const routeTree = rootRoute
     "/dashboard": {
       "filePath": "dashboard.tsx"
     },
-    "/plants": {
-      "filePath": "plants.tsx"
-    },
     "/seeds": {
       "filePath": "seeds.tsx"
+    },
+    "/plants/": {
+      "filePath": "plants/index.tsx"
+    },
+    "/plants/$plantId/": {
+      "filePath": "plants/$plantId/index.tsx"
     }
   }
 }

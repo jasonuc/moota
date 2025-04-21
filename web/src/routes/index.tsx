@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div>
+    <div className='flex flex-col space-y-5 grow'>
       <div className='flex w-full justify-between items-center'>
         <div className='flex items-center justify-center space-x-2'>
           <img src='./moota.png' width={45} height={45} />
