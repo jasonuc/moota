@@ -9,7 +9,15 @@ import (
 	"github.com/jasonuc/moota/internal/store"
 )
 
-type PlantService struct {
+type PlantService interface {
+	GetAllUserPlants(string, models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error)
+	Get4ClosestPlants(string, models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error)
+	GetPlant(string, string) (*models.Plant, error)
+	CreatePlant(*models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
+	WithStore(*store.Store) PlantService
+}
+
+type plantService struct {
 	store *store.Store
 }
 
@@ -22,13 +30,13 @@ type ActionOnPlantReqDto struct {
 	PlantID   string
 }
 
-func NewPlantService(store *store.Store) *PlantService {
-	return &PlantService{
+func NewPlantService(store *store.Store) *plantService {
+	return &plantService{
 		store: store,
 	}
 }
 
-func (s *PlantService) withStore(store *store.Store) *PlantService {
+func (s *plantService) WithStore(store *store.Store) PlantService {
 	copy := *s
 	copy.store = store
 	return &copy
@@ -41,7 +49,7 @@ var (
 	ErrPlantAlreadyActivated         = errors.New("plant already activated")
 )
 
-func (s *PlantService) GetAllUserPlants(userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
+func (s *plantService) GetAllUserPlants(userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
 	plants, err := s.store.Plant.GetAllByOwnerID(userID)
 	if err != nil {
 		return nil, err
@@ -58,7 +66,7 @@ func (s *PlantService) GetAllUserPlants(userID string, point models.Coordinates)
 	return plantsWithDistanceM, nil
 }
 
-func (s *PlantService) Get4ClosestPlants(userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
+func (s *plantService) Get4ClosestPlants(userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
 	plants, err := s.GetAllUserPlants(userID, point)
 	if err != nil {
 		return nil, err
@@ -66,7 +74,7 @@ func (s *PlantService) Get4ClosestPlants(userID string, point models.Coordinates
 	return plants[:4], err
 }
 
-func (s *PlantService) GetPlant(userID, plantID string) (*models.Plant, error) {
+func (s *plantService) GetPlant(userID, plantID string) (*models.Plant, error) {
 	plant, err := s.store.Plant.Get(plantID)
 	if err != nil {
 		return nil, err
@@ -77,7 +85,7 @@ func (s *PlantService) GetPlant(userID, plantID string) (*models.Plant, error) {
 	return plant, nil
 }
 
-func (s *PlantService) ConfirmPlantCreation(plantID string) (*models.Plant, error) {
+func (s *plantService) ConfirmPlantCreation(plantID string) (*models.Plant, error) {
 	plant, err := s.store.Plant.Get(plantID)
 	if err != nil {
 		return nil, err
@@ -92,7 +100,7 @@ func (s *PlantService) ConfirmPlantCreation(plantID string) (*models.Plant, erro
 	return s.store.Plant.Get(plant.ID)
 }
 
-func (s *PlantService) CreatePlant(soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
+func (s *plantService) CreatePlant(soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
 	plantCircleMeta := models.NewCircleMeta(soil.Centre(), models.PlantInteractionRadius)
 	nearbyPlants, err := s.store.Plant.GetAllInSoilAndInProximity(soil.ID, centre, models.PlantInteractionRadius+1)
 	if err != nil {
@@ -115,7 +123,7 @@ func (s *PlantService) CreatePlant(soil *models.Soil, seed *models.Seed, centre 
 	return plant, nil
 }
 
-func (s *PlantService) ActionOnPlant(dto ActionOnPlantReqDto) (*models.Plant, error) {
+func (s *plantService) ActionOnPlant(dto ActionOnPlantReqDto) (*models.Plant, error) {
 	if !models.ValidPlantAction(dto.Action) {
 		return nil, ErrInvalidPlantAction
 	}
@@ -143,7 +151,7 @@ func (s *PlantService) ActionOnPlant(dto ActionOnPlantReqDto) (*models.Plant, er
 	return s.GetPlant(plant.OwnerID, dto.PlantID)
 }
 
-func (s *PlantService) isPlantValidForSoil(plantCircleMeta models.CircleMeta, nearbyPlants []*models.Plant) bool {
+func (s *plantService) isPlantValidForSoil(plantCircleMeta models.CircleMeta, nearbyPlants []*models.Plant) bool {
 	plantsOverlapMap := make(map[bool]struct{})
 	for _, nearbyPlant := range nearbyPlants {
 		plantsOverlapMap[plantCircleMeta.OverlapsWith(nearbyPlant)] = struct{}{}

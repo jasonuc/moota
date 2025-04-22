@@ -8,17 +8,22 @@ import (
 	"github.com/jasonuc/moota/internal/store"
 )
 
-type SoilService struct {
+type SoilService interface {
+	CreateSoil(models.Coordinates, []*models.Soil) (*models.Soil, error)
+	WithStore(*store.Store) SoilService
+}
+
+type soilService struct {
 	store *store.Store
 }
 
-func NewSoilSerivce(store *store.Store) *SoilService {
-	return &SoilService{
+func NewSoilSerivce(store *store.Store) *soilService {
+	return &soilService{
 		store: store,
 	}
 }
 
-func (s *SoilService) withStore(store *store.Store) *SoilService {
+func (s *soilService) WithStore(store *store.Store) SoilService {
 	copy := *s
 	copy.store = store
 	return &copy
@@ -28,7 +33,7 @@ var (
 	ErrNoSoilGenerated = errors.New("no soil generated")
 )
 
-func (s *SoilService) CreateSoil(centre models.Coordinates, nearbySoils []*models.Soil) (*models.Soil, error) {
+func (s *soilService) CreateSoil(centre models.Coordinates, nearbySoils []*models.Soil) (*models.Soil, error) {
 	radius := models.RandomSoilRadius(models.RandomSoilRadiusParam{MaxRadius: math.Inf(1)})
 	newSoilCircleMeta := models.NewCircleMeta(centre, radius)
 	soilMeta := models.RandomSoilMeta()
@@ -68,7 +73,7 @@ func (s *SoilService) CreateSoil(centre models.Coordinates, nearbySoils []*model
 	return soil, nil
 }
 
-func (s *SoilService) maxSoilRadius(circleMeta models.CircleMeta, nearbySoil *models.Soil) float64 {
+func (s *soilService) maxSoilRadius(circleMeta models.CircleMeta, nearbySoil *models.Soil) float64 {
 	d := circleMeta.Centre().DistanceM(nearbySoil.Centre())
 	maxRadius := d - nearbySoil.RadiusM() - 0.1 // the reason for the 0.1 subtraction is to prevent a possible case of tangential soils
 	return math.Max(0.0, maxRadius)

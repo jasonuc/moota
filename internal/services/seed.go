@@ -7,16 +7,29 @@ import (
 	"github.com/jasonuc/moota/internal/store"
 )
 
-type SeedService struct {
-	soilService  *SoilService
-	plantService *PlantService
+type SeedService interface {
+	GetAllUserSeeds(string) ([]*models.Seed, error)
+	GetSeed(string, string) (*models.Seed, error)
+	PlantSeed(PlantSeedReqDto) (*models.Plant, error)
+	WithStore(*store.Store) SeedService
+}
+
+type seedService struct {
+	soilService  SoilService
+	plantService PlantService
 	store        *store.Store
 }
 
-func NewSeedService(store *store.Store) *SeedService {
-	return &SeedService{
+func NewSeedService(store *store.Store) *seedService {
+	return &seedService{
 		store: store,
 	}
+}
+
+func (s *seedService) WithStore(store *store.Store) SeedService {
+	copy := *s
+	copy.store = store
+	return &copy
 }
 
 type PlantSeedReqDto struct {
@@ -32,7 +45,7 @@ var (
 	ErrInvalidPermissionsForSeed = errors.New("invalid permissions to retreive seed")
 )
 
-func (s *SeedService) GetAllUserSeeds(userID string) ([]*models.Seed, error) {
+func (s *seedService) GetAllUserSeeds(userID string) ([]*models.Seed, error) {
 	seeds, err := s.store.Seed.GetAllByOwnerID(userID)
 	if err != nil {
 		return nil, err
@@ -40,7 +53,7 @@ func (s *SeedService) GetAllUserSeeds(userID string) ([]*models.Seed, error) {
 	return seeds, nil
 }
 
-func (s *SeedService) GetSeed(userID, seedID string) (*models.Seed, error) {
+func (s *seedService) GetSeed(userID, seedID string) (*models.Seed, error) {
 	seed, err := s.store.Seed.Get(seedID)
 	if err != nil {
 		return nil, err
@@ -51,7 +64,7 @@ func (s *SeedService) GetSeed(userID, seedID string) (*models.Seed, error) {
 	return seed, nil
 }
 
-func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
+func (s *seedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, store.ErrTransactionCouldNotStart
@@ -60,8 +73,8 @@ func (s *SeedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 	defer transaction.Rollback()
 
 	tx := s.store.WithTx(transaction)
-	soilServiceWithTx := s.soilService.withStore(tx)
-	plantServiceWithTx := s.plantService.withStore(tx)
+	soilServiceWithTx := s.soilService.WithStore(tx)
+	plantServiceWithTx := s.plantService.WithStore(tx)
 
 	seed, err := tx.Seed.Get(dto.SeedID)
 	if err != nil {
