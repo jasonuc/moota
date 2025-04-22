@@ -67,7 +67,10 @@ func (s *plantService) GetAllUserPlants(userID string, point models.Coordinates)
 	}
 
 	now := time.Now()
-	refreshPlantsData(tx, plants, now)
+	err = refreshPlantsData(tx, plants, now)
+	if err != nil {
+		return nil, err
+	}
 
 	if err := transaction.Commit(); err != nil {
 		return nil, err
@@ -108,7 +111,10 @@ func (s *plantService) GetPlant(userID, plantID string) (*models.Plant, error) {
 	}
 
 	now := time.Now()
-	refreshPlantData(tx, plant, now)
+	err = refreshPlantData(tx, plant, now)
+	if err != nil {
+		return nil, err
+	}
 
 	if plant.OwnerID != userID {
 		return nil, fmt.Errorf("access denied: you do not own this plant")
@@ -213,15 +219,19 @@ func (s *plantService) KillPlant(id string) error {
 	return nil
 }
 
-func refreshPlantsData(tx *store.Store, plants []*models.Plant, t time.Time) {
+func refreshPlantsData(tx *store.Store, plants []*models.Plant, t time.Time) error {
 	for _, plant := range plants {
-		refreshPlantData(tx, plant, t)
+		err := refreshPlantData(tx, plant, t)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func refreshPlantData(tx *store.Store, plant *models.Plant, t time.Time) {
+func refreshPlantData(tx *store.Store, plant *models.Plant, t time.Time) error {
 	plant.Refresh(t)
-	tx.Plant.Update(plant)
+	return tx.Plant.Update(plant)
 }
 
 func (s *plantService) isPlantValidForSoil(plantCircleMeta models.CircleMeta, nearbyPlants []*models.Plant) bool {
