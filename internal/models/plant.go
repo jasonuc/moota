@@ -99,6 +99,10 @@ func (p *Plant) Action(action PlantAction, t time.Time) (bool, error) {
 	// TODO: consider converting all time to UTC before carrying out any action
 	p.preActionHook(t)
 
+	if !p.Alive() {
+		return p.Alive(), nil
+	}
+
 	switch action {
 	case PlantActionWater:
 		// TODO: move this to it's own function and make use of the Soil.WaterRetention
@@ -114,12 +118,20 @@ func (p *Plant) Action(action PlantAction, t time.Time) (bool, error) {
 	return p.Alive(), nil
 }
 
+func (p *Plant) Refresh(t time.Time) bool {
+	p.preActionHook(t)
+	return p.Alive()
+}
+
 func (p *Plant) preActionHook(t time.Time) {
 	// Hp reduction for plant neglect
 	hoursSinceLastAction := t.Sub(p.LastActionTime).Hours()
 	decreaseMult := math.Floor(hoursSinceLastAction - 12)
 	if decreaseMult > 0 {
-		p.changeHp(-5 * decreaseMult)
+		alive := p.changeHp(-5 * decreaseMult)
+		if !alive {
+			return
+		}
 	}
 
 	// Hp reduction for lack of watering

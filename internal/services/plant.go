@@ -52,8 +52,24 @@ var (
 )
 
 func (s *plantService) GetAllUserPlants(userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
-	plants, err := s.store.Plant.GetAllByOwnerID(userID)
+	transaction, err := s.store.Begin()
 	if err != nil {
+		return nil, err
+	}
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	plants, err := tx.Plant.GetAllByOwnerID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	refreshPlantsData(tx, plants, now)
+
+	if err := transaction.Commit(); err != nil {
 		return nil, err
 	}
 
@@ -77,10 +93,23 @@ func (s *plantService) Get4ClosestPlants(userID string, point models.Coordinates
 }
 
 func (s *plantService) GetPlant(userID, plantID string) (*models.Plant, error) {
-	plant, err := s.store.Plant.Get(plantID)
+	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, err
 	}
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	plant, err := tx.Plant.Get(plantID)
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	refreshPlantData(tx, plant, now)
+
 	if plant.OwnerID != userID {
 		return nil, fmt.Errorf("access denied: you do not own this plant")
 	}
@@ -182,6 +211,17 @@ func (s *plantService) KillPlant(id string) error {
 	}
 
 	return nil
+}
+
+func refreshPlantsData(tx *store.Store, plants []*models.Plant, t time.Time) {
+	for _, plant := range plants {
+		refreshPlantData(tx, plant, t)
+	}
+}
+
+func refreshPlantData(tx *store.Store, plant *models.Plant, t time.Time) {
+	plant.Refresh(t)
+	tx.Plant.Update(plant)
 }
 
 func (s *plantService) isPlantValidForSoil(plantCircleMeta models.CircleMeta, nearbyPlants []*models.Plant) bool {
