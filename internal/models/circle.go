@@ -8,19 +8,19 @@ type Circle interface {
 }
 
 type CircleMeta struct {
-	centre  Coordinates
+	C       Coordinates `json:"centre"`
 	radiusM float64
 }
 
 func NewCircleMeta(centre Coordinates, radiusM float64) CircleMeta {
 	return CircleMeta{
-		centre:  centre,
+		C:       centre,
 		radiusM: radiusM,
 	}
 }
 
 func (c CircleMeta) Centre() Coordinates {
-	return c.centre
+	return c.C
 }
 
 func (c CircleMeta) RadiusM() float64 {

@@ -6,7 +6,7 @@ import (
 
 func TestContainsPoint(t *testing.T) {
 	t.Run("return true if point is the centre of circle", func(t *testing.T) {
-		circle := CircleMeta{centre: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
+		circle := CircleMeta{C: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
 		p := Coordinates{Lat: 10.0, Lng: 20.0}
 
 		got := circle.ContainsPoint(p)
@@ -20,7 +20,7 @@ func TestContainsPoint(t *testing.T) {
 	})
 
 	t.Run("return true if point is inside the circle", func(t *testing.T) {
-		circle := CircleMeta{centre: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
+		circle := CircleMeta{C: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
 		p := Coordinates{Lat: 10.003, Lng: 20.003}
 
 		got := circle.ContainsPoint(p)
@@ -34,7 +34,7 @@ func TestContainsPoint(t *testing.T) {
 	})
 
 	t.Run("return false if circle does not contain the point", func(t *testing.T) {
-		circle := CircleMeta{centre: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
+		circle := CircleMeta{C: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
 		p := Coordinates{Lat: 10.01, Lng: 20.01}
 
 		got := circle.ContainsPoint(p)
@@ -48,7 +48,7 @@ func TestContainsPoint(t *testing.T) {
 	})
 
 	t.Run("return false if point is on the circumference of circle", func(t *testing.T) {
-		circle := CircleMeta{centre: Coordinates{Lat: 37.7749, Lng: -122.4194}, radiusM: 1000.0}
+		circle := CircleMeta{C: Coordinates{Lat: 37.7749, Lng: -122.4194}, radiusM: 1000.0}
 		p := Coordinates{Lat: 37.7839, Lng: -122.4194}
 
 		got := circle.ContainsPoint(p)
@@ -65,8 +65,8 @@ func TestContainsPoint(t *testing.T) {
 func TestOverlapsWith(t *testing.T) {
 	t.Run("return true for concentric circles", func(t *testing.T) {
 		center := Coordinates{Lat: 10.0, Lng: 20.0}
-		circle1 := CircleMeta{centre: center, radiusM: 1000.0}
-		circle2 := CircleMeta{centre: center, radiusM: 2000.0}
+		circle1 := CircleMeta{C: center, radiusM: 1000.0}
+		circle2 := CircleMeta{C: center, radiusM: 2000.0}
 
 		got := circle1.OverlapsWith(circle2)
 		exp := true
@@ -79,8 +79,8 @@ func TestOverlapsWith(t *testing.T) {
 	})
 
 	t.Run("return false for circles that do not overlap", func(t *testing.T) {
-		circle1 := CircleMeta{centre: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
-		circle2 := CircleMeta{centre: Coordinates{Lat: 10.025, Lng: 20.0}, radiusM: 1000.0}
+		circle1 := CircleMeta{C: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
+		circle2 := CircleMeta{C: Coordinates{Lat: 10.025, Lng: 20.0}, radiusM: 1000.0}
 
 		got := circle1.OverlapsWith(circle2)
 		exp := false
@@ -93,8 +93,8 @@ func TestOverlapsWith(t *testing.T) {
 	})
 
 	t.Run("return true for circles that overlap", func(t *testing.T) {
-		circle1 := CircleMeta{centre: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
-		circle2 := CircleMeta{centre: Coordinates{Lat: 10.012, Lng: 20.0}, radiusM: 1000.0}
+		circle1 := CircleMeta{C: Coordinates{Lat: 10.0, Lng: 20.0}, radiusM: 1000.0}
+		circle2 := CircleMeta{C: Coordinates{Lat: 10.012, Lng: 20.0}, radiusM: 1000.0}
 
 		got := circle1.OverlapsWith(circle2)
 		exp := true
@@ -107,8 +107,8 @@ func TestOverlapsWith(t *testing.T) {
 	})
 
 	t.Run("return true for tangential circles", func(t *testing.T) {
-		circle1 := CircleMeta{centre: Coordinates{Lat: 37.7749, Lng: -122.4194}, radiusM: 1000.0}
-		circle2 := CircleMeta{centre: Coordinates{Lat: 37.7749, Lng: -122.39125}, radiusM: 1500.0}
+		circle1 := CircleMeta{C: Coordinates{Lat: 37.7749, Lng: -122.4194}, radiusM: 1000.0}
+		circle2 := CircleMeta{C: Coordinates{Lat: 37.7749, Lng: -122.39125}, radiusM: 1500.0}
 
 		got := circle1.OverlapsWith(circle2)
 		exp := true

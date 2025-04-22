@@ -12,16 +12,16 @@ var (
 )
 
 type SeedMeta struct {
-	BotanicalName string
-	OptimalSoil   SoilType
+	BotanicalName string   `json:"botanicalName"`
+	OptimalSoil   SoilType `json:"optimalSoil"`
 }
 
 type Seed struct {
-	ID        string
-	Hp        float64 // used as plant's starting health
-	Planted   bool
-	OwnerID   string
-	CreatedAt time.Time
+	ID        string    `json:"id"`
+	Hp        float64   `json:"hp"` // used as plant's starting health
+	Planted   bool      `json:"planted"`
+	OwnerID   string    `json:"ownerID"`
+	CreatedAt time.Time `json:"createdAt"`
 	SeedMeta
 }
 

@@ -32,17 +32,17 @@ func ValidPlantAction(action int) bool {
 }
 
 type Plant struct {
-	ID             string
-	Nickname       string
-	Hp             float64
-	Dead           bool
-	Activated      bool
-	OwnerID        string
-	Soil           *Soil
-	Tempers        *Tempers
-	TimePlanted    time.Time
-	LastWateredAt  time.Time
-	LastActionTime time.Time
+	ID             string    `json:"id"`
+	Nickname       string    `json:"nickname"`
+	Hp             float64   `json:"hp"`
+	Dead           bool      `json:"dead"`
+	Activated      bool      `json:"activated"`
+	OwnerID        string    `json:"ownerID"`
+	Soil           *Soil     `json:"soil,omitempty"`
+	Tempers        *Tempers  `json:"tempers,omitempty"`
+	TimePlanted    time.Time `json:"timePlanted"`
+	LastWateredAt  time.Time `json:"lastWateredAt"`
+	LastActionTime time.Time `json:"lastActionTime"`
 	SeedMeta
 	LevelMeta
 	CircleMeta
@@ -50,7 +50,7 @@ type Plant struct {
 
 type PlantWithDistanceMFromUser struct {
 	Plant
-	DistanceM float64
+	DistanceM float64 `json:"distanceM"`
 }
 
 func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
@@ -60,7 +60,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 
 	nickname := "Atura" // TODO: Make a function to generate random whimsical names
 	seed.Planted = true
-	circleMeta := CircleMeta{radiusM: PlantInteractionRadius, centre: centre}
+	circleMeta := CircleMeta{radiusM: PlantInteractionRadius, C: centre}
 	if !soil.ContainsFullCircle(circleMeta) {
 		return nil, ErrPlantNotFullyInSoil
 	}
@@ -89,7 +89,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 		Tempers:   NewTempers(),
 		SeedMeta:  seed.SeedMeta,
 		CircleMeta: CircleMeta{
-			centre:  centre,
+			C:       centre,
 			radiusM: PlantInteractionRadius,
 		},
 	}, nil

@@ -11,8 +11,8 @@ import (
 const earthRadiusM = 6.378e+06 // in metres
 
 type Coordinates struct {
-	Lat float64
-	Lng float64
+	Lat float64 `json:"Lat"`
+	Lng float64 `json:"Lng"`
 }
 
 func (p Coordinates) latRad() float64 {

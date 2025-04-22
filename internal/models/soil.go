@@ -21,9 +21,9 @@ const (
 )
 
 type SoilMeta struct {
-	Type             SoilType
-	WaterRetention   float64
-	NutrientRichness float64
+	Type             SoilType `json:"type"`
+	WaterRetention   float64  `json:"waterRetention"`
+	NutrientRichness float64  `json:"nutrientRichness"`
 }
 
 var (
@@ -50,8 +50,8 @@ var (
 )
 
 type Soil struct {
-	ID        string
-	CreatedAt time.Time
+	ID        string    `json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
 	SoilMeta
 	CircleMeta
 }
@@ -128,7 +128,7 @@ func newSoil(soilMeta SoilMeta, centre Coordinates, radiusM float64) *Soil {
 
 	return &Soil{
 		CircleMeta: CircleMeta{
-			centre:  centre,
+			C:       centre,
 			radiusM: radiusM,
 		},
 		SoilMeta: soilMeta,

@@ -3,8 +3,8 @@ package models
 import "math"
 
 type LevelMeta struct {
-	Level int64
-	Xp    int64
+	Level int64 `json:"level"`
+	Xp    int64 `json:"xp"`
 }
 
 func NewLeveLMeta(initalLevel, initialXp int64) LevelMeta {
