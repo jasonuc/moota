@@ -20,7 +20,7 @@ type seedService struct {
 	store        *store.Store
 }
 
-func NewSeedService(store *store.Store) *seedService {
+func NewSeedService(store *store.Store) SeedService {
 	return &seedService{
 		store: store,
 	}

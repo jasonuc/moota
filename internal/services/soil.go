@@ -17,7 +17,7 @@ type soilService struct {
 	store *store.Store
 }
 
-func NewSoilSerivce(store *store.Store) *soilService {
+func NewSoilSerivce(store *store.Store) SoilService {
 	return &soilService{
 		store: store,
 	}

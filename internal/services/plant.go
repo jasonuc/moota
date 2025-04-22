@@ -30,7 +30,7 @@ type ActionOnPlantReqDto struct {
 	PlantID   string
 }
 
-func NewPlantService(store *store.Store) *plantService {
+func NewPlantService(store *store.Store) PlantService {
 	return &plantService{
 		store: store,
 	}
