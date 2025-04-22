@@ -9,7 +9,7 @@ export const Route = createFileRoute('/plants/$plantId/')({
     component: RouteComponent,
 })
 
-// TODO: This component should run an auth check so other non-owners do not have access to this page
+// TODO: This component should run an auth check so other non-owners do not have access to this page or at least not in it's entirety
 function RouteComponent() {
     const { id, nickname, botanicalName, level, plantedAt, soilType, hp } = {
         id: "1",

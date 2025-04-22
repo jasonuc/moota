@@ -12,25 +12,25 @@ export default function PlantTempers({ woe, dread, frolic, malice }: PlantTemper
     return (
         <div>
             <h3 className='font-heading mb-3'>Tempers</h3>
-            <div className="grid grid-cols-4 md:grid-cols-2 md:grid-rows-2 md:gap-10">
-                <div className="even:mt-3 md:even:mt-0">
-                    <p className='mb-1 ml-1 md:ml-0 md:mb-0 grow-0 italic pb-10 md:pb-3 text-center md:text-left z-20'>woe</p>
-                    <Progress className='h-4 -rotate-90 md:rotate-0 md:min-h-8'
+            <div className="grid grid-cols-2 grid-rows-2 gap-y-5 gap-x-10 md:gap-10">
+                <div className="">
+                    <p className='mb-1 ml-1 md:ml-0 md:mb-0 grow-0 italic pb-3 text-left'>woe</p>
+                    <Progress className='h-5 rounded-md md:rounded-base rounde md:min-h-8'
                         value={(woe / 5) * 100} />
                 </div>
-                <div className="even:mt-3 md:even:mt-0">
-                    <p className='mb-1 ml-1 md:ml-0 md:mb-0 grow-0 italic pb-10 md:pb-3 text-center md:text-left z-20'>dread</p>
-                    <Progress className='h-4 -rotate-90 md:rotate-0 md:min-h-8'
+                <div className="">
+                    <p className='mb-1 ml-1 md:ml-0 md:mb-0 grow-0 italic pb-3 text-left'>dread</p>
+                    <Progress className='h-5 rounded-md md:rounded-base rounde md:min-h-8'
                         value={(dread / 5) * 100} />
                 </div>
-                <div className="even:mt-3 md:even:mt-0">
-                    <p className='mb-1 ml-1 md:ml-0 md:mb-0 grow-0 italic pb-10 md:pb-3 text-center md:text-left z-20'>frolic</p>
-                    <Progress className='h-4 -rotate-90 md:rotate-0 md:min-h-8'
+                <div className="">
+                    <p className='mb-1 ml-1 md:ml-0 md:mb-0 grow-0 italic pb-3 text-left'>frolic</p>
+                    <Progress className='h-5 rounded-md md:rounded-base rounde md:min-h-8'
                         value={(frolic / 5) * 100} />
                 </div>
-                <div className="even:mt-3 md:even:mt-0">
-                    <p className='mb-1 ml-1 md:ml-0 md:mb-0 grow-0 italic pb-10 md:pb-3 text-center md:text-left z-20'>malice</p>
-                    <Progress className='h-4 -rotate-90 md:rotate-0 md:min-h-8'
+                <div className="">
+                    <p className='mb-1 ml-1 md:ml-0 md:mb-0 grow-0 italic pb-3 text-left'>malice</p>
+                    <Progress className='h-5 rounded-md md:rounded-base rounde md:min-h-8'
                         value={(malice / 5) * 100} />
                 </div>
             </div>
