@@ -120,5 +120,10 @@ func (s *seedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 	if err := tx.Seed.MarkAsPlanted(seed.ID); err != nil {
 		return nil, err
 	}
+
+	if err := transaction.Commit(); err != nil {
+		return nil, err
+	}
+
 	return plant, nil
 }

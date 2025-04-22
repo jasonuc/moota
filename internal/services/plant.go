@@ -14,6 +14,7 @@ type PlantService interface {
 	Get4ClosestPlants(string, models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error)
 	GetPlant(string, string) (*models.Plant, error)
 	CreatePlant(*models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
+	KillPlant(string) error
 	WithStore(*store.Store) PlantService
 }
 
@@ -47,6 +48,7 @@ var (
 	ErrOutsidePlantInteractionRadius = errors.New("user is not within plant interaction radius")
 	ErrInvalidPlantAction            = errors.New("invalid plant action")
 	ErrPlantAlreadyActivated         = errors.New("plant already activated")
+	ErrPlantAreadyDead               = errors.New("plant already dead")
 )
 
 func (s *plantService) GetAllUserPlants(userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
@@ -149,6 +151,37 @@ func (s *plantService) ActionOnPlant(dto ActionOnPlantReqDto) (*models.Plant, er
 	}
 
 	return s.GetPlant(plant.OwnerID, dto.PlantID)
+}
+
+func (s *plantService) KillPlant(id string) error {
+	transaction, err := s.store.Begin()
+	if err != nil {
+		return err
+	}
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	plant, err := tx.Plant.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if plant.Dead {
+		return ErrPlantAreadyDead
+	}
+
+	plant.Dead = true
+	if err := tx.Plant.Update(plant); err != nil {
+		return err
+	}
+
+	if err := transaction.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *plantService) isPlantValidForSoil(plantCircleMeta models.CircleMeta, nearbyPlants []*models.Plant) bool {
