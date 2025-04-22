@@ -8,7 +8,7 @@ import (
 )
 
 type SeedService interface {
-	GetAllUserSeeds(string) ([]*models.Seed, error)
+	GetAllUserSeeds(string) ([]*SeedGroup, error)
 	GetSeed(string, string) (*models.Seed, error)
 	PlantSeed(PlantSeedReqDto) (*models.Plant, error)
 	WithStore(*store.Store) SeedService
@@ -39,18 +39,46 @@ type PlantSeedReqDto struct {
 	UserID    string
 }
 
+type SeedGroup struct {
+	BotanicalName string         `json:"botanicalName"`
+	Count         int            `json:"count"`
+	Seeds         []*models.Seed `json:"seeds"`
+}
+
 var (
 	ErrUnauthorizedSeedPlanting  = errors.New("not authorised to plant this seed")
 	ErrNotPossibleToPlantSeed    = errors.New("not possible to plant seed")
 	ErrInvalidPermissionsForSeed = errors.New("invalid permissions to retreive seed")
 )
 
-func (s *seedService) GetAllUserSeeds(userID string) ([]*models.Seed, error) {
+func (s *seedService) GetAllUserSeeds(userID string) ([]*SeedGroup, error) {
 	seeds, err := s.store.Seed.GetAllByOwnerID(userID)
 	if err != nil {
 		return nil, err
 	}
-	return seeds, nil
+
+	seedGroups := make(map[string]*SeedGroup)
+	for _, seed := range seeds {
+		sg, ok := seedGroups[seed.BotanicalName]
+		if ok {
+			sg.Seeds = append(sg.Seeds, seed)
+			sg.Count++
+			continue
+		} else {
+			seedGroups[seed.BotanicalName] = &SeedGroup{
+				BotanicalName: seed.BotanicalName,
+				Count:         1,
+				Seeds:         []*models.Seed{seed},
+			}
+		}
+	}
+
+	result := make([]*SeedGroup, 0, len(seedGroups))
+	for _, group := range seedGroups {
+		result = append(result, group)
+	}
+
+	return result, nil
 }
 
 func (s *seedService) GetSeed(userID, seedID string) (*models.Seed, error) {
