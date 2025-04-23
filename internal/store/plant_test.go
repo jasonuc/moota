@@ -33,7 +33,12 @@ func TestPlantStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	t.Cleanup(func() {
+		err := db.Close()
+		if err != nil {
+			t.Error(err)
+		}
+	})
 
 	migrationsPath := filepath.Join("..", "..", "migrations")
 	err = applyMigrations(db, migrationsPath)
