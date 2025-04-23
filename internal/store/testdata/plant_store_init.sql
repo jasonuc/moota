@@ -2,7 +2,7 @@
 INSERT INTO users (id, username, email, password_hash) VALUES 
   ('00000000-0000-4000-a000-000000000001', 'testuser', 'test@example.com', '\x0123456789ABCDEF');
 
--- Create test soils with realistic geographic coordinates
+-- Create test soils
 -- Loam soil (medium radius) - Central Park, NYC
 INSERT INTO soils (id, soil_type, water_retention, nutrient_richness, radius_m, centre) VALUES 
   ('00000000-0000-4000-a000-000000000101', 'loam', 0.55, 0.75, 22.0, 
@@ -80,7 +80,7 @@ INSERT INTO plants (
 ) VALUES (
   '00000000-0000-4000-a000-000000000205', 'Cactus', 75.0, false, 
   '00000000-0000-4000-a000-000000000001', NOW(), true, 
-  ST_GeogFromText('POINT(-80.134358 25.792173)'), 2.5, 
+  ST_GeogFromText('POINT(-80.134358 25.792173)'), 3, 
   '00000000-0000-4000-a000-000000000102', 'sandy', 'Opuntia', 
   4, 1, 5, 2
 );
@@ -92,7 +92,19 @@ INSERT INTO plants (
 ) VALUES (
   '00000000-0000-4000-a000-000000000206', 'Wilted Flower', 0.0, true, 
   '00000000-0000-4000-a000-000000000001', NOW() - INTERVAL '10 days', true, 
-  ST_GeogFromText('POINT(-111.928651 33.252440)'), 2.0, 
+  ST_GeogFromText('POINT(-111.928651 33.252440)'), 3.0, 
   '00000000-0000-4000-a000-000000000104', 'loam', 'Rosa rubiginosa', 
+  2, 1, 5, 3
+);
+
+-- Unactivated plant in silt soil
+INSERT INTO plants (
+  id, nickname, hp, dead, owner_id, time_planted, activated, centre, radius_m, 
+  soil_id, optimal_soil, botanical_name, woe, frolic, dread, malice
+) VALUES (
+  '00000000-0000-4000-a000-000000000207', 'Wilted Flower', 0.0, false, 
+  '00000000-0000-4000-a000-000000000001', NOW() - INTERVAL '10 days', false, 
+  ST_GeogFromText('POINT(-111.928651 33.252440)'), 3.0, 
+  '00000000-0000-4000-a000-000000000103', 'loam', 'Rosa rubiginosa', 
   2, 1, 5, 3
 );

@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -17,7 +16,7 @@ func TestPlantStore(t *testing.T) {
 
 	ctx := context.Background()
 	pgContainer, err := createPostgresContainer(ctx)
-	fmt.Println(pgContainer.connectionString)
+	// fmt.Println(pgContainer.connectionString)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,8 +68,6 @@ func TestPlantStore(t *testing.T) {
 		if len(plants) != 5 {
 			t.Errorf("expected 5 plants, got %d", len(plants))
 		}
-
-		fmt.Println(plants[0].ID)
 	})
 
 	t.Run("Get", func(t *testing.T) {
@@ -93,7 +90,6 @@ func TestPlantStore(t *testing.T) {
 		}
 
 		plants, err := store.GetBySoilIDAndProximity(soilID, coords, models.SoilRadiusMMedium)
-		fmt.Println(len(plants))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -103,7 +99,6 @@ func TestPlantStore(t *testing.T) {
 		}
 
 		plants, err = store.GetBySoilIDAndProximity(soilID, coords, models.PlantInteractionRadius+1)
-		fmt.Println(len(plants))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -152,6 +147,102 @@ func TestPlantStore(t *testing.T) {
 		firstPlant := plants[0]
 		if firstPlant.ID != "00000000-0000-4000-a000-000000000204" {
 			t.Errorf("expected first plant to be Palm Tree in Miami Beach, got %s", firstPlant.Nickname)
+		}
+	})
+
+	t.Run("ActivatePlant", func(t *testing.T) {
+		plantID := "00000000-0000-4000-a000-000000000207"
+		err := store.ActivatePlant(plantID)
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		plant, err := store.Get(plantID)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if plant.Activated != true {
+			t.Errorf("expected plant to be activated, got %v", plant.Activated)
+		}
+	})
+
+	t.Run("Insert", func(t *testing.T) {
+		seed := models.NewSeed(ownerID)
+		soil := models.NewLargeSizedSoil(models.RandomSoilMeta(), models.Coordinates{Lat: 29.153291, Lng: -89.254120})
+		soil.ID = "00000000-0000-4000-a000-000000000103"
+		plant, err := models.NewPlant(seed, soil, models.Coordinates{Lat: 29.153291, Lng: -89.254120})
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		plant.ID = "00000000-0000-4000-a000-000000000999"
+
+		err = store.Insert(plant)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("Update", func(t *testing.T) {
+		t.Run("Update Plant xp", func(t *testing.T) {
+			plantID := "00000000-0000-4000-a000-000000000201"
+			plant, err := store.Get(plantID)
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+
+			plant.Xp += 10
+			err = store.Update(plant)
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+
+			updatedPlant, err := store.Get(plantID)
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+
+			if updatedPlant.Xp != plant.Xp {
+				t.Errorf("expected plant XP to be updated, got %d", updatedPlant.Xp)
+			}
+		})
+
+		t.Run("Update Plant nickname", func(t *testing.T) {
+			plantID := "00000000-0000-4000-a000-000000000201"
+			plant, err := store.Get(plantID)
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+
+			plant.Nickname = "New Nickname"
+			err = store.Update(plant)
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+
+			updatedPlant, err := store.Get(plantID)
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+
+			if updatedPlant.Nickname != plant.Nickname {
+				t.Errorf("expected plant nickname to be updated, got %s", updatedPlant.Nickname)
+			}
+		})
+	})
+
+	t.Run("Delete", func(t *testing.T) {
+		plantID := "00000000-0000-4000-a000-000000000201"
+		err := store.Delete(plantID)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		_, err = store.Get(plantID)
+		if err == nil {
+			t.Errorf("expected plant to be deleted, but it was found")
 		}
 	})
 }

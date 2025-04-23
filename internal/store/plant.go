@@ -251,7 +251,7 @@ func (s *plantStore) Insert(plant *models.Plant) error {
 	err := s.db.QueryRow(
 		q,
 		plant.Nickname, plant.Hp, plant.OwnerID,
-		plant.CircleMeta.Centre().Lng, plant.CircleMeta.Centre().Lat, plant.CircleMeta.RadiusM,
+		plant.CircleMeta.Centre().Lng, plant.CircleMeta.Centre().Lat, plant.CircleMeta.RadiusM(),
 		plant.Soil.ID, plant.OptimalSoil, plant.BotanicalName,
 		plant.Level, plant.Xp,
 		plant.Tempers.Woe, plant.Tempers.Frolic, plant.Tempers.Dread, plant.Tempers.Malice,
