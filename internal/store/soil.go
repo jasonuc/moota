@@ -65,7 +65,7 @@ func (s *soilStore) GetAllInProximity(point models.Coordinates, distanceM float6
 		var radiusM float64
 
 		soil := new(models.Soil)
-		err := rows.Scan(&soil.ID, &centreText, &radiusM, &soil.WaterRetention, &soil.NutrientRichness, &soil.CreatedAt)
+		err := rows.Scan(&soil.ID, &centreText, &radiusM, &soil.Type, &soil.WaterRetention, &soil.NutrientRichness, &soil.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +94,7 @@ func (s *soilStore) Insert(soil *models.Soil) error {
 	err := s.db.QueryRow(
 		q, soil.Centre().Lng, soil.Centre().Lat, soil.RadiusM(), soil.Type, soil.NutrientRichness, soil.WaterRetention,
 	).Scan(
-		soil.ID, soil.CreatedAt,
+		&soil.ID, &soil.CreatedAt,
 	)
 
 	if err != nil {

@@ -20,7 +20,7 @@ type seedStore struct {
 }
 
 func (s *seedStore) GetAllByOwnerID(ownerID string) ([]*models.Seed, error) {
-	q := `SELECT id, owner_id, health, planted, optimal_soil, botanical_name, created_at FROM seeds
+	q := `SELECT id, owner_id, hp, planted, optimal_soil, botanical_name, created_at FROM seeds
 			WHERE owner_id = $1 AND planted = false;`
 
 	rows, err := s.db.Query(q, ownerID)
@@ -50,7 +50,7 @@ func (s *seedStore) GetAllByOwnerID(ownerID string) ([]*models.Seed, error) {
 }
 
 func (s *seedStore) Get(id string) (*models.Seed, error) {
-	q := `SELECT id, owner_id, health, planted, optimal_soil, botanical_name, created_at FROM seeds
+	q := `SELECT id, owner_id, hp, planted, optimal_soil, botanical_name, created_at FROM seeds
 			WHERE id = $1;`
 
 	seed := new(models.Seed)
@@ -71,7 +71,7 @@ func (s *seedStore) Get(id string) (*models.Seed, error) {
 }
 
 func (s *seedStore) Insert(seed *models.Seed) error {
-	q := `INSERT INTO seeds (owner_id, health, planted, optimal_soil, botanical_name)
+	q := `INSERT INTO seeds (owner_id, hp, planted, optimal_soil, botanical_name)
 			VALUES ($1, $2, $3, $4, $5)
 			RETURNING id, created_at;`
 
