@@ -50,8 +50,8 @@ var (
 )
 
 type Soil struct {
-	ID        string    `json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID        string     `json:"id"`
+	CreatedAt *time.Time `json:"createdAt"`
 	SoilMeta
 	CircleMeta
 }

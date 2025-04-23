@@ -8,15 +8,18 @@ import (
 func TestAction(t *testing.T) {
 	simTime := time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC)
 
+	timePlanted := simTime.Add(-24 * time.Hour)
+	lastWatered := simTime.Add(-7 * time.Hour)
+	lastAction := simTime.Add(-7 * time.Hour)
+
 	plant := &Plant{
 		Hp:             100.0,
 		Soil:           &Soil{SoilMeta: DefaultSoilMetaLoam},
 		LevelMeta:      NewLeveLMeta(1, 0),
-		TimePlanted:    simTime.Add(-24 * time.Hour),
-		LastWateredAt:  simTime.Add(-7 * time.Hour),
-		LastActionTime: simTime.Add(-7 * time.Hour),
+		TimePlanted:    &timePlanted,
+		LastWateredAt:  &lastWatered,
+		LastActionTime: &lastAction,
 	}
-
 	t.Run("Water plant after cooldown", func(t *testing.T) {
 		now := simTime.Add(2 * time.Hour)
 
@@ -30,11 +33,11 @@ func TestAction(t *testing.T) {
 			t.Errorf("expected plant to be alive")
 		}
 
-		if plant.LastWateredAt != now {
+		if *plant.LastWateredAt != now {
 			t.Errorf("expected LastWateredAt to be updated to %v, got: %v", now, plant.LastWateredAt)
 		}
 
-		if plant.LastActionTime != now {
+		if *plant.LastActionTime != now {
 			t.Errorf("expected LastActionTime to be updated to %v, got: %v", now, plant.LastActionTime)
 		}
 
@@ -44,8 +47,10 @@ func TestAction(t *testing.T) {
 	})
 
 	t.Run("Water plant during cooldown", func(t *testing.T) {
-		plant.LastWateredAt = simTime.Add(-1 * time.Hour)
-		plant.LastActionTime = simTime.Add(-1 * time.Hour)
+		lastWatered := simTime.Add(-1 * time.Hour)
+		lastAction := simTime.Add(-1 * time.Hour)
+		plant.LastWateredAt = &lastWatered
+		plant.LastActionTime = &lastAction
 
 		now := simTime
 
@@ -73,7 +78,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases when plant has not been interacted with for over 12 hours", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(14 * time.Hour)
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredAt: futureTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: &currentTime, LastWateredAt: &futureTime}
 
 		plant.preActionHook(futureTime)
 
@@ -91,7 +96,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases when plant has not been watered for over 7 hours", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(10 * time.Hour)
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: futureTime, LastWateredAt: currentTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: &futureTime, LastWateredAt: &currentTime}
 
 		plant.preActionHook(futureTime)
 
@@ -109,7 +114,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases down to zero if neglected for a long time", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(7 * 24 * time.Hour)
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredAt: currentTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: &currentTime, LastWateredAt: &currentTime}
 
 		plant.preActionHook(futureTime)
 

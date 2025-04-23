@@ -17,11 +17,11 @@ type SeedMeta struct {
 }
 
 type Seed struct {
-	ID        string    `json:"id"`
-	Hp        float64   `json:"hp"` // used as plant's starting health
-	Planted   bool      `json:"planted"`
-	OwnerID   string    `json:"ownerID"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID        string     `json:"id"`
+	Hp        float64    `json:"hp"` // used as plant's starting health
+	Planted   bool       `json:"planted"`
+	OwnerID   string     `json:"ownerID"`
+	CreatedAt *time.Time `json:"createdAt"`
 	SeedMeta
 }
 
