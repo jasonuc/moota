@@ -61,7 +61,7 @@ func (s *plantService) GetAllUserPlants(userID string, point models.Coordinates)
 
 	tx := s.store.WithTx(transaction)
 
-	plants, err := tx.Plant.GetAllByOwnerID(userID)
+	plants, err := tx.Plant.GetByOwnerID(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (s *plantService) ConfirmPlantCreation(plantID string) (*models.Plant, erro
 
 func (s *plantService) CreatePlant(soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
 	plantCircleMeta := models.NewCircleMeta(soil.Centre(), models.PlantInteractionRadius)
-	nearbyPlants, err := s.store.Plant.GetAllInSoilAndInProximity(soil.ID, centre, models.PlantInteractionRadius+1)
+	nearbyPlants, err := s.store.Plant.GetBySoilIDAndProximity(soil.ID, centre, models.PlantInteractionRadius+1)
 	if err != nil {
 		return nil, err
 	}
