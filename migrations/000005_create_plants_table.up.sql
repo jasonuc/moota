@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS plants (
 	botanical_name TEXT NOT NULL,
 	level SMALLINT NOT NULL DEFAULT 1,
 	xp INTEGER NOT NULL DEFAULT 0,
-	woe INTEGER NOT NULL,
-	frolic INTEGER NOT NULL,
-	dread INTEGER NOT NULL,
-	malice INTEGER NOT NULL
+	woe REAL NOT NULL CHECK (woe >= 1 AND woe <= 5),
+	frolic REAL NOT NULL CHECK (frolic >= 1 AND frolic <= 5),
+	dread REAL NOT NULL CHECK (dread >= 1 AND dread <= 5),
+	malice REAL NOT NULL CHECK (malice >= 1 AND malice <= 5)
 );
