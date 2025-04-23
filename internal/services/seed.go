@@ -2,6 +2,8 @@ package services
 
 import (
 	"errors"
+	"maps"
+	"slices"
 
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/store"
@@ -57,15 +59,15 @@ func (s *seedService) GetAllUserSeeds(userID string) ([]*SeedGroup, error) {
 		return nil, err
 	}
 
-	seedGroups := make(map[string]*SeedGroup)
+	seedGroupsMap := make(map[string]*SeedGroup)
 	for _, seed := range seeds {
-		sg, ok := seedGroups[seed.BotanicalName]
+		sg, ok := seedGroupsMap[seed.BotanicalName]
 		if ok {
 			sg.Seeds = append(sg.Seeds, seed)
 			sg.Count++
 			continue
 		} else {
-			seedGroups[seed.BotanicalName] = &SeedGroup{
+			seedGroupsMap[seed.BotanicalName] = &SeedGroup{
 				BotanicalName: seed.BotanicalName,
 				Count:         1,
 				Seeds:         []*models.Seed{seed},
@@ -73,12 +75,8 @@ func (s *seedService) GetAllUserSeeds(userID string) ([]*SeedGroup, error) {
 		}
 	}
 
-	result := make([]*SeedGroup, 0, len(seedGroups))
-	for _, group := range seedGroups {
-		result = append(result, group)
-	}
-
-	return result, nil
+	seedGroups := slices.Collect(maps.Values(seedGroupsMap))
+	return seedGroups, nil
 }
 
 func (s *seedService) GetSeed(userID, seedID string) (*models.Seed, error) {
