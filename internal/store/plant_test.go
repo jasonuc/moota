@@ -16,7 +16,6 @@ func TestPlantStore(t *testing.T) {
 
 	ctx := context.Background()
 	pgContainer, err := createPostgresContainer(ctx)
-	// fmt.Println(pgContainer.connectionString)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,6 +31,7 @@ func TestPlantStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	t.Cleanup(func() {
 		err := db.Close()
 		if err != nil {
