@@ -10,6 +10,10 @@ import (
 )
 
 func TestSeedStore(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping seed store integration tests")
+	}
+
 	ctx := context.Background()
 	pgContainer, err := createPostgresContainer(ctx)
 	if err != nil {

@@ -11,7 +11,7 @@ import (
 
 func TestPlantStore(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping integration test")
+		t.Skip("skipping plant store integration tests")
 	}
 
 	ctx := context.Background()

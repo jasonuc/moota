@@ -10,6 +10,10 @@ import (
 )
 
 func TestSoilStore(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping soil store integration tests")
+	}
+
 	ctx := context.Background()
 	pgContainer, err := createPostgresContainer(ctx)
 	if err != nil {
