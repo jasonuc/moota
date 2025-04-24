@@ -7,15 +7,6 @@ type TokenPair struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
-type Claims struct {
-	UserID   string `json:"userID"`
-	Username string `json:"username"`
-
-	ExpiresAt time.Time `json:"exp"`
-	IssuedAt  time.Time `json:"iat"`
-	Issuer    string    `json:"iss"`
-}
-
 type RefreshToken struct {
 	ID        string     `json:"id"`
 	UserID    string     `json:"userID"`

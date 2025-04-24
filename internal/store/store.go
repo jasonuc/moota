@@ -7,11 +7,12 @@ import (
 )
 
 type Store struct {
-	db    *sql.DB
-	User  UserStore
-	Plant PlantStore
-	Soil  SoilStore
-	Seed  SeedStore
+	db           *sql.DB
+	User         UserStore
+	Plant        PlantStore
+	Soil         SoilStore
+	Seed         SeedStore
+	RefreshToken RefreshTokenStore
 }
 
 var (
@@ -29,11 +30,12 @@ type Querier interface {
 
 func NewStore(db *sql.DB) *Store {
 	return &Store{
-		db:    db,
-		User:  &userStore{db},
-		Seed:  &seedStore{db},
-		Plant: &plantStore{db},
-		Soil:  &soilStore{db},
+		db:           db,
+		User:         &userStore{db},
+		Seed:         &seedStore{db},
+		Plant:        &plantStore{db},
+		Soil:         &soilStore{db},
+		RefreshToken: &refreshTokenStore{db},
 	}
 }
 
@@ -47,9 +49,10 @@ func (s *Store) Begin() (*Transaction, error) {
 
 func (s *Store) WithTx(transaction *Transaction) *Store {
 	return &Store{
-		User:  &userStore{transaction.tx},
-		Seed:  &seedStore{transaction.tx},
-		Plant: &plantStore{transaction.tx},
-		Soil:  &soilStore{transaction.tx},
+		User:         &userStore{transaction.tx},
+		Seed:         &seedStore{transaction.tx},
+		Plant:        &plantStore{transaction.tx},
+		Soil:         &soilStore{transaction.tx},
+		RefreshToken: &refreshTokenStore{transaction.tx},
 	}
 }
