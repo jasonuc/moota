@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Link } from "@tanstack/react-router";
 import { Button } from "./ui/button";
 import SeedCount from "./seed-count";
+import Logo from "./logo";
 
 type HeaderProps = {
     seedCount: number
@@ -11,12 +12,7 @@ export default function Header({ seedCount }: HeaderProps) {
     return (
         <div className="flex w-full items-center justify-between">
             <Link to="/dashboard" className="flex items-center space-x-2">
-                <img
-                    src="/moota.png"
-                    alt="Moota"
-                    width={45} height={45}
-                    draggable={false}
-                />
+                <Logo />
             </Link>
 
             <div className="flex items-center space-x-5">

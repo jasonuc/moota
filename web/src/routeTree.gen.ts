@@ -13,8 +13,11 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as SeedsImport } from './routes/seeds'
 import { Route as DashboardImport } from './routes/dashboard'
+import { Route as AuthRouteImport } from './routes/_auth/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as PlantsIndexImport } from './routes/plants/index'
+import { Route as AuthRegisterImport } from './routes/_auth/register'
+import { Route as AuthLoginImport } from './routes/_auth/login'
 import { Route as PlantsPlantIdIndexImport } from './routes/plants/$plantId/index'
 
 // Create/Update Routes
@@ -31,6 +34,11 @@ const DashboardRoute = DashboardImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthRouteRoute = AuthRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -41,6 +49,18 @@ const PlantsIndexRoute = PlantsIndexImport.update({
   id: '/plants/',
   path: '/plants/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AuthRegisterRoute = AuthRegisterImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthLoginRoute = AuthLoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 
 const PlantsPlantIdIndexRoute = PlantsPlantIdIndexImport.update({
@@ -60,6 +80,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRoute
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -73,6 +100,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/seeds'
       preLoaderRoute: typeof SeedsImport
       parentRoute: typeof rootRoute
+    }
+    '/_auth/login': {
+      id: '/_auth/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof AuthLoginImport
+      parentRoute: typeof AuthRouteImport
+    }
+    '/_auth/register': {
+      id: '/_auth/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof AuthRegisterImport
+      parentRoute: typeof AuthRouteImport
     }
     '/plants/': {
       id: '/plants/'
@@ -93,18 +134,38 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
+interface AuthRouteRouteChildren {
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthRegisterRoute: typeof AuthRegisterRoute
+}
+
+const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthLoginRoute: AuthLoginRoute,
+  AuthRegisterRoute: AuthRegisterRoute,
+}
+
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
+  AuthRouteRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '': typeof AuthRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/seeds': typeof SeedsRoute
+  '/login': typeof AuthLoginRoute
+  '/register': typeof AuthRegisterRoute
   '/plants': typeof PlantsIndexRoute
   '/plants/$plantId': typeof PlantsPlantIdIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '': typeof AuthRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/seeds': typeof SeedsRoute
+  '/login': typeof AuthLoginRoute
+  '/register': typeof AuthRegisterRoute
   '/plants': typeof PlantsIndexRoute
   '/plants/$plantId': typeof PlantsPlantIdIndexRoute
 }
@@ -112,22 +173,44 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/_auth': typeof AuthRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/seeds': typeof SeedsRoute
+  '/_auth/login': typeof AuthLoginRoute
+  '/_auth/register': typeof AuthRegisterRoute
   '/plants/': typeof PlantsIndexRoute
   '/plants/$plantId/': typeof PlantsPlantIdIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/seeds' | '/plants' | '/plants/$plantId'
+  fullPaths:
+    | '/'
+    | ''
+    | '/dashboard'
+    | '/seeds'
+    | '/login'
+    | '/register'
+    | '/plants'
+    | '/plants/$plantId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/seeds' | '/plants' | '/plants/$plantId'
+  to:
+    | '/'
+    | ''
+    | '/dashboard'
+    | '/seeds'
+    | '/login'
+    | '/register'
+    | '/plants'
+    | '/plants/$plantId'
   id:
     | '__root__'
     | '/'
+    | '/_auth'
     | '/dashboard'
     | '/seeds'
+    | '/_auth/login'
+    | '/_auth/register'
     | '/plants/'
     | '/plants/$plantId/'
   fileRoutesById: FileRoutesById
@@ -135,6 +218,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   SeedsRoute: typeof SeedsRoute
   PlantsIndexRoute: typeof PlantsIndexRoute
@@ -143,6 +227,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRouteRoute: AuthRouteRouteWithChildren,
   DashboardRoute: DashboardRoute,
   SeedsRoute: SeedsRoute,
   PlantsIndexRoute: PlantsIndexRoute,
@@ -160,6 +245,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/_auth",
         "/dashboard",
         "/seeds",
         "/plants/",
@@ -169,11 +255,26 @@ export const routeTree = rootRoute
     "/": {
       "filePath": "index.tsx"
     },
+    "/_auth": {
+      "filePath": "_auth/route.tsx",
+      "children": [
+        "/_auth/login",
+        "/_auth/register"
+      ]
+    },
     "/dashboard": {
       "filePath": "dashboard.tsx"
     },
     "/seeds": {
       "filePath": "seeds.tsx"
+    },
+    "/_auth/login": {
+      "filePath": "_auth/login.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/register": {
+      "filePath": "_auth/register.tsx",
+      "parent": "/_auth"
     },
     "/plants/": {
       "filePath": "plants/index.tsx"
