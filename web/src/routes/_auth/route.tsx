@@ -13,7 +13,7 @@ function RouteComponent() {
                     <LogoWithText />
                 </Link>
             </div>
-            
+
             <div className='flex h-full md:items-center justify-center'>
                 <Outlet />
             </div>
