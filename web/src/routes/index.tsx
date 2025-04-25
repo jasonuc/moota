@@ -20,13 +20,7 @@ function Index() {
               Home
             </Button>
           </Link>
-          
-          <Link to='/register'>
-            <Button>
-              Register
-            </Button>
-          </Link>
-          
+
           <Link to='/login'>
             <Button>
               Login

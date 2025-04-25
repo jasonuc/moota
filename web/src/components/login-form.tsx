@@ -16,7 +16,7 @@ export default function LoginForm() {
     });
 
     function onSubmit(values: z.infer<typeof loginFormSchema>) {
-        console.log(values);
+        console.log({ ...values, password: "" });
     }
 
     return (

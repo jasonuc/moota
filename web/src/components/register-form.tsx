@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { registerFormSchema } from '@/schemas/auth'
 
@@ -18,7 +18,15 @@ export default function RegisterForm() {
     });
 
     function onSubmit(values: z.infer<typeof registerFormSchema>) {
-        console.log(values);
+        const passwordMatch = values.password === values.confirmPassword;
+        if (!passwordMatch) {
+            form.setError("confirmPassword", {
+                type: "onChange",
+                message: "Passwords do not match",
+            })
+            return
+        }
+        console.log({ ...values, password: "" });
     }
 
     return (
@@ -33,7 +41,6 @@ export default function RegisterForm() {
                             <FormControl>
                                 <Input placeholder="mooey" {...field} />
                             </FormControl>
-                            <FormDescription>This is your public display name.</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -48,9 +55,6 @@ export default function RegisterForm() {
                             <FormControl>
                                 <Input placeholder="mooey@example.com" type="email" {...field} />
                             </FormControl>
-                            <FormDescription>
-                                This is your login email.
-                            </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -65,9 +69,6 @@ export default function RegisterForm() {
                             <FormControl>
                                 <Input placeholder="********" type="password" {...field} />
                             </FormControl>
-                            <FormDescription>
-                                Password must be at least 8 characters long.
-                            </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -82,15 +83,12 @@ export default function RegisterForm() {
                             <FormControl>
                                 <Input placeholder="********" type="password" {...field} />
                             </FormControl>
-                            <FormDescription>
-                                Please confirm your password.
-                            </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
 
-                <Button type="submit" className='w-full'>Submit</Button>
+                <Button type="submit" className='w-full'>Create</Button>
             </form>
         </Form>
     )

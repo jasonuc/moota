@@ -12,8 +12,8 @@ function RouteComponent() {
       <CardHeader className='text-center'>
         <CardTitle className='font-heading text-xl'>Login to your account</CardTitle>
         <CardDescription className='text-sm font-base'>
-          Already have an account?{' '}
-          <Link to='/register' className='text-blue-500 hover:underline'>
+          Don't have an account?{' '}
+          <Link to='/register' className='text-blue-500 underline-offset-2 underline'>
             Register
           </Link>
         </CardDescription>
