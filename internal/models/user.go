@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 type User struct {
 	ID           string    `json:"id"`
@@ -12,3 +15,7 @@ type User struct {
 	UpdatedAt    time.Time `json:"updatedAt"`
 	LevelMeta
 }
+
+var (
+	ErrUserNotFound = errors.New("user not found")
+)

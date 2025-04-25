@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 type TokenPair struct {
 	AccessToken  string `json:"accessToken"`
@@ -15,3 +18,7 @@ type RefreshToken struct {
 	ExpiresAt time.Time  `json:"expiresAt"`
 	RevokedAt *time.Time `json:"revokedAt,omitempty"`
 }
+
+var (
+	ErrRefreshTokenNotFound = errors.New("refresh token not found")
+)
