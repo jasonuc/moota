@@ -31,7 +31,7 @@ export default function RegisterForm() {
                         <FormItem>
                             <FormLabel>Username</FormLabel>
                             <FormControl>
-                                <Input placeholder="ekmas" {...field} />
+                                <Input placeholder="mooey" {...field} />
                             </FormControl>
                             <FormDescription>This is your public display name.</FormDescription>
                             <FormMessage />
@@ -46,7 +46,7 @@ export default function RegisterForm() {
                         <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                                <Input placeholder="johndoe@example.com" type="email" {...field} />
+                                <Input placeholder="mooey@example.com" type="email" {...field} />
                             </FormControl>
                             <FormDescription>
                                 This is your login email.

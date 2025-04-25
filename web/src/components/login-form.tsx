@@ -29,7 +29,7 @@ export default function LoginForm() {
                         <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                                <Input placeholder="johndoe@example.com" type="email" {...field} />
+                                <Input placeholder="mooey@example.com" type="email" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
