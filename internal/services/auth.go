@@ -28,17 +28,15 @@ type AuthService interface {
 
 type authService struct {
 	store           *store.Store
-	refreshSecret   []byte
 	accessSecret    []byte
 	refreshTokenTTL time.Duration
 	accessTokenTTL  time.Duration
 	issuer          string
 }
 
-func NewAuthService(store *store.Store, refreshSecret, acessSecret []byte, refreshTTL, acessTTL time.Duration, issuer string) AuthService {
+func NewAuthService(store *store.Store, acessSecret []byte, refreshTTL, acessTTL time.Duration, issuer string) AuthService {
 	return &authService{
 		store:           store,
-		refreshSecret:   refreshSecret,
 		accessSecret:    acessSecret,
 		refreshTokenTTL: refreshTTL,
 		accessTokenTTL:  acessTTL,
@@ -93,7 +91,12 @@ func (s *authService) Login(usernameOrEmail, password string) (*models.TokenPair
 		return nil, ErrInvalidCredentials
 	}
 
-	tokenPair, refreshToken, err := s.generateTokenPair(user)
+	accessToken, err := s.generateAccessToken(user)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := s.generateRefreshToken(user)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +105,10 @@ func (s *authService) Login(usernameOrEmail, password string) (*models.TokenPair
 		return nil, err
 	}
 
-	return tokenPair, nil
+	return &models.TokenPair{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken.Plain,
+	}, nil
 }
 
 func (s *authService) RefreshTokens(refreshTokenString string) (*models.TokenPair, error) {
@@ -134,7 +140,12 @@ func (s *authService) RefreshTokens(refreshTokenString string) (*models.TokenPai
 		return nil, err
 	}
 
-	tokenPair, refreshToken, err := s.generateTokenPair(user)
+	accessToken, err := s.generateAccessToken(user)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := s.generateRefreshToken(user)
 	if err != nil {
 		return nil, err
 	}
@@ -147,13 +158,16 @@ func (s *authService) RefreshTokens(refreshTokenString string) (*models.TokenPai
 		return nil, err
 	}
 
-	return tokenPair, nil
+	return &models.TokenPair{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken.Plain,
+	}, nil
 }
 
 func (s *authService) VerifyAccessToken(accessToken string) (string, error) {
-	token, err := jwt.Parse(accessToken, func(t *jwt.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(s.accessSecret), nil
 	})
@@ -174,38 +188,44 @@ func (s *authService) VerifyAccessToken(accessToken string) (string, error) {
 	return "", errors.New("invalid token")
 }
 
-func (s *authService) generateTokenPair(user *models.User) (*models.TokenPair, *models.RefreshToken, error) {
+func (s *authService) generateAccessToken(user *models.User) (string, error) {
 	now := time.Now()
-	accessExp := now.Add(s.accessTokenTTL)
-	refreshExp := now.Add(s.refreshTokenTTL)
+	accessExp := time.Now().Add(s.accessTokenTTL)
 
-	acessClaims := jwt.MapClaims{
+	claims := jwt.MapClaims{
 		"sub":      user.ID,
 		"username": user.Username,
-		"iat":      now.Unix(),
 		"exp":      accessExp.Unix(),
+		"iat":      now.Unix(),
 		"iss":      s.issuer,
 	}
 
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, acessClaims)
-	acessTokenString, err := accessToken.SignedString(s.accessSecret)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	accessToken, err := token.SignedString(s.accessSecret)
 	if err != nil {
-		return nil, nil, fmt.Errorf("could not generate acess token: %w", err)
+		return "", fmt.Errorf("could not generate access token: %w", err)
 	}
+
+	return accessToken, nil
+}
+
+func (s *authService) generateRefreshToken(user *models.User) (*models.RefreshToken, error) {
+	now := time.Now()
+	refreshExp := time.Now().Add(s.refreshTokenTTL)
 
 	refreshTokenBytes := make([]byte, 32)
 	if _, err := rand.Read(refreshTokenBytes); err != nil {
-		return nil, nil, fmt.Errorf("could not generate refresh token: %w", err)
+		return nil, fmt.Errorf("could not generate refresh token %w", err)
 	}
-	refreshTokenString := base64.RawURLEncoding.EncodeToString(refreshTokenBytes)
-	refreshTokenHash := sha256.Sum256([]byte(refreshTokenString))
 
-	return &models.TokenPair{
-			AccessToken:  acessTokenString,
-			RefreshToken: refreshTokenString,
-		}, &models.RefreshToken{
-			UserID:    user.ID,
-			Hash:      refreshTokenHash[:],
-			ExpiresAt: refreshExp,
-		}, nil
+	refreshTokenPlain := base64.RawURLEncoding.EncodeToString(refreshTokenBytes)
+	refreshTokenHash := sha256.Sum256([]byte(refreshTokenPlain))
+
+	return &models.RefreshToken{
+		UserID:    user.ID,
+		Hash:      refreshTokenHash[:],
+		Plain:     refreshTokenPlain,
+		CreatedAt: now,
+		ExpiresAt: refreshExp,
+	}, nil
 }

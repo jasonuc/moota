@@ -14,6 +14,7 @@ type RefreshToken struct {
 	ID        string
 	UserID    string
 	Hash      []byte
+	Plain     string
 	CreatedAt time.Time
 	ExpiresAt time.Time
 	RevokedAt *time.Time
