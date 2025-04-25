@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Link } from "@tanstack/react-router";
 import { Button } from "./ui/button";
 import SeedCount from "./seed-count";
-import Logo from "./logo";
+import { Logo } from "./logo";
 
 type HeaderProps = {
     seedCount: number
