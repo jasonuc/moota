@@ -21,12 +21,12 @@ type userStore struct {
 }
 
 func (s *userStore) Insert(user *models.User) error {
-	q := `INSERT INTO users (id, username, email, password_hash, created_at, updated_at, level, xp)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	q := `INSERT INTO users (username, email, password_hash, created_at, updated_at, level, xp)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at, updated_at;`
 
 	err := s.db.QueryRow(
-		q, user.ID, user.Username, user.Email, user.PasswordHash, user.CreatedAt, user.UpdatedAt, user.Level, user.Xp,
+		q, user.Username, user.Email, user.PasswordHash, user.CreatedAt, user.UpdatedAt, user.Level, user.Xp,
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
@@ -47,7 +47,7 @@ func (s *userStore) GetByEmail(email string) (*models.User, error) {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
+			return nil, models.ErrUserNotFound
 		}
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (s *userStore) GetByID(id string) (*models.User, error) {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
+			return nil, models.ErrUserNotFound
 		}
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (s *userStore) GetByUsername(username string) (*models.User, error) {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
+			return nil, models.ErrUserNotFound
 		}
 		return nil, err
 	}
