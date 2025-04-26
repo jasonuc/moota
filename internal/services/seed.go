@@ -22,9 +22,11 @@ type seedService struct {
 	store        *store.Store
 }
 
-func NewSeedService(store *store.Store) SeedService {
+func NewSeedService(store *store.Store, soilService SoilService, plantService PlantService) SeedService {
 	return &seedService{
-		store: store,
+		store:        store,
+		soilService:  soilService,
+		plantService: plantService,
 	}
 }
 
