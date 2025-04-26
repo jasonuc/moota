@@ -10,13 +10,13 @@ import (
 func (app *application) routes() http.Handler {
 	r := chi.NewRouter()
 
-	r.Mount("/api", r.Group(func(r chi.Router) {
+	r.Route("/api", func(r chi.Router) {
 		r.Get("/health", app.healthCheckHandler)
 
 		r.Group(func(r chi.Router) {
 			r.Use(app.authMiddleware.Authorise)
 		})
-	}))
+	})
 
 	return r
 }
