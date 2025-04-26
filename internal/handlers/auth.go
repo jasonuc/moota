@@ -1,12 +1,14 @@
 package handlers
 
-import "github.com/jasonuc/moota/internal/services"
+import (
+	"github.com/jasonuc/moota/internal/services"
+)
 
 type AuthHandler struct {
-	authService *services.AuthService
+	authService services.AuthService
 }
 
-func NewAuthHandler(authService *services.AuthService) *AuthHandler {
+func NewAuthHandler(authService services.AuthService) *AuthHandler {
 	return &AuthHandler{
 		authService: authService,
 	}
