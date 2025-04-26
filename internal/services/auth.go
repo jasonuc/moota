@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jasonuc/moota/internal/dto"
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/store"
 	"golang.org/x/crypto/bcrypt"
@@ -18,12 +19,14 @@ import (
 var (
 	ErrUserAlreadyExists  = errors.New("user already exists")
 	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrInvalidUsername    = errors.New("invalid username")
+	ErrInvalidEmail       = errors.New("invalid email")
 )
 
 type AuthService interface {
-	Register(context.Context, string, string, string) (*models.User, error)
-	Login(context.Context, string, string) (*models.TokenPair, error)
-	RefreshTokens(context.Context, string) (*models.TokenPair, error)
+	Register(context.Context, dto.UserRegisterReq) (*models.User, error)
+	Login(context.Context, dto.UserLoginReq) (*models.TokenPair, error)
+	RefreshTokens(context.Context, dto.TokenRefreshReq) (*models.TokenPair, error)
 	VerifyAccessToken(context.Context, string) (string, error)
 }
 
@@ -45,25 +48,25 @@ func NewAuthService(store *store.Store, acessSecret []byte, refreshTTL, acessTTL
 	}
 }
 
-func (s *authService) Register(ctx context.Context, email, username, password string) (*models.User, error) {
-	_, err := s.store.User.GetByEmail(ctx, email)
-	if err == nil {
-		return nil, ErrUserAlreadyExists
+func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*models.User, error) {
+	_, err := s.store.User.GetByEmail(ctx, dto.Email)
+	if err != nil {
+		return nil, ErrInvalidEmail
 	}
 
-	_, err = s.store.User.GetByUsername(ctx, username)
-	if err == nil {
-		return nil, ErrUserAlreadyExists
+	_, err = s.store.User.GetByUsername(ctx, dto.Email)
+	if err != nil {
+		return nil, ErrInvalidUsername
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(dto.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
 	user := &models.User{
-		Username:     username,
-		Email:        email,
+		Username:     dto.Username,
+		Email:        dto.Email,
 		PasswordHash: hashedPassword,
 		LevelMeta:    models.NewLeveLMeta(1, 0),
 	}
@@ -76,19 +79,16 @@ func (s *authService) Register(ctx context.Context, email, username, password st
 	return user, nil
 }
 
-func (s *authService) Login(ctx context.Context, usernameOrEmail, password string) (*models.TokenPair, error) {
+func (s *authService) Login(ctx context.Context, dto dto.UserLoginReq) (*models.TokenPair, error) {
 	var user *models.User
 	var err error
 
-	user, err = s.store.User.GetByEmail(ctx, usernameOrEmail)
+	user, err = s.store.User.GetByEmail(ctx, dto.Email)
 	if err != nil {
-		user, err = s.store.User.GetByUsername(ctx, usernameOrEmail)
-		if err != nil {
-			return nil, ErrInvalidCredentials
-		}
+		return nil, ErrInvalidCredentials
 	}
 
-	if err := bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(dto.Password)); err != nil {
 		return nil, ErrInvalidCredentials
 	}
 
@@ -112,7 +112,7 @@ func (s *authService) Login(ctx context.Context, usernameOrEmail, password strin
 	}, nil
 }
 
-func (s *authService) RefreshTokens(ctx context.Context, refreshTokenString string) (*models.TokenPair, error) {
+func (s *authService) RefreshTokens(ctx context.Context, dto dto.TokenRefreshReq) (*models.TokenPair, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, err
@@ -121,7 +121,7 @@ func (s *authService) RefreshTokens(ctx context.Context, refreshTokenString stri
 	defer transaction.Rollback()
 	tx := s.store.WithTx(transaction)
 
-	tokenHash := sha256.Sum256([]byte(refreshTokenString))
+	tokenHash := sha256.Sum256([]byte(dto.RefreshToken))
 
 	token, err := tx.RefreshToken.GetByHash(ctx, tokenHash[:])
 	if err != nil {
