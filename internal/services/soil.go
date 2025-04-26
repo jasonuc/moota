@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"math"
 
@@ -9,7 +10,7 @@ import (
 )
 
 type SoilService interface {
-	CreateSoil(models.Coordinates, []*models.Soil) (*models.Soil, error)
+	CreateSoil(context.Context, models.Coordinates, []*models.Soil) (*models.Soil, error)
 	WithStore(*store.Store) SoilService
 }
 
@@ -33,7 +34,7 @@ var (
 	ErrNoSoilGenerated = errors.New("no soil generated")
 )
 
-func (s *soilService) CreateSoil(centre models.Coordinates, nearbySoils []*models.Soil) (*models.Soil, error) {
+func (s *soilService) CreateSoil(ctx context.Context, centre models.Coordinates, nearbySoils []*models.Soil) (*models.Soil, error) {
 	radius := models.RandomSoilRadius(models.RandomSoilRadiusParam{MaxRadius: math.Inf(1)})
 	newSoilCircleMeta := models.NewCircleMeta(centre, radius)
 	soilMeta := models.RandomSoilMeta()
@@ -47,7 +48,7 @@ func (s *soilService) CreateSoil(centre models.Coordinates, nearbySoils []*model
 
 	if len(overlappingSoils) == 0 {
 		newSoil := models.MapToNewSizedSoilFn(radius)(soilMeta, centre)
-		err := s.store.Soil.Insert(newSoil)
+		err := s.store.Soil.Insert(ctx, newSoil)
 		if err != nil {
 			return nil, err
 		}
@@ -65,7 +66,7 @@ func (s *soilService) CreateSoil(centre models.Coordinates, nearbySoils []*model
 	}
 
 	soil := models.MapToNewSizedSoilFn(radius)(soilMeta, centre)
-	err := s.store.Soil.Insert(soil)
+	err := s.store.Soil.Insert(ctx, soil)
 	if err != nil {
 		return nil, err
 	}

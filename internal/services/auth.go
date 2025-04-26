@@ -46,12 +46,12 @@ func NewAuthService(store *store.Store, acessSecret []byte, refreshTTL, acessTTL
 }
 
 func (s *authService) Register(ctx context.Context, email, username, password string) (*models.User, error) {
-	_, err := s.store.User.GetByEmail(email)
+	_, err := s.store.User.GetByEmail(ctx, email)
 	if err == nil {
 		return nil, ErrUserAlreadyExists
 	}
 
-	_, err = s.store.User.GetByUsername(username)
+	_, err = s.store.User.GetByUsername(ctx, username)
 	if err == nil {
 		return nil, ErrUserAlreadyExists
 	}
@@ -68,7 +68,7 @@ func (s *authService) Register(ctx context.Context, email, username, password st
 		LevelMeta:    models.NewLeveLMeta(1, 0),
 	}
 
-	err = s.store.User.Insert(user)
+	err = s.store.User.Insert(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
@@ -80,9 +80,9 @@ func (s *authService) Login(ctx context.Context, usernameOrEmail, password strin
 	var user *models.User
 	var err error
 
-	user, err = s.store.User.GetByEmail(usernameOrEmail)
+	user, err = s.store.User.GetByEmail(ctx, usernameOrEmail)
 	if err != nil {
-		user, err = s.store.User.GetByUsername(usernameOrEmail)
+		user, err = s.store.User.GetByUsername(ctx, usernameOrEmail)
 		if err != nil {
 			return nil, ErrInvalidCredentials
 		}
@@ -102,7 +102,7 @@ func (s *authService) Login(ctx context.Context, usernameOrEmail, password strin
 		return nil, err
 	}
 
-	if err := s.store.RefreshToken.Insert(refreshToken); err != nil {
+	if err := s.store.RefreshToken.Insert(ctx, refreshToken); err != nil {
 		return nil, err
 	}
 
@@ -123,7 +123,7 @@ func (s *authService) RefreshTokens(ctx context.Context, refreshTokenString stri
 
 	tokenHash := sha256.Sum256([]byte(refreshTokenString))
 
-	token, err := tx.RefreshToken.GetByHash(tokenHash[:])
+	token, err := tx.RefreshToken.GetByHash(ctx, tokenHash[:])
 	if err != nil {
 		return nil, fmt.Errorf("invalid refresh token")
 	}
@@ -132,12 +132,12 @@ func (s *authService) RefreshTokens(ctx context.Context, refreshTokenString stri
 		return nil, fmt.Errorf("token expired or revoked")
 	}
 
-	user, err := tx.User.GetByID(token.UserID)
+	user, err := tx.User.GetByID(ctx, token.UserID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := tx.RefreshToken.Revoke(token.ID); err != nil {
+	if err := tx.RefreshToken.Revoke(ctx, token.ID); err != nil {
 		return nil, err
 	}
 
@@ -151,7 +151,7 @@ func (s *authService) RefreshTokens(ctx context.Context, refreshTokenString stri
 		return nil, err
 	}
 
-	if err := tx.RefreshToken.Insert(refreshToken); err != nil {
+	if err := tx.RefreshToken.Insert(ctx, refreshToken); err != nil {
 		return nil, err
 	}
 

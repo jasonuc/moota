@@ -60,7 +60,7 @@ func TestSoilStore(t *testing.T) {
 
 	t.Run("Get_Existing", func(t *testing.T) {
 		soilID := "00000000-0000-4000-c000-000000000101"
-		soil, err := store.Get(soilID)
+		soil, err := store.Get(context.Background(), soilID)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -86,7 +86,7 @@ func TestSoilStore(t *testing.T) {
 
 	t.Run("Get_NonExisting", func(t *testing.T) {
 		soilID := "00000000-0000-4000-c000-999999999999"
-		_, err := store.Get(soilID)
+		_, err := store.Get(context.Background(), soilID)
 		if err != models.ErrSoilNotFound {
 			t.Errorf("expected ErrSoilNotFound, got %v", err)
 		}
@@ -99,7 +99,7 @@ func TestSoilStore(t *testing.T) {
 		}
 
 		// 5km radius - should only include San Francisco soil
-		soils, err := store.GetAllInProximity(coords, 5000)
+		soils, err := store.GetAllInProximity(context.Background(), coords, 5000)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -121,7 +121,7 @@ func TestSoilStore(t *testing.T) {
 		}
 
 		// 15km radius - should include San Francisco and Oakland soils
-		soils, err := store.GetAllInProximity(coords, 15000)
+		soils, err := store.GetAllInProximity(context.Background(), coords, 15000)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -139,7 +139,7 @@ func TestSoilStore(t *testing.T) {
 		}
 
 		// 50km radius - should include all 3 Bay Area soils
-		soils, err := store.GetAllInProximity(coords, 50000)
+		soils, err := store.GetAllInProximity(context.Background(), coords, 50000)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -165,7 +165,7 @@ func TestSoilStore(t *testing.T) {
 		}
 		newSoil.CircleMeta = models.NewCircleMeta(centre, 25.0)
 
-		err := store.Insert(newSoil)
+		err := store.Insert(context.Background(), newSoil)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -178,7 +178,7 @@ func TestSoilStore(t *testing.T) {
 			t.Error("expected CreatedAt to be set after insert")
 		}
 
-		retrievedSoil, err := store.Get(newSoil.ID)
+		retrievedSoil, err := store.Get(context.Background(), newSoil.ID)
 		if err != nil {
 			t.Errorf("unexpected error retrieving inserted soil: %v", err)
 		}
@@ -201,17 +201,17 @@ func TestSoilStore(t *testing.T) {
 	t.Run("Delete", func(t *testing.T) {
 		soilID := "00000000-0000-4000-c000-000000000104"
 
-		_, err := store.Get(soilID)
+		_, err := store.Get(context.Background(), soilID)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
-		err = store.Delete(soilID)
+		err = store.Delete(context.Background(), soilID)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
 
-		_, err = store.Get(soilID)
+		_, err = store.Get(context.Background(), soilID)
 		if err != models.ErrSoilNotFound {
 			t.Errorf("expected ErrSoilNotFound, got %v", err)
 		}
@@ -219,7 +219,7 @@ func TestSoilStore(t *testing.T) {
 
 	t.Run("Delete_NonExisting", func(t *testing.T) {
 		soilID := "00000000-0000-4000-c000-999999999999"
-		err := store.Delete(soilID)
+		err := store.Delete(context.Background(), soilID)
 		if err != models.ErrSoilNotFound {
 			t.Errorf("expected ErrSoilNotFound, got %v", err)
 		}

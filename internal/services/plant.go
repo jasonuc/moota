@@ -62,13 +62,13 @@ func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, poin
 
 	tx := s.store.WithTx(transaction)
 
-	plants, err := tx.Plant.GetByOwnerID(userID)
+	plants, err := tx.Plant.GetByOwnerID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	now := time.Now()
-	err = refreshPlantsData(tx, plants, now)
+	err = refreshPlantsData(ctx, tx, plants, now)
 	if err != nil {
 		return nil, err
 	}
@@ -106,13 +106,13 @@ func (s *plantService) GetPlant(ctx context.Context, userID, plantID string) (*m
 
 	tx := s.store.WithTx(transaction)
 
-	plant, err := tx.Plant.Get(plantID)
+	plant, err := tx.Plant.Get(ctx, plantID)
 	if err != nil {
 		return nil, err
 	}
 
 	now := time.Now()
-	err = refreshPlantData(tx, plant, now)
+	err = refreshPlantData(ctx, tx, plant, now)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (s *plantService) GetPlant(ctx context.Context, userID, plantID string) (*m
 }
 
 func (s *plantService) ConfirmPlantCreation(ctx context.Context, plantID string) (*models.Plant, error) {
-	plant, err := s.store.Plant.Get(plantID)
+	plant, err := s.store.Plant.Get(ctx, plantID)
 	if err != nil {
 		return nil, err
 	}
@@ -132,15 +132,15 @@ func (s *plantService) ConfirmPlantCreation(ctx context.Context, plantID string)
 		return nil, ErrPlantAlreadyActivated
 	}
 
-	if err := s.store.Plant.ActivatePlant(plant.ID); err != nil {
+	if err := s.store.Plant.ActivatePlant(ctx, plant.ID); err != nil {
 		return nil, err
 	}
-	return s.store.Plant.Get(plant.ID)
+	return s.store.Plant.Get(ctx, plant.ID)
 }
 
 func (s *plantService) CreatePlant(ctx context.Context, soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
 	plantCircleMeta := models.NewCircleMeta(soil.Centre(), models.PlantInteractionRadius)
-	nearbyPlants, err := s.store.Plant.GetBySoilIDAndProximity(soil.ID, centre, models.PlantInteractionRadius+1)
+	nearbyPlants, err := s.store.Plant.GetBySoilIDAndProximity(ctx, soil.ID, centre, models.PlantInteractionRadius+1)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func (s *plantService) CreatePlant(ctx context.Context, soil *models.Soil, seed 
 		return nil, err
 	}
 
-	err = s.store.Plant.Insert(plant)
+	err = s.store.Plant.Insert(ctx, plant)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ func (s *plantService) ActionOnPlant(ctx context.Context, dto ActionOnPlantReqDt
 		return nil, err
 	}
 
-	err = s.store.Plant.Update(plant)
+	err = s.store.Plant.Update(ctx, plant)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +199,7 @@ func (s *plantService) KillPlant(ctx context.Context, id string) error {
 
 	tx := s.store.WithTx(transaction)
 
-	plant, err := tx.Plant.Get(id)
+	plant, err := tx.Plant.Get(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -209,7 +209,7 @@ func (s *plantService) KillPlant(ctx context.Context, id string) error {
 	}
 
 	plant.Dead = true
-	if err := tx.Plant.Update(plant); err != nil {
+	if err := tx.Plant.Update(ctx, plant); err != nil {
 		return err
 	}
 
@@ -220,9 +220,9 @@ func (s *plantService) KillPlant(ctx context.Context, id string) error {
 	return nil
 }
 
-func refreshPlantsData(tx *store.Store, plants []*models.Plant, t time.Time) error {
+func refreshPlantsData(ctx context.Context, tx *store.Store, plants []*models.Plant, t time.Time) error {
 	for _, plant := range plants {
-		err := refreshPlantData(tx, plant, t)
+		err := refreshPlantData(ctx, tx, plant, t)
 		if err != nil {
 			return err
 		}
@@ -230,9 +230,9 @@ func refreshPlantsData(tx *store.Store, plants []*models.Plant, t time.Time) err
 	return nil
 }
 
-func refreshPlantData(tx *store.Store, plant *models.Plant, t time.Time) error {
+func refreshPlantData(ctx context.Context, tx *store.Store, plant *models.Plant, t time.Time) error {
 	plant.Refresh(t)
-	return tx.Plant.Update(plant)
+	return tx.Plant.Update(ctx, plant)
 }
 
 func (s *plantService) isPlantValidForSoil(plantCircleMeta models.CircleMeta, nearbyPlants []*models.Plant) bool {

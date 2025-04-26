@@ -57,7 +57,7 @@ var (
 )
 
 func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*SeedGroup, error) {
-	seeds, err := s.store.Seed.GetAllByOwnerID(userID)
+	seeds, err := s.store.Seed.GetAllByOwnerID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*Se
 }
 
 func (s *seedService) GetSeed(ctx context.Context, userID, seedID string) (*models.Seed, error) {
-	seed, err := s.store.Seed.Get(seedID)
+	seed, err := s.store.Seed.Get(ctx, seedID)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (s *seedService) PlantSeed(ctx context.Context, dto PlantSeedReqDto) (*mode
 	soilServiceWithTx := s.soilService.WithStore(tx)
 	plantServiceWithTx := s.plantService.WithStore(tx)
 
-	seed, err := tx.Seed.Get(dto.SeedID)
+	seed, err := tx.Seed.Get(ctx, dto.SeedID)
 	if err != nil {
 		return nil, err
 	}
@@ -117,13 +117,13 @@ func (s *seedService) PlantSeed(ctx context.Context, dto PlantSeedReqDto) (*mode
 	targetCentre := models.Coordinates{Lat: dto.Latitude, Lng: dto.Longitude}
 	plantCircleMeta := models.NewCircleMeta(targetCentre, models.PlantInteractionRadius)
 
-	nearbySoils, err := tx.Soil.GetAllInProximity(targetCentre, models.SoilRadiusMLarge)
+	nearbySoils, err := tx.Soil.GetAllInProximity(ctx, targetCentre, models.SoilRadiusMLarge)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(nearbySoils) == 0 {
-		soil, err := soilServiceWithTx.CreateSoil(targetCentre, nearbySoils)
+		soil, err := soilServiceWithTx.CreateSoil(ctx, targetCentre, nearbySoils)
 		if err != nil {
 			return nil, err
 		}
@@ -146,7 +146,7 @@ func (s *seedService) PlantSeed(ctx context.Context, dto PlantSeedReqDto) (*mode
 		return nil, err
 	}
 
-	if err := tx.Seed.MarkAsPlanted(seed.ID); err != nil {
+	if err := tx.Seed.MarkAsPlanted(ctx, seed.ID); err != nil {
 		return nil, err
 	}
 

@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 
@@ -8,17 +9,17 @@ import (
 )
 
 type SoilStore interface {
-	Get(string) (*models.Soil, error)
-	GetAllInProximity(models.Coordinates, float64) ([]*models.Soil, error)
-	Insert(*models.Soil) error
-	Delete(string) error
+	Get(context.Context, string) (*models.Soil, error)
+	GetAllInProximity(context.Context, models.Coordinates, float64) ([]*models.Soil, error)
+	Insert(context.Context, *models.Soil) error
+	Delete(context.Context, string) error
 }
 
 type soilStore struct {
 	db Querier
 }
 
-func (s *soilStore) Get(id string) (*models.Soil, error) {
+func (s *soilStore) Get(ctx context.Context, id string) (*models.Soil, error) {
 	q := `SELECT id, ST_AsText(centre) as centre, radius_m, soil_type, water_retention, nutrient_richness, created_at FROM soils
             WHERE id = $1;`
 
@@ -26,7 +27,7 @@ func (s *soilStore) Get(id string) (*models.Soil, error) {
 	var radiusM float64
 	soil := new(models.Soil)
 
-	err := s.db.QueryRow(q, id).Scan(
+	err := s.db.QueryRowContext(ctx, q, id).Scan(
 		&soil.ID, &centreText, &radiusM, &soil.Type, &soil.WaterRetention, &soil.NutrientRichness, &soil.CreatedAt,
 	)
 
@@ -47,11 +48,11 @@ func (s *soilStore) Get(id string) (*models.Soil, error) {
 	return soil, nil
 }
 
-func (s *soilStore) GetAllInProximity(point models.Coordinates, distanceM float64) ([]*models.Soil, error) {
+func (s *soilStore) GetAllInProximity(ctx context.Context, point models.Coordinates, distanceM float64) ([]*models.Soil, error) {
 	q := `SELECT id, ST_AsText(centre) as centre, radius_m, soil_type, water_retention, nutrient_richness, created_at FROM soils
 			WHERE ST_DWithin(centre, ST_SetSRID(ST_MakePoint($1, $2), 4326)::GEOGRAPHY, $3);`
 
-	rows, err := s.db.Query(q, point.Lng, point.Lat, distanceM)
+	rows, err := s.db.QueryContext(ctx, q, point.Lng, point.Lat, distanceM)
 	if err != nil {
 		return nil, err
 	}
@@ -86,13 +87,13 @@ func (s *soilStore) GetAllInProximity(point models.Coordinates, distanceM float6
 	return soils, nil
 }
 
-func (s *soilStore) Insert(soil *models.Soil) error {
+func (s *soilStore) Insert(ctx context.Context, soil *models.Soil) error {
 	q := `INSERT INTO soils (centre, radius_m, soil_type, nutrient_richness, water_retention)
 			VALUES (ST_SetSRID(ST_MakePoint($1, $2), 4326), $3, $4, $5, $6)
 			RETURNING id, created_at;`
 
-	err := s.db.QueryRow(
-		q, soil.Centre().Lng, soil.Centre().Lat, soil.RadiusM(), soil.Type, soil.NutrientRichness, soil.WaterRetention,
+	err := s.db.QueryRowContext(
+		ctx, q, soil.Centre().Lng, soil.Centre().Lat, soil.RadiusM(), soil.Type, soil.NutrientRichness, soil.WaterRetention,
 	).Scan(
 		&soil.ID, &soil.CreatedAt,
 	)
@@ -104,11 +105,11 @@ func (s *soilStore) Insert(soil *models.Soil) error {
 	return nil
 }
 
-func (s *soilStore) Delete(id string) error {
+func (s *soilStore) Delete(ctx context.Context, id string) error {
 	q := `DELETE from soils
 			WHERE ID = $1;`
 
-	res, err := s.db.Exec(q, id)
+	res, err := s.db.ExecContext(ctx, q, id)
 	if err != nil {
 		return err
 	}

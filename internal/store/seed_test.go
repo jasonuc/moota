@@ -60,7 +60,7 @@ func TestSeedStore(t *testing.T) {
 
 	t.Run("GetAllByOwnerID", func(t *testing.T) {
 		ownerID := "00000000-0000-4000-a000-000000000001"
-		seeds, err := store.GetAllByOwnerID(ownerID)
+		seeds, err := store.GetAllByOwnerID(context.Background(), ownerID)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -78,7 +78,7 @@ func TestSeedStore(t *testing.T) {
 
 	t.Run("Get_Existing", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-000000000001"
-		seed, err := store.Get(seedID)
+		seed, err := store.Get(context.Background(), seedID)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -94,7 +94,7 @@ func TestSeedStore(t *testing.T) {
 
 	t.Run("Get_NonExisting", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-999999999999"
-		_, err := store.Get(seedID)
+		_, err := store.Get(context.Background(), seedID)
 		if err != models.ErrSeedNotFound {
 			t.Errorf("expected ErrSeedNotFound, got %v", err)
 		}
@@ -111,7 +111,7 @@ func TestSeedStore(t *testing.T) {
 			},
 		}
 
-		err := store.Insert(newSeed)
+		err := store.Insert(context.Background(), newSeed)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -124,7 +124,7 @@ func TestSeedStore(t *testing.T) {
 			t.Error("expected CreatedAt to be set after insert")
 		}
 
-		retrievedSeed, err := store.Get(newSeed.ID)
+		retrievedSeed, err := store.Get(context.Background(), newSeed.ID)
 		if err != nil {
 			t.Errorf("unexpected error retrieving inserted seed: %v", err)
 		}
@@ -137,7 +137,7 @@ func TestSeedStore(t *testing.T) {
 	t.Run("MarkAsPlanted", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-000000000002"
 
-		seed, err := store.Get(seedID)
+		seed, err := store.Get(context.Background(), seedID)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -145,12 +145,12 @@ func TestSeedStore(t *testing.T) {
 			t.Fatal("seed is already planted before test")
 		}
 
-		err = store.MarkAsPlanted(seedID)
+		err = store.MarkAsPlanted(context.Background(), seedID)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
 
-		seed, err = store.Get(seedID)
+		seed, err = store.Get(context.Background(), seedID)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -161,7 +161,7 @@ func TestSeedStore(t *testing.T) {
 
 	t.Run("MarkAsPlanted_NonExisting", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-999999999999"
-		err := store.MarkAsPlanted(seedID)
+		err := store.MarkAsPlanted(context.Background(), seedID)
 		if err != models.ErrSeedNotFound {
 			t.Errorf("expected ErrSeedNotFound, got %v", err)
 		}
@@ -170,17 +170,17 @@ func TestSeedStore(t *testing.T) {
 	t.Run("Delete", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-000000000003"
 
-		_, err := store.Get(seedID)
+		_, err := store.Get(context.Background(), seedID)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
-		err = store.Delete(seedID)
+		err = store.Delete(context.Background(), seedID)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
 
-		_, err = store.Get(seedID)
+		_, err = store.Get(context.Background(), seedID)
 		if err != models.ErrSeedNotFound {
 			t.Errorf("expected ErrSeedNotFound, got %v", err)
 		}
@@ -188,7 +188,7 @@ func TestSeedStore(t *testing.T) {
 
 	t.Run("Delete_NonExisting", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-999999999999"
-		err := store.Delete(seedID)
+		err := store.Delete(context.Background(), seedID)
 		if err != models.ErrSeedNotFound {
 			t.Errorf("expected ErrSeedNotFound, got %v", err)
 		}
