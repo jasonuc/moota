@@ -3,9 +3,12 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"maps"
 	"slices"
 
+	"github.com/jasonuc/moota/internal/contextkeys"
+	"github.com/jasonuc/moota/internal/dto"
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/store"
 )
@@ -13,7 +16,7 @@ import (
 type SeedService interface {
 	GetAllUserSeeds(context.Context, string) ([]*SeedGroup, error)
 	GetSeed(context.Context, string, string) (*models.Seed, error)
-	PlantSeed(context.Context, PlantSeedReqDto) (*models.Plant, error)
+	PlantSeed(context.Context, dto.PlantSeedReq) (*models.Plant, error)
 	WithStore(*store.Store) SeedService
 }
 
@@ -37,13 +40,6 @@ func (s *seedService) WithStore(store *store.Store) SeedService {
 	return &copy
 }
 
-type PlantSeedReqDto struct {
-	Longitude float64
-	Latitude  float64
-	SeedID    string
-	UserID    string
-}
-
 type SeedGroup struct {
 	BotanicalName string         `json:"botanicalName"`
 	Count         int            `json:"count"`
@@ -57,6 +53,15 @@ var (
 )
 
 func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*SeedGroup, error) {
+	userIDFromCtx, err := contextkeys.GetUserIDFromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if userID != userIDFromCtx {
+		return nil, fmt.Errorf("you do not have authorised access")
+	}
+
 	seeds, err := s.store.Seed.GetAllByOwnerID(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -64,6 +69,7 @@ func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*Se
 
 	seedGroupsMap := make(map[string]*SeedGroup)
 	for _, seed := range seeds {
+		fmt.Println(seed)
 		sg, ok := seedGroupsMap[seed.BotanicalName]
 		if ok {
 			sg.Seeds = append(sg.Seeds, seed)
@@ -93,7 +99,12 @@ func (s *seedService) GetSeed(ctx context.Context, userID, seedID string) (*mode
 	return seed, nil
 }
 
-func (s *seedService) PlantSeed(ctx context.Context, dto PlantSeedReqDto) (*models.Plant, error) {
+func (s *seedService) PlantSeed(ctx context.Context, dto dto.PlantSeedReq) (*models.Plant, error) {
+	userID, err := contextkeys.GetUserIDFromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, store.ErrTransactionCouldNotStart
@@ -110,7 +121,7 @@ func (s *seedService) PlantSeed(ctx context.Context, dto PlantSeedReqDto) (*mode
 		return nil, err
 	}
 
-	if seed.OwnerID != dto.UserID {
+	if seed.OwnerID != userID {
 		return nil, ErrUnauthorizedSeedPlanting
 	}
 

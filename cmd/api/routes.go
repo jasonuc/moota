@@ -26,7 +26,11 @@ func (app *application) routes() http.Handler {
 			r.Use(app.authMiddleware.Authorise)
 
 			r.Route("/plants", func(r chi.Router) {})
-			r.Route("/seeds", func(r chi.Router) {})
+
+			r.Route("/seeds", func(r chi.Router) {
+				r.Post("/", app.seedHandler.HandlePlantSeed)
+				r.Get("/{userID}", app.seedHandler.HandleGetUserSeeds)
+			})
 		})
 	})
 

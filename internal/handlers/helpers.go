@@ -8,7 +8,17 @@ import (
 	"maps"
 	"net/http"
 	"strings"
+
+	"github.com/go-chi/chi/v5"
 )
+
+func readStringReqParam(r *http.Request, key string) (string, error) {
+	value := chi.URLParam(r, key)
+	if value == "" {
+		return "", fmt.Errorf("missing required param")
+	}
+	return value, nil
+}
 
 type envelope map[string]any
 

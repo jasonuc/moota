@@ -27,6 +27,7 @@ type application struct {
 	authMiddleware middlewares.AuthMiddleware
 
 	authHandler *handlers.AuthHandler
+	seedHandler *handlers.SeedHandler
 }
 
 func main() {
@@ -56,6 +57,7 @@ func main() {
 	authMiddlware := middlewares.NewAuthMiddleware(authService)
 
 	authHandler := handlers.NewAuthHandler(authService)
+	seedHandler := handlers.NewSeedHandler(seedService)
 
 	app := application{
 		cfg:    cfg,
@@ -70,6 +72,7 @@ func main() {
 		authMiddleware: authMiddlware,
 
 		authHandler: authHandler,
+		seedHandler: seedHandler,
 	}
 
 	if err := app.serve(); err != nil {
