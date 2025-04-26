@@ -1,7 +1,8 @@
 package main
 
 import (
-	"flag"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -14,39 +15,68 @@ type config struct {
 		dsn             string
 		maxOpenConns    int
 		maxIdleConns    int
-		connMaxIdleTime struct {
-			input string
-			value time.Duration
-		}
+		connMaxIdleTime time.Duration
+	}
+	auth struct {
+		accessTokenSecret string
+		accessTokenTTL    time.Duration
+		refreshTokenTTL   time.Duration
+		issuer            string
 	}
 }
 
 func parseConfig() config {
 	var cfg config
 
-	flag.StringVar(&cfg.env, "env", "development", "developement|staging|production")
+	cfg.env = getStringEnv("ENV", "development")
 
-	flag.IntVar(&cfg.server.port, "port", 8080, "port the http server would run on")
+	cfg.server.port = getIntEnv("SERVER_PORT", 8080)
 
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgresql://postgres:postgres@localhost:5432/moota?sslmode=disable&connect_timeout=10", "database connection string")
-	flag.IntVar(&cfg.db.maxOpenConns, "db-maxOpenConns", 15, "max open conns in the database connection pool (in-use/idle)")
-	flag.IntVar(&cfg.db.maxIdleConns, "db-maxIdleConns", 10, "max idle conns in the database connection pool")
-	flag.StringVar(&cfg.db.connMaxIdleTime.input, "db-connMaxIdleTime", "1h", "max time an idle connection would live in the connection pool")
+	cfg.db.dsn = getStringEnv("DB_DSN", "postgresql://postgres:postgres@localhost:5432/moota?sslmode=disable&connect_timeout=10")
+	cfg.db.maxOpenConns = getIntEnv("DB_MAX_OPEN_CONNS", 15)
+	cfg.db.maxIdleConns = getIntEnv("DB_MAX_IDLE_CONNS", 10)
+	cfg.db.connMaxIdleTime = getTimeDurationEnv("DB_CONN_MAX_IDLE_TIME", 1*time.Hour)
 
-	flag.Parse()
-
-	// Parse config values into usable values
-	// MUST BE DONE AFTER `flag.Parse()` otherwise would work with default values
-	parseDurationForConfig(cfg.db.connMaxIdleTime.input, &cfg.db.connMaxIdleTime.value)
+	cfg.auth.accessTokenSecret = getStringEnv("AUTH_ACCESS_TOKEN_SECRET", "moo_goes_the_cow")
+	cfg.auth.accessTokenTTL = getTimeDurationEnv("AUTH_ACCESS_TOKEN_TTL", 15*time.Minute)
+	cfg.auth.refreshTokenTTL = getTimeDurationEnv("AUTH_REFRESH_TOKEN_TTL", 7*24*time.Hour)
+	cfg.auth.issuer = getStringEnv("AUTH_ISSUER", "moota")
 
 	return cfg
 }
 
-func parseDurationForConfig(input string, ptr *time.Duration) {
-	duration, err := time.ParseDuration(input)
-	if err != nil {
-		return
+func getStringEnv(key, fallback string) string {
+	val, ok := os.LookupEnv(key)
+	if !ok {
+		return fallback
+	}
+	return val
+}
+
+func getIntEnv(key string, fallback int) int {
+	val, ok := os.LookupEnv(key)
+	if !ok {
+		return fallback
 	}
 
-	(*ptr) = duration
+	intVal, err := strconv.Atoi(val)
+	if err != nil {
+		return fallback
+	}
+
+	return intVal
+}
+
+func getTimeDurationEnv(key string, fallback time.Duration) time.Duration {
+	val, ok := os.LookupEnv(key)
+	if !ok {
+		return fallback
+	}
+
+	duration, err := time.ParseDuration(val)
+	if err != nil {
+		return fallback
+	}
+
+	return duration
 }
