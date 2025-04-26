@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
@@ -20,10 +21,10 @@ var (
 )
 
 type AuthService interface {
-	Register(string, string, string) (*models.User, error)
-	Login(string, string) (*models.TokenPair, error)
-	RefreshTokens(string) (*models.TokenPair, error)
-	VerifyAccessToken(string) (string, error)
+	Register(context.Context, string, string, string) (*models.User, error)
+	Login(context.Context, string, string) (*models.TokenPair, error)
+	RefreshTokens(context.Context, string) (*models.TokenPair, error)
+	VerifyAccessToken(context.Context, string) (string, error)
 }
 
 type authService struct {
@@ -44,7 +45,7 @@ func NewAuthService(store *store.Store, acessSecret []byte, refreshTTL, acessTTL
 	}
 }
 
-func (s *authService) Register(email, username, password string) (*models.User, error) {
+func (s *authService) Register(ctx context.Context, email, username, password string) (*models.User, error) {
 	_, err := s.store.User.GetByEmail(email)
 	if err == nil {
 		return nil, ErrUserAlreadyExists
@@ -75,7 +76,7 @@ func (s *authService) Register(email, username, password string) (*models.User, 
 	return user, nil
 }
 
-func (s *authService) Login(usernameOrEmail, password string) (*models.TokenPair, error) {
+func (s *authService) Login(ctx context.Context, usernameOrEmail, password string) (*models.TokenPair, error) {
 	var user *models.User
 	var err error
 
@@ -111,7 +112,7 @@ func (s *authService) Login(usernameOrEmail, password string) (*models.TokenPair
 	}, nil
 }
 
-func (s *authService) RefreshTokens(refreshTokenString string) (*models.TokenPair, error) {
+func (s *authService) RefreshTokens(ctx context.Context, refreshTokenString string) (*models.TokenPair, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, err
@@ -164,7 +165,7 @@ func (s *authService) RefreshTokens(refreshTokenString string) (*models.TokenPai
 	}, nil
 }
 
-func (s *authService) VerifyAccessToken(accessToken string) (string, error) {
+func (s *authService) VerifyAccessToken(ctx context.Context, accessToken string) (string, error) {
 	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

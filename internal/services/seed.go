@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"maps"
 	"slices"
@@ -10,9 +11,9 @@ import (
 )
 
 type SeedService interface {
-	GetAllUserSeeds(string) ([]*SeedGroup, error)
-	GetSeed(string, string) (*models.Seed, error)
-	PlantSeed(PlantSeedReqDto) (*models.Plant, error)
+	GetAllUserSeeds(context.Context, string) ([]*SeedGroup, error)
+	GetSeed(context.Context, string, string) (*models.Seed, error)
+	PlantSeed(context.Context, PlantSeedReqDto) (*models.Plant, error)
 	WithStore(*store.Store) SeedService
 }
 
@@ -55,7 +56,7 @@ var (
 	ErrInvalidPermissionsForSeed = errors.New("invalid permissions to retreive seed")
 )
 
-func (s *seedService) GetAllUserSeeds(userID string) ([]*SeedGroup, error) {
+func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*SeedGroup, error) {
 	seeds, err := s.store.Seed.GetAllByOwnerID(userID)
 	if err != nil {
 		return nil, err
@@ -81,7 +82,7 @@ func (s *seedService) GetAllUserSeeds(userID string) ([]*SeedGroup, error) {
 	return seedGroups, nil
 }
 
-func (s *seedService) GetSeed(userID, seedID string) (*models.Seed, error) {
+func (s *seedService) GetSeed(ctx context.Context, userID, seedID string) (*models.Seed, error) {
 	seed, err := s.store.Seed.Get(seedID)
 	if err != nil {
 		return nil, err
@@ -92,7 +93,7 @@ func (s *seedService) GetSeed(userID, seedID string) (*models.Seed, error) {
 	return seed, nil
 }
 
-func (s *seedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
+func (s *seedService) PlantSeed(ctx context.Context, dto PlantSeedReqDto) (*models.Plant, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, store.ErrTransactionCouldNotStart
@@ -140,7 +141,7 @@ func (s *seedService) PlantSeed(dto PlantSeedReqDto) (*models.Plant, error) {
 		return nil, ErrNotPossibleToPlantSeed
 	}
 
-	plant, err := plantServiceWithTx.CreatePlant(targetSoil, seed, targetCentre)
+	plant, err := plantServiceWithTx.CreatePlant(ctx, targetSoil, seed, targetCentre)
 	if err != nil {
 		return nil, err
 	}

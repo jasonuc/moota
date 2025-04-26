@@ -37,7 +37,7 @@ func (m *authMiddleware) Authorise(next http.Handler) http.Handler {
 			return
 		}
 
-		userID, err := m.authService.VerifyAccessToken(accessToken)
+		userID, err := m.authService.VerifyAccessToken(r.Context(), accessToken)
 		if err != nil {
 			http.Error(w, "unathorised", http.StatusUnauthorized)
 			return

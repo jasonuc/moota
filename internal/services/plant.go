@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -10,11 +11,11 @@ import (
 )
 
 type PlantService interface {
-	GetAllUserPlants(string, models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error)
-	Get4ClosestPlants(string, models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error)
-	GetPlant(string, string) (*models.Plant, error)
-	CreatePlant(*models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
-	KillPlant(string) error
+	GetAllUserPlants(context.Context, string, models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error)
+	Get4ClosestPlants(context.Context, string, models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error)
+	GetPlant(context.Context, string, string) (*models.Plant, error)
+	CreatePlant(context.Context, *models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
+	KillPlant(context.Context, string) error
 	WithStore(*store.Store) PlantService
 }
 
@@ -51,7 +52,7 @@ var (
 	ErrPlantAreadyDead               = errors.New("plant already dead")
 )
 
-func (s *plantService) GetAllUserPlants(userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
+func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, err
@@ -87,15 +88,15 @@ func (s *plantService) GetAllUserPlants(userID string, point models.Coordinates)
 	return plantsWithDistanceM, nil
 }
 
-func (s *plantService) Get4ClosestPlants(userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
-	plants, err := s.GetAllUserPlants(userID, point)
+func (s *plantService) Get4ClosestPlants(ctx context.Context, userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
+	plants, err := s.GetAllUserPlants(ctx, userID, point)
 	if err != nil {
 		return nil, err
 	}
 	return plants[:4], err
 }
 
-func (s *plantService) GetPlant(userID, plantID string) (*models.Plant, error) {
+func (s *plantService) GetPlant(ctx context.Context, userID, plantID string) (*models.Plant, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, err
@@ -122,7 +123,7 @@ func (s *plantService) GetPlant(userID, plantID string) (*models.Plant, error) {
 	return plant, nil
 }
 
-func (s *plantService) ConfirmPlantCreation(plantID string) (*models.Plant, error) {
+func (s *plantService) ConfirmPlantCreation(ctx context.Context, plantID string) (*models.Plant, error) {
 	plant, err := s.store.Plant.Get(plantID)
 	if err != nil {
 		return nil, err
@@ -137,7 +138,7 @@ func (s *plantService) ConfirmPlantCreation(plantID string) (*models.Plant, erro
 	return s.store.Plant.Get(plant.ID)
 }
 
-func (s *plantService) CreatePlant(soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
+func (s *plantService) CreatePlant(ctx context.Context, soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
 	plantCircleMeta := models.NewCircleMeta(soil.Centre(), models.PlantInteractionRadius)
 	nearbyPlants, err := s.store.Plant.GetBySoilIDAndProximity(soil.ID, centre, models.PlantInteractionRadius+1)
 	if err != nil {
@@ -160,12 +161,12 @@ func (s *plantService) CreatePlant(soil *models.Soil, seed *models.Seed, centre 
 	return plant, nil
 }
 
-func (s *plantService) ActionOnPlant(dto ActionOnPlantReqDto) (*models.Plant, error) {
+func (s *plantService) ActionOnPlant(ctx context.Context, dto ActionOnPlantReqDto) (*models.Plant, error) {
 	if !models.ValidPlantAction(dto.Action) {
 		return nil, ErrInvalidPlantAction
 	}
 
-	plant, err := s.GetPlant(dto.UserID, dto.PlantID)
+	plant, err := s.GetPlant(ctx, dto.UserID, dto.PlantID)
 	if err != nil {
 		return nil, err
 	}
@@ -185,10 +186,10 @@ func (s *plantService) ActionOnPlant(dto ActionOnPlantReqDto) (*models.Plant, er
 		return nil, err
 	}
 
-	return s.GetPlant(plant.OwnerID, dto.PlantID)
+	return s.GetPlant(ctx, plant.OwnerID, dto.PlantID)
 }
 
-func (s *plantService) KillPlant(id string) error {
+func (s *plantService) KillPlant(ctx context.Context, id string) error {
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return err
