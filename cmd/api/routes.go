@@ -25,11 +25,17 @@ func (app *application) routes() http.Handler {
 		r.Group(func(r chi.Router) {
 			r.Use(app.authMiddleware.Authorise)
 
-			r.Route("/plants", func(r chi.Router) {})
+			r.Route("/plants", func(r chi.Router) {
+				r.Get("/u/{userID}", app.plantHandler.HandleGetAllUserPlants)
+				r.Get("/{plantID}", app.plantHandler.HandleGetPlant)
+				r.Post("/action", app.plantHandler.HandleActionOnPlant)
+				r.Patch("/{plantID}/confirm", app.plantHandler.HandleConfirmPlantCreation)
+				r.Patch("/{plantID}/kill", app.plantHandler.HandleKillPlant)
+			})
 
 			r.Route("/seeds", func(r chi.Router) {
 				r.Post("/", app.seedHandler.HandlePlantSeed)
-				r.Get("/{userID}", app.seedHandler.HandleGetUserSeeds)
+				r.Get("/u/{userID}", app.seedHandler.HandleGetUserSeeds)
 			})
 		})
 	})

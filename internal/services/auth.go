@@ -50,12 +50,12 @@ func NewAuthService(store *store.Store, acessSecret []byte, refreshTTL, acessTTL
 
 func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*models.User, error) {
 	_, err := s.store.User.GetByEmail(ctx, dto.Email)
-	if err != nil {
+	if err == nil {
 		return nil, ErrInvalidEmail
 	}
 
 	_, err = s.store.User.GetByUsername(ctx, dto.Email)
-	if err != nil {
+	if err == nil {
 		return nil, ErrInvalidUsername
 	}
 

@@ -6,30 +6,24 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jasonuc/moota/internal/contextkeys"
+	"github.com/jasonuc/moota/internal/dto"
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/store"
 )
 
 type PlantService interface {
-	GetAllUserPlants(context.Context, string, models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error)
-	Get4ClosestPlants(context.Context, string, models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error)
-	GetPlant(context.Context, string, string) (*models.Plant, error)
+	GetAllUserPlants(context.Context, dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error)
+	ActionOnPlant(context.Context, dto.ActionOnPlantReq) (*models.Plant, error)
+	GetPlant(context.Context, string) (*models.Plant, error)
 	CreatePlant(context.Context, *models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
+	ConfirmPlantCreation(ctx context.Context, plantID string) (*models.Plant, error)
 	KillPlant(context.Context, string) error
 	WithStore(*store.Store) PlantService
 }
 
 type plantService struct {
 	store *store.Store
-}
-
-type ActionOnPlantReqDto struct {
-	Action    int
-	Longitude float64
-	Latitude  float64
-	Time      time.Time
-	UserID    string
-	PlantID   string
 }
 
 func NewPlantService(store *store.Store) PlantService {
@@ -48,11 +42,19 @@ var (
 	ErrNotPossibleToCreatePlant      = errors.New("not possible to create plant here")
 	ErrOutsidePlantInteractionRadius = errors.New("user is not within plant interaction radius")
 	ErrInvalidPlantAction            = errors.New("invalid plant action")
+	ErrUnauthorisedPlantAction       = errors.New("unauthorised plant action")
 	ErrPlantAlreadyActivated         = errors.New("plant already activated")
 	ErrPlantAreadyDead               = errors.New("plant already dead")
 )
 
-func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
+func (s *plantService) GetAllUserPlants(ctx context.Context, dto dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error) {
+	userID, err := contextkeys.GetUserIDFromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	coords := models.Coordinates{Lat: dto.Latitude, Lng: dto.Longitude}
+
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, err
@@ -67,6 +69,7 @@ func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, poin
 		return nil, err
 	}
 
+	fmt.Println(*plants[0])
 	now := time.Now()
 	err = refreshPlantsData(ctx, tx, plants, now)
 	if err != nil {
@@ -81,22 +84,14 @@ func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, poin
 	for _, p := range plants {
 		plantsWithDistanceM = append(plantsWithDistanceM, &models.PlantWithDistanceMFromUser{
 			Plant:     *p,
-			DistanceM: p.Centre().DistanceM(point),
+			DistanceM: p.Centre().DistanceM(coords),
 		})
 	}
 
 	return plantsWithDistanceM, nil
 }
 
-func (s *plantService) Get4ClosestPlants(ctx context.Context, userID string, point models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
-	plants, err := s.GetAllUserPlants(ctx, userID, point)
-	if err != nil {
-		return nil, err
-	}
-	return plants[:4], err
-}
-
-func (s *plantService) GetPlant(ctx context.Context, userID, plantID string) (*models.Plant, error) {
+func (s *plantService) GetPlant(ctx context.Context, plantID string) (*models.Plant, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, err
@@ -117,9 +112,6 @@ func (s *plantService) GetPlant(ctx context.Context, userID, plantID string) (*m
 		return nil, err
 	}
 
-	if plant.OwnerID != userID {
-		return nil, fmt.Errorf("access denied: you do not own this plant")
-	}
 	return plant, nil
 }
 
@@ -161,14 +153,23 @@ func (s *plantService) CreatePlant(ctx context.Context, soil *models.Soil, seed 
 	return plant, nil
 }
 
-func (s *plantService) ActionOnPlant(ctx context.Context, dto ActionOnPlantReqDto) (*models.Plant, error) {
+func (s *plantService) ActionOnPlant(ctx context.Context, dto dto.ActionOnPlantReq) (*models.Plant, error) {
+	userID, err := contextkeys.GetUserIDFromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	if !models.ValidPlantAction(dto.Action) {
 		return nil, ErrInvalidPlantAction
 	}
 
-	plant, err := s.GetPlant(ctx, dto.UserID, dto.PlantID)
+	plant, err := s.GetPlant(ctx, dto.PlantID)
 	if err != nil {
 		return nil, err
+	}
+
+	if plant.OwnerID != userID {
+		return nil, ErrUnauthorisedPlantAction
 	}
 
 	userCoords := models.Coordinates{Lng: dto.Longitude, Lat: dto.Latitude}
@@ -186,7 +187,7 @@ func (s *plantService) ActionOnPlant(ctx context.Context, dto ActionOnPlantReqDt
 		return nil, err
 	}
 
-	return s.GetPlant(ctx, plant.OwnerID, dto.PlantID)
+	return s.GetPlant(ctx, dto.PlantID)
 }
 
 func (s *plantService) KillPlant(ctx context.Context, id string) error {
