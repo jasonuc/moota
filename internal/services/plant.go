@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/jasonuc/moota/internal/contextkeys"
@@ -69,7 +68,6 @@ func (s *plantService) GetAllUserPlants(ctx context.Context, dto dto.GetAllUserP
 		return nil, err
 	}
 
-	fmt.Println(*plants[0])
 	now := time.Now()
 	err = refreshPlantsData(ctx, tx, plants, now)
 	if err != nil {

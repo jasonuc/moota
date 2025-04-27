@@ -69,7 +69,6 @@ func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*Se
 
 	seedGroupsMap := make(map[string]*SeedGroup)
 	for _, seed := range seeds {
-		fmt.Println(seed)
 		sg, ok := seedGroupsMap[seed.BotanicalName]
 		if ok {
 			sg.Seeds = append(sg.Seeds, seed)
