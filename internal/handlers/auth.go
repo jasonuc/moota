@@ -32,14 +32,14 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	user, err := h.authService.Register(r.Context(), payload)
+	user, tokenPair, err := h.authService.Register(r.Context(), payload)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusCreated, envelope{"user": user}, nil)
+	writeJSON(w, http.StatusCreated, envelope{"user": user, "tokens": tokenPair}, nil)
 }
 
 func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +61,7 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"data": tokenPair}, nil)
+	writeJSON(w, http.StatusOK, envelope{"tokens": tokenPair}, nil)
 }
 
 func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request) {
@@ -83,5 +83,5 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"data": tokenPair}, nil)
+	writeJSON(w, http.StatusOK, envelope{"tokens": tokenPair}, nil)
 }

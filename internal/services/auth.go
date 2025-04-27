@@ -24,7 +24,7 @@ var (
 )
 
 type AuthService interface {
-	Register(context.Context, dto.UserRegisterReq) (*models.User, error)
+	Register(context.Context, dto.UserRegisterReq) (*models.User, *models.TokenPair, error)
 	Login(context.Context, dto.UserLoginReq) (*models.TokenPair, error)
 	RefreshTokens(context.Context, dto.TokenRefreshReq) (*models.TokenPair, error)
 	VerifyAccessToken(context.Context, string) (string, error)
@@ -48,20 +48,20 @@ func NewAuthService(store *store.Store, acessSecret []byte, refreshTTL, acessTTL
 	}
 }
 
-func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*models.User, error) {
+func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*models.User, *models.TokenPair, error) {
 	_, err := s.store.User.GetByEmail(ctx, dto.Email)
 	if err == nil {
-		return nil, ErrInvalidEmail
+		return nil, nil, ErrInvalidEmail
 	}
 
 	_, err = s.store.User.GetByUsername(ctx, dto.Email)
 	if err == nil {
-		return nil, ErrInvalidUsername
+		return nil, nil, ErrInvalidUsername
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(dto.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, fmt.Errorf("failed to hash password: %w", err)
+		return nil, nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
 	user := &models.User{
@@ -73,10 +73,29 @@ func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*m
 
 	err = s.store.User.Insert(ctx, user)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create user: %w", err)
+		return nil, nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	return user, nil
+	accessToken, err := s.generateAccessToken(user)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	refreshToken, err := s.generateRefreshToken(user)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err := s.store.RefreshToken.Insert(ctx, refreshToken); err != nil {
+		return nil, nil, err
+	}
+
+	tokenPair := &models.TokenPair{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken.Plain,
+	}
+
+	return user, tokenPair, nil
 }
 
 func (s *authService) Login(ctx context.Context, dto dto.UserLoginReq) (*models.TokenPair, error) {
