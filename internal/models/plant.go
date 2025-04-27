@@ -2,7 +2,9 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"math"
+	"math/rand/v2"
 	"time"
 )
 
@@ -22,7 +24,7 @@ var (
 type PlantAction int
 
 const (
-	PlantActionWater PlantAction = iota
+	PlantActionWater PlantAction = iota + 1
 )
 
 func ValidPlantAction(action int) bool {
@@ -59,7 +61,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 		return nil, ErrSeedAlreadyPlanted
 	}
 
-	nickname := "Atura" // TODO: Make a function to generate random whimsical names
+	nickname := generateNickname()
 	seed.Planted = true
 	circleMeta := CircleMeta{radiusM: PlantInteractionRadius, C: centre}
 	if !soil.ContainsFullCircle(circleMeta) {
@@ -154,4 +156,38 @@ func (p *Plant) changeHp(delta float64) bool {
 		p.Dead = true
 	}
 	return p.Alive()
+}
+
+func generateNickname() string {
+	adjectives := []string{
+		"Wiggly", "Sparkle", "Fuzzy", "Giggly", "Dapper", "Sneaky", "Wobble",
+		"Whispering", "Disco", "Dazzle", "Twinkle", "Bubbly", "Misty", "Cosmic",
+		"Sleepy", "Grumpy", "Zany", "Mischievous", "Bouncy", "Breezy", "Snazzy",
+		"Quirky", "Mystical", "Rainbow", "Doodle", "Fluffy", "Zigzag", "Velvet",
+	}
+
+	nouns := []string{
+		"Sprout", "Leaf", "Blossom", "Twig", "Root", "Petal", "Bean", "Shadow",
+		"Whisker", "Pickle", "Pancake", "Buttons", "Socks", "Teapot", "Muffin",
+		"Rocket", "Banjo", "Noodle", "Pebble", "Bubble", "Jelly", "Whistle",
+		"Wizard", "Moonbeam", "Droplet", "Thunder", "Feather", "Crumble",
+	}
+
+	titles := []string{
+		"the Magnificent", "the Curious", "the Bold", "the Shy", "the Mighty",
+		"the Daring", "the Gentle", "the Wise", "the Fabulous", "the Ticklish",
+		"the Brave", "the Mysterious", "the Fancy", "the Dreamer", "the Champion",
+		"the Explorer", "the Melodious", "the Inventor", "von Bloomenstein",
+		"the Magical", "the Whimsical", "the Chaotic", "Jr.", "the Majestic",
+	}
+
+	adjective := adjectives[rand.IntN(len(adjectives))]
+	noun := nouns[rand.IntN(len(nouns))]
+
+	if rand.IntN(2) == 0 {
+		title := titles[rand.IntN(len(titles))]
+		return fmt.Sprintf("%s %s %s", adjective, noun, title)
+	}
+
+	return fmt.Sprintf("%s %s", adjective, noun)
 }
