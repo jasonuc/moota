@@ -38,9 +38,8 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, envelope{
-		"user": user,
-	}, nil)
+	//nolint:errcheck
+	writeJSON(w, http.StatusCreated, envelope{"user": user}, nil)
 }
 
 func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +60,7 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	//nolint:errcheck
 	writeJSON(w, http.StatusOK, envelope{"data": tokenPair}, nil)
 }
 
@@ -82,5 +82,6 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	//nolint:errcheck
 	writeJSON(w, http.StatusOK, envelope{"data": tokenPair}, nil)
 }

@@ -38,6 +38,7 @@ func (h *PlantHandler) HandleGetAllUserPlants(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	//nolint:errcheck
 	writeJSON(w, http.StatusOK, envelope{"plants": plants}, nil)
 }
 
@@ -54,6 +55,7 @@ func (h *PlantHandler) HandleGetPlant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//nolint:errcheck
 	writeJSON(w, http.StatusAccepted, envelope{"plant": plant}, nil)
 }
 
@@ -75,6 +77,7 @@ func (h *PlantHandler) HandleActionOnPlant(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	//nolint:errcheck
 	writeJSON(w, http.StatusAccepted, envelope{"plant": plant}, nil)
 }
 
@@ -91,6 +94,7 @@ func (h *PlantHandler) HandleConfirmPlantCreation(w http.ResponseWriter, r *http
 		return
 	}
 
+	//nolint:errcheck
 	writeJSON(w, http.StatusAccepted, envelope{"plant": plant}, nil)
 }
 
@@ -106,5 +110,6 @@ func (h *PlantHandler) HandleKillPlant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//nolint:errcheck
 	writeJSON(w, http.StatusAccepted, nil, nil)
 }

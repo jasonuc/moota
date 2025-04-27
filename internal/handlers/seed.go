@@ -38,6 +38,7 @@ func (h *SeedHandler) HandlePlantSeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//nolint:errcheck
 	writeJSON(w, http.StatusCreated, envelope{"plant": plant}, nil)
 }
 
@@ -54,5 +55,6 @@ func (h *SeedHandler) HandleGetUserSeeds(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	//nolint:errcheck
 	writeJSON(w, http.StatusOK, envelope{"seeds": seedGroups}, nil)
 }
