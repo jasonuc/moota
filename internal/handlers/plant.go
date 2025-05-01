@@ -109,6 +109,23 @@ func (h *PlantHandler) HandleActivatePlant(w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusAccepted, envelope{"plant": plant}, nil)
 }
 
+func (h *PlantHandler) HandleGetAllUserDeceasedPlants(w http.ResponseWriter, r *http.Request) {
+	userID, err := readStringReqParam(r, "userID")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	deceasedPlants, err := h.plantService.GetAllUserDeceasedPlants(r.Context(), userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//nolint:errcheck
+	writeJSON(w, http.StatusAccepted, envelope{"plants": deceasedPlants}, nil)
+}
+
 func (h *PlantHandler) HandleKillPlant(w http.ResponseWriter, r *http.Request) {
 	plantID, err := readStringReqParam(r, "plantID")
 	if err != nil {

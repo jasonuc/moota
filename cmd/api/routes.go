@@ -27,6 +27,7 @@ func (app *application) routes() http.Handler {
 
 			r.Route("/plants", func(r chi.Router) {
 				r.Get("/u/{userID}", app.plantHandler.HandleGetAllUserPlants)
+				r.Get("/u/{userID}/graveyard", app.plantHandler.HandleGetAllUserDeceasedPlants)
 
 				r.Get("/{plantID}", app.plantHandler.HandleGetPlant)
 
