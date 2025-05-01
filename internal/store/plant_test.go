@@ -60,7 +60,7 @@ func TestPlantStore(t *testing.T) {
 	ownerID := "00000000-0000-4000-a000-000000000001"
 
 	t.Run("GetByOwnerID", func(t *testing.T) {
-		plants, err := store.GetByOwnerID(context.Background(), ownerID)
+		plants, err := store.GetByOwnerID(context.Background(), ownerID, false)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -72,7 +72,7 @@ func TestPlantStore(t *testing.T) {
 
 	t.Run("Get", func(t *testing.T) {
 		var plantID = "00000000-0000-4000-a000-000000000201"
-		plant, err := store.Get(context.Background(), plantID)
+		plant, err := store.Get(context.Background(), plantID, false)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -158,7 +158,7 @@ func TestPlantStore(t *testing.T) {
 			t.Errorf("unexpected error: %v", err)
 		}
 
-		plant, err := store.Get(context.Background(), plantID)
+		plant, err := store.Get(context.Background(), plantID, false)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -188,7 +188,7 @@ func TestPlantStore(t *testing.T) {
 	t.Run("Update", func(t *testing.T) {
 		t.Run("Update Plant xp", func(t *testing.T) {
 			plantID := "00000000-0000-4000-a000-000000000201"
-			plant, err := store.Get(context.Background(), plantID)
+			plant, err := store.Get(context.Background(), plantID, false)
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}
@@ -199,7 +199,7 @@ func TestPlantStore(t *testing.T) {
 				t.Errorf("unexpected error: %v", err)
 			}
 
-			updatedPlant, err := store.Get(context.Background(), plantID)
+			updatedPlant, err := store.Get(context.Background(), plantID, false)
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}
@@ -211,7 +211,7 @@ func TestPlantStore(t *testing.T) {
 
 		t.Run("Update Plant nickname", func(t *testing.T) {
 			plantID := "00000000-0000-4000-a000-000000000201"
-			plant, err := store.Get(context.Background(), plantID)
+			plant, err := store.Get(context.Background(), plantID, false)
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}
@@ -222,7 +222,7 @@ func TestPlantStore(t *testing.T) {
 				t.Errorf("unexpected error: %v", err)
 			}
 
-			updatedPlant, err := store.Get(context.Background(), plantID)
+			updatedPlant, err := store.Get(context.Background(), plantID, false)
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}
@@ -240,7 +240,7 @@ func TestPlantStore(t *testing.T) {
 			t.Errorf("unexpected error: %v", err)
 		}
 
-		_, err = store.Get(context.Background(), plantID)
+		_, err = store.Get(context.Background(), plantID, false)
 		if err == nil {
 			t.Errorf("expected plant to be deleted, but it was found")
 		}

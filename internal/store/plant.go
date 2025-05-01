@@ -3,13 +3,14 @@ package store
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/jasonuc/moota/internal/models"
 )
 
 type PlantStore interface {
-	Get(context.Context, string) (*models.Plant, error)
-	GetByOwnerID(context.Context, string) ([]*models.Plant, error)
+	Get(context.Context, string, bool) (*models.Plant, error)
+	GetByOwnerID(context.Context, string, bool) ([]*models.Plant, error)
 	GetBySoilIDAndProximity(context.Context, string, models.Coordinates, float64) ([]*models.Plant, error)
 	GetByOwnerIDAndProximity(context.Context, string, models.Coordinates) ([]*models.Plant, error)
 	ActivatePlant(context.Context, string) error
@@ -117,9 +118,14 @@ func (s *plantStore) GetBySoilIDAndProximity(ctx context.Context, soilID string,
 	return plants, nil
 }
 
-func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string) ([]*models.Plant, error) {
-	q := `SELECT id, nickname, hp, dead, owner_id, time_planted, last_watered_time, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, activated FROM plants
-			WHERE owner_id = $1 AND dead = false AND activated = true;`
+func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string, includeDeceased bool) ([]*models.Plant, error) {
+	var deadEqualsFalseClause string
+	if !includeDeceased {
+		deadEqualsFalseClause = "AND dead = false"
+	}
+
+	q := fmt.Sprintf(`SELECT id, nickname, hp, dead, owner_id, time_planted, last_watered_time, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, activated FROM plants
+			WHERE owner_id = $1 AND activated = true %s;`, deadEqualsFalseClause)
 
 	rows, err := s.db.QueryContext(ctx, q, ownerID)
 	if err != nil {
@@ -164,13 +170,18 @@ func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string) ([]*model
 	return plants, nil
 }
 
-func (s *plantStore) Get(ctx context.Context, id string) (*models.Plant, error) {
-	q := `SELECT 
+func (s *plantStore) Get(ctx context.Context, id string, includeDeceased bool) (*models.Plant, error) {
+	var deadEqualsFalseClause string
+	if !includeDeceased {
+		deadEqualsFalseClause = "AND p.dead = false"
+	}
+
+	q := fmt.Sprintf(`SELECT 
 			p.id, p.nickname, p.hp, p.dead, p.owner_id, p.time_planted, p.last_watered_time, p.last_action_time, ST_AsText(p.centre), 
 			p.radius_m, p.soil_id, p.optimal_soil, p.botanical_name, p.level, p.xp, p.woe, p.frolic, p.dread, p.malice, p.activated, 
 			ST_AsText(s.centre), s.radius_m, s.soil_type, s.water_retention, s.nutrient_richness, s.created_at
 			FROM plants p JOIN soils s ON p.soil_id = s.id
-			WHERE p.id = $1 AND p.dead = false;`
+			WHERE p.id = $1 %s;`, deadEqualsFalseClause)
 
 	var plantCentreText string
 	var plantRadiusM float64
