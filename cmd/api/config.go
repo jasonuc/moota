@@ -38,7 +38,7 @@ func parseConfig() config {
 	cfg.db.connMaxIdleTime = getTimeDurationEnv("DB_CONN_MAX_IDLE_TIME", 1*time.Hour)
 
 	cfg.auth.accessTokenSecret = getStringEnv("AUTH_ACCESS_TOKEN_SECRET", "moo_goes_the_cow")
-	cfg.auth.accessTokenTTL = getTimeDurationEnv("AUTH_ACCESS_TOKEN_TTL", 1*time.Hour)
+	cfg.auth.accessTokenTTL = getTimeDurationEnv("AUTH_ACCESS_TOKEN_TTL", 24*time.Hour)
 	cfg.auth.refreshTokenTTL = getTimeDurationEnv("AUTH_REFRESH_TOKEN_TTL", 7*24*time.Hour)
 	cfg.auth.issuer = getStringEnv("AUTH_ISSUER", "moota")
 
