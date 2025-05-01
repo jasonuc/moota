@@ -32,7 +32,12 @@ func (h *PlantHandler) HandleGetAllUserPlants(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	plants, err := h.plantService.GetAllUserPlants(r.Context(), payload)
+	userID, err := readStringReqParam(r, "userID")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	plants, err := h.plantService.GetAllUserPlants(r.Context(), userID, payload)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -81,14 +86,14 @@ func (h *PlantHandler) HandleActionOnPlant(w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusAccepted, envelope{"plant": plant}, nil)
 }
 
-func (h *PlantHandler) HandleConfirmPlantCreation(w http.ResponseWriter, r *http.Request) {
+func (h *PlantHandler) HandleActivatePlant(w http.ResponseWriter, r *http.Request) {
 	plantID, err := readStringReqParam(r, "plantID")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	plant, err := h.plantService.ConfirmPlantCreation(r.Context(), plantID)
+	plant, err := h.plantService.ActivatePlant(r.Context(), plantID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

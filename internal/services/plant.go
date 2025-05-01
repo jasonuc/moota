@@ -12,11 +12,11 @@ import (
 )
 
 type PlantService interface {
-	GetAllUserPlants(context.Context, dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error)
+	GetAllUserPlants(context.Context, string, dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error)
 	ActionOnPlant(context.Context, dto.ActionOnPlantReq) (*models.Plant, error)
 	GetPlant(context.Context, string) (*models.Plant, error)
 	CreatePlant(context.Context, *models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
-	ConfirmPlantCreation(ctx context.Context, plantID string) (*models.Plant, error)
+	ActivatePlant(ctx context.Context, plantID string) (*models.Plant, error)
 	KillPlant(context.Context, string) error
 	WithStore(*store.Store) PlantService
 }
@@ -44,10 +44,11 @@ var (
 	ErrUnauthorisedPlantAction       = errors.New("unauthorised plant action")
 	ErrPlantAlreadyActivated         = errors.New("plant already activated")
 	ErrPlantAreadyDead               = errors.New("plant already dead")
+	ErrPlantNotActivated             = errors.New("plant not activated")
 )
 
-func (s *plantService) GetAllUserPlants(ctx context.Context, dto dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error) {
-	userID, err := contextkeys.GetUserIDFromCtx(ctx)
+func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error) {
+	userIDFromCtx, err := contextkeys.GetUserIDFromCtx(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -60,6 +61,10 @@ func (s *plantService) GetAllUserPlants(ctx context.Context, dto dto.GetAllUserP
 	}
 	//nolint:errcheck
 	defer transaction.Rollback()
+
+	if userID != userIDFromCtx {
+		return nil, ErrUnauthorisedPlantAction
+	}
 
 	tx := s.store.WithTx(transaction)
 
@@ -113,7 +118,7 @@ func (s *plantService) GetPlant(ctx context.Context, plantID string) (*models.Pl
 	return plant, nil
 }
 
-func (s *plantService) ConfirmPlantCreation(ctx context.Context, plantID string) (*models.Plant, error) {
+func (s *plantService) ActivatePlant(ctx context.Context, plantID string) (*models.Plant, error) {
 	plant, err := s.store.Plant.Get(ctx, plantID)
 	if err != nil {
 		return nil, err
@@ -168,6 +173,10 @@ func (s *plantService) ActionOnPlant(ctx context.Context, dto dto.ActionOnPlantR
 
 	if plant.OwnerID != userID {
 		return nil, ErrUnauthorisedPlantAction
+	}
+
+	if !plant.Activated {
+		return nil, ErrPlantNotActivated
 	}
 
 	userCoords := models.Coordinates{Lng: dto.Longitude, Lat: dto.Latitude}

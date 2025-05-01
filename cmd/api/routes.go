@@ -29,7 +29,7 @@ func (app *application) routes() http.Handler {
 				r.Get("/u/{userID}", app.plantHandler.HandleGetAllUserPlants)
 				r.Get("/{plantID}", app.plantHandler.HandleGetPlant)
 				r.Post("/action", app.plantHandler.HandleActionOnPlant)
-				r.Patch("/{plantID}/confirm", app.plantHandler.HandleConfirmPlantCreation)
+				r.Post("/{plantID}/activate", app.plantHandler.HandleActivatePlant)
 				r.Patch("/{plantID}/kill", app.plantHandler.HandleKillPlant)
 			})
 
