@@ -27,15 +27,18 @@ func (app *application) routes() http.Handler {
 
 			r.Route("/plants", func(r chi.Router) {
 				r.Get("/u/{userID}", app.plantHandler.HandleGetAllUserPlants)
+
 				r.Get("/{plantID}", app.plantHandler.HandleGetPlant)
-				r.Post("/action", app.plantHandler.HandleActionOnPlant)
+
+				r.Post("/{plantID}/action", app.plantHandler.HandleActionOnPlant)
 				r.Post("/{plantID}/activate", app.plantHandler.HandleActivatePlant)
-				r.Patch("/{plantID}/kill", app.plantHandler.HandleKillPlant)
+				r.Post("/{plantID}/kill", app.plantHandler.HandleKillPlant)
 			})
 
 			r.Route("/seeds", func(r chi.Router) {
-				r.Post("/", app.seedHandler.HandlePlantSeed)
 				r.Get("/u/{userID}", app.seedHandler.HandleGetUserSeeds)
+
+				r.Post("/{seedID}", app.seedHandler.HandlePlantSeed)
 			})
 		})
 	})

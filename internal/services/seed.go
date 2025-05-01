@@ -16,7 +16,7 @@ import (
 type SeedService interface {
 	GetAllUserSeeds(context.Context, string) ([]*SeedGroup, error)
 	GetSeed(context.Context, string, string) (*models.Seed, error)
-	PlantSeed(context.Context, dto.PlantSeedReq) (*models.Plant, error)
+	PlantSeed(context.Context, string, dto.PlantSeedReq) (*models.Plant, error)
 	WithStore(*store.Store) SeedService
 }
 
@@ -98,7 +98,7 @@ func (s *seedService) GetSeed(ctx context.Context, userID, seedID string) (*mode
 	return seed, nil
 }
 
-func (s *seedService) PlantSeed(ctx context.Context, dto dto.PlantSeedReq) (*models.Plant, error) {
+func (s *seedService) PlantSeed(ctx context.Context, seedID string, dto dto.PlantSeedReq) (*models.Plant, error) {
 	userID, err := contextkeys.GetUserIDFromCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (s *seedService) PlantSeed(ctx context.Context, dto dto.PlantSeedReq) (*mod
 	soilServiceWithTx := s.soilService.WithStore(tx)
 	plantServiceWithTx := s.plantService.WithStore(tx)
 
-	seed, err := tx.Seed.Get(ctx, dto.SeedID)
+	seed, err := tx.Seed.Get(ctx, seedID)
 	if err != nil {
 		return nil, err
 	}

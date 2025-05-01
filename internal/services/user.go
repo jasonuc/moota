@@ -34,13 +34,13 @@ func (s *userService) GetUserByID(ctx context.Context, userID string) (*models.U
 	return user, nil
 }
 
-func (s *userService) UpdateUser(ctx context.Context, dto dto.UpdateUserReq) (*models.User, error) {
+func (s *userService) UpdateUser(ctx context.Context, userID string, dto dto.UpdateUserReq) (*models.User, error) {
 	userIDFromCtx, err := contextkeys.GetUserIDFromCtx(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if dto.UserID != userIDFromCtx {
+	if userID != userIDFromCtx {
 		return nil, fmt.Errorf("you do not have authorised access")
 	}
 

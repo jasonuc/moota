@@ -32,7 +32,13 @@ func (h *SeedHandler) HandlePlantSeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	plant, err := h.seedService.PlantSeed(r.Context(), payload)
+	seedID, err := readStringReqParam(r, "seedID")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	plant, err := h.seedService.PlantSeed(r.Context(), seedID, payload)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

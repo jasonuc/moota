@@ -76,7 +76,13 @@ func (h *PlantHandler) HandleActionOnPlant(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	plant, err := h.plantService.ActionOnPlant(r.Context(), payload)
+	plantID, err := readStringReqParam(r, "plantID")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	plant, err := h.plantService.ActionOnPlant(r.Context(), plantID, payload)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

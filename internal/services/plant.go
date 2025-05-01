@@ -13,7 +13,7 @@ import (
 
 type PlantService interface {
 	GetAllUserPlants(context.Context, string, dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error)
-	ActionOnPlant(context.Context, dto.ActionOnPlantReq) (*models.Plant, error)
+	ActionOnPlant(context.Context, string, dto.ActionOnPlantReq) (*models.Plant, error)
 	GetPlant(context.Context, string) (*models.Plant, error)
 	CreatePlant(context.Context, *models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
 	ActivatePlant(ctx context.Context, plantID string) (*models.Plant, error)
@@ -156,7 +156,7 @@ func (s *plantService) CreatePlant(ctx context.Context, soil *models.Soil, seed 
 	return plant, nil
 }
 
-func (s *plantService) ActionOnPlant(ctx context.Context, dto dto.ActionOnPlantReq) (*models.Plant, error) {
+func (s *plantService) ActionOnPlant(ctx context.Context, plantID string, dto dto.ActionOnPlantReq) (*models.Plant, error) {
 	userID, err := contextkeys.GetUserIDFromCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -166,7 +166,7 @@ func (s *plantService) ActionOnPlant(ctx context.Context, dto dto.ActionOnPlantR
 		return nil, ErrInvalidPlantAction
 	}
 
-	plant, err := s.GetPlant(ctx, dto.PlantID)
+	plant, err := s.GetPlant(ctx, plantID)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func (s *plantService) ActionOnPlant(ctx context.Context, dto dto.ActionOnPlantR
 		return nil, err
 	}
 
-	return s.GetPlant(ctx, dto.PlantID)
+	return s.GetPlant(ctx, plantID)
 }
 
 func (s *plantService) KillPlant(ctx context.Context, id string) error {
