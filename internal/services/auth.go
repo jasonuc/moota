@@ -59,6 +59,10 @@ func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*m
 		return nil, nil, ErrInvalidUsername
 	}
 
+	if !isValidUsername(dto.Username) {
+		return nil, nil, ErrInvalidUsername
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(dto.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to hash password: %w", err)
