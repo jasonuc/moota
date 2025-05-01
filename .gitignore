@@ -66,3 +66,6 @@ go.work.sum
 web/node_modules/
 web/.vite
 .vercel
+
+# air
+tmp/
