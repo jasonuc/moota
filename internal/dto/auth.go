@@ -15,14 +15,15 @@ type TokenRefreshReq struct {
 	RefreshToken string `json:"refreshToken" validate:"required,base64rawurl"`
 }
 
-type UpdateUserReq struct {
-	Username string `json:"username,omitempty"`
+type ChangeUsernameReq struct {
+	NewUsername string `json:"username,omitempty"`
 }
 
 type ChangeEmailReq struct {
-	Email string `json:"email" validate:"required,email"`
+	NewEmail string `json:"email" validate:"required,email"`
 }
 
 type ChangePasswordReq struct {
-	Password string `json:"password" validate:"required,min=8,max=72"`
+	OldPassword string `json:"oldPassword" validate:"required"`
+	NewPassword string `json:"newPassword" validate:"required,min=8,max=72"`
 }

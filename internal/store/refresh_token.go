@@ -10,6 +10,7 @@ type RefreshTokenStore interface {
 	Insert(context.Context, *models.RefreshToken) error
 	GetByHash(context.Context, []byte) (*models.RefreshToken, error)
 	Revoke(context.Context, string) error
+	RevokeAllByUserID(context.Context, string) error
 }
 
 type refreshTokenStore struct {
@@ -64,6 +65,26 @@ func (s *refreshTokenStore) Revoke(ctx context.Context, id string) error {
 
 	if rowsAffected == 0 {
 		return models.ErrRefreshTokenNotFound
+	}
+
+	return nil
+}
+
+func (s *refreshTokenStore) RevokeAllByUserID(ctx context.Context, id string) error {
+	q := `UPDATE refresh_tokens SET revoked_at = NOW() WHERE user_id = $1;`
+
+	res, err := s.db.ExecContext(ctx, q, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return models.ErrUserNotFound
 	}
 
 	return nil

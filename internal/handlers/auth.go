@@ -85,3 +85,87 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 	//nolint:errcheck
 	writeJSON(w, http.StatusOK, envelope{"tokens": tokenPair}, nil)
 }
+
+func (h *AuthHandler) HandleChangeUsername(w http.ResponseWriter, r *http.Request) {
+	var payload dto.ChangeUsernameReq
+	if err := readJSON(w, r, &payload); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := h.validator.Struct(payload); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userID, err := readStringReqParam(r, "userID")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.authService.ChangeUserUsername(r.Context(), userID, payload)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//nolint:errcheck
+	writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
+}
+
+func (h *AuthHandler) HandleChangePassword(w http.ResponseWriter, r *http.Request) {
+	var payload dto.ChangePasswordReq
+	if err := readJSON(w, r, &payload); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := h.validator.Struct(payload); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userID, err := readStringReqParam(r, "userID")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.authService.ChangeUserPassword(r.Context(), userID, payload)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//nolint:errcheck
+	writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
+}
+
+func (h *AuthHandler) HandleChangeEmail(w http.ResponseWriter, r *http.Request) {
+	var payload dto.ChangeEmailReq
+	if err := readJSON(w, r, &payload); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := h.validator.Struct(payload); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userID, err := readStringReqParam(r, "userID")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.authService.ChangeUserEmail(r.Context(), userID, payload)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//nolint:errcheck
+	writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
+}

@@ -8,8 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"unicode"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jasonuc/moota/internal/contextkeys"
 	"github.com/jasonuc/moota/internal/dto"
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/store"
@@ -28,6 +30,9 @@ type AuthService interface {
 	Login(context.Context, dto.UserLoginReq) (*models.TokenPair, error)
 	RefreshTokens(context.Context, dto.TokenRefreshReq) (*models.TokenPair, error)
 	VerifyAccessToken(context.Context, string) (string, error)
+	ChangeUserUsername(context.Context, string, dto.ChangeUsernameReq) (*models.User, error)
+	ChangeUserEmail(context.Context, string, dto.ChangeEmailReq) (*models.User, error)
+	ChangeUserPassword(context.Context, string, dto.ChangePasswordReq) (*models.User, error)
 }
 
 type authService struct {
@@ -212,6 +217,122 @@ func (s *authService) VerifyAccessToken(ctx context.Context, accessToken string)
 	return "", errors.New("invalid token")
 }
 
+func (s *authService) ChangeUserUsername(ctx context.Context, userID string, dto dto.ChangeUsernameReq) (*models.User, error) {
+	transaction, err := s.store.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	user, err := tx.User.GetByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !isValidUsername(dto.NewUsername) {
+		return nil, ErrInvalidUsername
+	}
+
+	user.Username = dto.NewUsername
+	if err := tx.User.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
+	if err := transaction.Commit(); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (s *authService) ChangeUserEmail(ctx context.Context, userID string, dto dto.ChangeEmailReq) (*models.User, error) {
+	transaction, err := s.store.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	if _, err := tx.User.GetByEmail(ctx, dto.NewEmail); err != nil && errors.Is(err, models.ErrUserNotFound) {
+		return nil, ErrInvalidEmail
+	}
+
+	user, err := tx.User.GetByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.User.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
+	if err := transaction.Commit(); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (s *authService) ChangeUserPassword(ctx context.Context, userID string, dto dto.ChangePasswordReq) (*models.User, error) {
+	userIDFromCtx, err := contextkeys.GetUserIDFromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if userID != userIDFromCtx {
+		return nil, fmt.Errorf("you do not have authorised access")
+	}
+
+	transaction, err := s.store.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	user, err := tx.User.GetByID(ctx, userID)
+	if err != nil {
+		return nil, models.ErrUserNotFound
+	}
+
+	if err := bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(dto.OldPassword)); err != nil && errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+		return nil, ErrInvalidCredentials
+	}
+
+	newPasswordHash, err := bcrypt.GenerateFromPassword([]byte(dto.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	user.PasswordHash = newPasswordHash
+	if err := tx.User.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
+	// this current approach to change password would revoke all the user's refresh tokens which in effect signs them out when the refresh token expires
+	// the current approach does have a problem though. It is going to weight until the user needs to refresh their access token before they'd be logged out so...
+	// TODO: improve maybe return a new token pair
+	if err := tx.RefreshToken.RevokeAllByUserID(ctx, userID); err != nil {
+		return nil, err
+	}
+
+	if err := transaction.Commit(); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (s *authService) generateAccessToken(user *models.User) (string, error) {
 	now := time.Now()
 	accessExp := time.Now().Add(s.accessTokenTTL)
@@ -252,4 +373,16 @@ func (s *authService) generateRefreshToken(user *models.User) (*models.RefreshTo
 		CreatedAt: now,
 		ExpiresAt: refreshExp,
 	}, nil
+}
+
+func isValidUsername(username string) bool {
+	if len(username) < 3 || len(username) > 8 {
+		return false
+	}
+	for _, char := range username {
+		if !unicode.IsLetter(char) {
+			return false
+		}
+	}
+	return true
 }
