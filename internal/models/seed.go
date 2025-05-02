@@ -25,6 +25,12 @@ type Seed struct {
 	SeedMeta
 }
 
+type SeedGroup struct {
+	BotanicalName string  `json:"botanicalName"`
+	Count         int     `json:"count"`
+	Seeds         []*Seed `json:"seeds"`
+}
+
 func (s SeedMeta) IsCompatibleWithSoil(target SoilType) bool {
 	return s.OptimalSoil == target ||
 		s.OptimalSoil == SoilTypeLoam ||

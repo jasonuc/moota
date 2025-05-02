@@ -13,11 +13,17 @@ import (
 )
 
 type SeedService interface {
-	GetAllUserSeeds(context.Context, string) ([]*SeedGroup, error)
+	GetAllUserSeeds(context.Context, string) ([]*models.SeedGroup, error)
 	GetSeed(context.Context, string, string) (*models.Seed, error)
 	PlantSeed(context.Context, string, dto.PlantSeedReq) (*models.Plant, error)
 	WithStore(*store.Store) SeedService
 }
+
+var (
+	ErrUnauthorizedSeedPlanting  = errors.New("not authorised to plant this seed")
+	ErrNotPossibleToPlantSeed    = errors.New("not possible to plant seed")
+	ErrInvalidPermissionsForSeed = errors.New("invalid permissions to retreive seed")
+)
 
 type seedService struct {
 	soilService  SoilService
@@ -39,19 +45,7 @@ func (s *seedService) WithStore(store *store.Store) SeedService {
 	return &copy
 }
 
-type SeedGroup struct {
-	BotanicalName string         `json:"botanicalName"`
-	Count         int            `json:"count"`
-	Seeds         []*models.Seed `json:"seeds"`
-}
-
-var (
-	ErrUnauthorizedSeedPlanting  = errors.New("not authorised to plant this seed")
-	ErrNotPossibleToPlantSeed    = errors.New("not possible to plant seed")
-	ErrInvalidPermissionsForSeed = errors.New("invalid permissions to retreive seed")
-)
-
-func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*SeedGroup, error) {
+func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*models.SeedGroup, error) {
 	userIDFromCtx, err := contextkeys.GetUserIDFromCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -66,7 +60,7 @@ func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*Se
 		return nil, err
 	}
 
-	seedGroupsMap := make(map[string]*SeedGroup)
+	seedGroupsMap := make(map[string]*models.SeedGroup)
 	for _, seed := range seeds {
 		sg, ok := seedGroupsMap[seed.BotanicalName]
 		if ok {
@@ -74,7 +68,7 @@ func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*Se
 			sg.Count++
 			continue
 		} else {
-			seedGroupsMap[seed.BotanicalName] = &SeedGroup{
+			seedGroupsMap[seed.BotanicalName] = &models.SeedGroup{
 				BotanicalName: seed.BotanicalName,
 				Count:         1,
 				Seeds:         []*models.Seed{seed},
