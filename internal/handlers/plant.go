@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -103,7 +104,10 @@ func (h *PlantHandler) HandleActionOnPlant(w http.ResponseWriter, r *http.Reques
 			badRequestResponse(w, err)
 		case errors.Is(err, services.ErrInvalidPlantAction):
 			badRequestResponse(w, err)
+		case errors.Is(err, models.ErrPlantInCooldown):
+			badRequestResponse(w, err)
 		default:
+			fmt.Println(err)
 			serverErrorResponse(w, err)
 		}
 		return

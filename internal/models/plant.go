@@ -16,7 +16,7 @@ const (
 )
 
 var (
-	ErrPlantInCooldown     = errors.New("plant in cooldown mode")
+	ErrPlantInCooldown     = errors.New("plant is in cooldown mode")
 	ErrPlantNotFullyInSoil = errors.New("plant not fully inside soil")
 	ErrPlantNotFound       = errors.New("plant not found")
 )
@@ -107,7 +107,7 @@ func (p *Plant) Action(action PlantAction, t time.Time) (bool, error) {
 
 	switch action {
 	case PlantActionWater:
-		if t.Sub(p.LastActionTime) > minWateringInterval {
+		if t.Sub(p.LastActionTime) > minWateringInterval || p.TimePlanted == p.LastActionTime {
 			p.addXp(wateringPlantXpGain)
 			p.changeHp(wateringPlantHpGain)
 			p.LastWateredTime = t
