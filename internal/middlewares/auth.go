@@ -4,12 +4,14 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/jasonuc/moota/internal/contextkeys"
 	"github.com/jasonuc/moota/internal/services"
 )
 
 type AuthMiddleware interface {
 	Authorise(http.Handler) http.Handler
+	ValidateUserAccess(http.Handler) http.Handler
 }
 
 type authMiddleware struct {
@@ -27,23 +29,41 @@ func (m *authMiddleware) Authorise(next http.Handler) http.Handler {
 		authorizationHeader := r.Header.Get("Authorization")
 
 		if authorizationHeader == "" || !strings.HasPrefix(authorizationHeader, "Bearer ") {
-			http.Error(w, "unathorised", http.StatusUnauthorized)
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		accessToken := strings.TrimSpace(strings.TrimPrefix(authorizationHeader, "Bearer "))
 		if accessToken == "" {
-			http.Error(w, "unathorised", http.StatusUnauthorized)
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		userID, err := m.authService.VerifyAccessToken(r.Context(), accessToken)
 		if err != nil {
-			http.Error(w, "unathorised", http.StatusUnauthorized)
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		ctx := contextkeys.SetUserIDCtx(r.Context(), userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (m *authMiddleware) ValidateUserAccess(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userIDFromCtx, err := contextkeys.GetUserIDFromCtx(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusForbidden)
+			return
+		}
+
+		userIDParam := chi.URLParam(r, "userID")
+		if userIDFromCtx != userIDParam {
+			http.Error(w, "cannot access another user's data", http.StatusForbidden)
+			return
+		}
+
+		next.ServeHTTP(w, r)
 	})
 }
