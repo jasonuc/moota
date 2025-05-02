@@ -226,6 +226,10 @@ func (s *authService) ChangeUserUsername(ctx context.Context, userID string, dto
 
 	tx := s.store.WithTx(transaction)
 
+	if _, err := tx.User.GetByUsername(ctx, dto.NewUsername); err == nil {
+		return nil, ErrInvalidUsername
+	}
+
 	user, err := tx.User.GetByID(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -257,7 +261,7 @@ func (s *authService) ChangeUserEmail(ctx context.Context, userID string, dto dt
 
 	tx := s.store.WithTx(transaction)
 
-	if _, err := tx.User.GetByEmail(ctx, dto.NewEmail); err != nil && errors.Is(err, models.ErrUserNotFound) {
+	if _, err := tx.User.GetByEmail(ctx, dto.NewEmail); err == nil {
 		return nil, ErrInvalidEmail
 	}
 
@@ -266,6 +270,7 @@ func (s *authService) ChangeUserEmail(ctx context.Context, userID string, dto dt
 		return nil, err
 	}
 
+	user.Email = dto.NewEmail
 	if err := tx.User.Update(ctx, user); err != nil {
 		return nil, err
 	}

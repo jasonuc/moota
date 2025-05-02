@@ -16,11 +16,11 @@ type TokenRefreshReq struct {
 }
 
 type ChangeUsernameReq struct {
-	NewUsername string `json:"username,omitempty"`
+	NewUsername string `json:"newUsername" validate:"required"`
 }
 
 type ChangeEmailReq struct {
-	NewEmail string `json:"email" validate:"required,email"`
+	NewEmail string `json:"newEmail" validate:"required,email"`
 }
 
 type ChangePasswordReq struct {

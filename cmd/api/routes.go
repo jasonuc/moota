@@ -22,6 +22,7 @@ func (app *application) routes() http.Handler {
 			r.Post("/refresh", app.authHandler.HandleTokenRefresh)
 
 			r.Route("/u/{userID}", func(r chi.Router) {
+				r.Use(app.authMiddleware.Authorise)
 				r.Use(app.authMiddleware.ValidateUserAccess)
 
 				r.Patch("/change-email", app.authHandler.HandleChangeEmail)
