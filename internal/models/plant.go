@@ -10,7 +10,7 @@ import (
 
 const (
 	PlantInteractionRadius = 3.0
-	wateringPlantXpGain    = 30 // TODO: Up for debate
+	wateringPlantXpGain    = 30
 	wateringPlantHpGain    = 5
 	minWateringInterval    = 6 * time.Hour
 )
@@ -99,7 +99,6 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 }
 
 func (p *Plant) Action(action PlantAction, t time.Time) (bool, error) {
-	// TODO: consider converting all time to UTC before carrying out any action
 	p.preActionHook(t)
 
 	if !p.Alive() {
@@ -108,7 +107,6 @@ func (p *Plant) Action(action PlantAction, t time.Time) (bool, error) {
 
 	switch action {
 	case PlantActionWater:
-		// TODO: move this to it's own function and make use of the Soil.WaterRetention
 		if t.Sub(p.LastActionTime) > minWateringInterval {
 			p.addXp(wateringPlantXpGain)
 			p.changeHp(wateringPlantHpGain)
