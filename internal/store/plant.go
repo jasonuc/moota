@@ -11,6 +11,7 @@ import (
 type PlantStore interface {
 	Get(context.Context, string, bool) (*models.Plant, error)
 	GetByOwnerID(context.Context, string, bool) ([]*models.Plant, error)
+	GetCountByUsername(context.Context, string) (*models.PlantCount, error)
 	GetBySoilIDAndProximity(context.Context, string, models.Coordinates, float64) ([]*models.Plant, error)
 	GetByOwnerIDAndProximity(context.Context, string, models.Coordinates) ([]*models.Plant, error)
 	ActivatePlant(context.Context, string) error
@@ -21,6 +22,43 @@ type PlantStore interface {
 
 type plantStore struct {
 	db Querier
+}
+
+func (s *plantStore) GetCountByUsername(ctx context.Context, userID string) (*models.PlantCount, error) {
+	q := `SELECT p.dead, count(*) AS plant_count FROM plants p
+			JOIN users u ON p.owner_id = u.id
+			WHERE u.username = $1 AND p.activated = true
+			GROUP BY p.dead ORDER BY p.dead ASC;` // so alive count always comes first and dead count comes second
+
+	plantCount := new(models.PlantCount)
+
+	rows, err := s.db.QueryContext(ctx, q, userID)
+	if err != nil {
+		return nil, err
+	}
+	//nolint:errcheck
+	defer rows.Close()
+
+	for rows.Next() {
+		var dead bool
+		var count int64
+		if err := rows.Scan(&dead, &count); err != nil {
+			return nil, err
+		}
+
+		switch dead {
+		case true:
+			plantCount.Deceased = count
+		case false:
+			plantCount.Alive = count
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return plantCount, nil
 }
 
 func (s *plantStore) GetByOwnerIDAndProximity(ctx context.Context, ownerID string, point models.Coordinates) ([]*models.Plant, error) {

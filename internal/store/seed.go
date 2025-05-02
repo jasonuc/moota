@@ -11,6 +11,7 @@ import (
 type SeedStore interface {
 	Get(context.Context, string) (*models.Seed, error)
 	GetAllByOwnerID(context.Context, string) ([]*models.Seed, error)
+	GetCountByUsername(context.Context, string) (*models.SeedCount, error)
 	Insert(context.Context, *models.Seed) error
 	MarkAsPlanted(context.Context, string) error
 	Delete(context.Context, string) error
@@ -18,6 +19,44 @@ type SeedStore interface {
 
 type seedStore struct {
 	db Querier
+}
+
+func (s *seedStore) GetCountByUsername(ctx context.Context, username string) (*models.SeedCount, error) {
+	q := `SELECT s.planted, count(*) FROM seeds s
+			JOIN users u ON s.owner_id = u.id
+			WHERE u.username = $1
+			GROUP BY s.planted ORDER BY s.planted ASC;`
+
+	rows, err := s.db.QueryContext(ctx, q, username)
+	if err != nil {
+		return nil, err
+	}
+	//nolint:errcheck
+	defer rows.Close()
+
+	seedCount := &models.SeedCount{}
+
+	for rows.Next() {
+		var planted bool
+		var count int64
+
+		err := rows.Scan(&planted, &count)
+		if err != nil {
+			return nil, err
+		}
+
+		if planted {
+			seedCount.Planted = count
+		} else {
+			seedCount.Unused = count
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return seedCount, nil
 }
 
 func (s *seedStore) GetAllByOwnerID(ctx context.Context, ownerID string) ([]*models.Seed, error) {

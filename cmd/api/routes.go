@@ -34,6 +34,16 @@ func (app *application) routes() http.Handler {
 		r.Group(func(r chi.Router) {
 			r.Use(app.authMiddleware.Authorise)
 
+			r.Route("/users", func(r chi.Router) {
+				r.Get("/{username}/profile", app.userHandler.HandleGetUserProfile)
+
+				r.Route("/u/{userID}", func(r chi.Router) {
+					r.Use(app.authMiddleware.ValidateUserAccess)
+
+					r.Get("/", app.userHandler.HandleGetUser)
+				})
+			})
+
 			r.Route("/plants", func(r chi.Router) {
 				r.Route("/u/{userID}", func(r chi.Router) {
 					r.Use(app.authMiddleware.ValidateUserAccess)

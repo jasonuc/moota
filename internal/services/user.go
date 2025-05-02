@@ -8,7 +8,8 @@ import (
 )
 
 type UserService interface {
-	GetUserByID(context.Context, string) (*models.User, error)
+	GetUser(context.Context, string) (*models.User, error)
+	GetUserProfile(context.Context, string) (*models.UserProfile, error)
 }
 
 type userService struct {
@@ -21,11 +22,31 @@ func NewUserService(store *store.Store) UserService {
 	}
 }
 
-func (s *userService) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
+func (s *userService) GetUser(ctx context.Context, userID string) (*models.User, error) {
 	user, err := s.store.User.GetByID(ctx, userID)
 	if err != nil {
 		return nil, models.ErrUserNotFound
 	}
 
 	return user, nil
+}
+
+func (s *userService) GetUserProfile(ctx context.Context, username string) (*models.UserProfile, error) {
+	user, err := s.store.User.GetByUsername(ctx, username)
+	if err != nil {
+		return nil, models.ErrUserNotFound
+	}
+
+	plantCount, err := s.store.Plant.GetCountByUsername(ctx, username)
+	if err != nil {
+		return nil, err
+	}
+
+	seedCount, err := s.store.Seed.GetCountByUsername(ctx, username)
+	if err != nil {
+		return nil, err
+	}
+
+	userProfile := models.NewUserProfile(user, plantCount, seedCount)
+	return userProfile, nil
 }

@@ -23,12 +23,14 @@ type application struct {
 	soilService  services.SoilService
 	seedService  services.SeedService
 	authService  services.AuthService
+	userService  services.UserService
 
 	authMiddleware middlewares.AuthMiddleware
 
 	authHandler  *handlers.AuthHandler
 	seedHandler  *handlers.SeedHandler
 	plantHandler *handlers.PlantHandler
+	userHandler  *handlers.UserHandler
 }
 
 func main() {
@@ -54,12 +56,14 @@ func main() {
 	soilService := services.NewSoilSerivce(store)
 	seedService := services.NewSeedService(store, soilService, plantService)
 	authService := services.NewAuthService(store, []byte(cfg.auth.accessTokenSecret), cfg.auth.refreshTokenTTL, cfg.auth.accessTokenTTL, cfg.auth.issuer)
+	userService := services.NewUserService(store)
 
 	authMiddlware := middlewares.NewAuthMiddleware(authService)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	seedHandler := handlers.NewSeedHandler(seedService)
 	plantHandler := handlers.NewPlantService(plantService)
+	userHandler := handlers.NewUserHandler(userService)
 
 	app := application{
 		cfg:    cfg,
@@ -70,12 +74,14 @@ func main() {
 		soilService:  soilService,
 		seedService:  seedService,
 		authService:  authService,
+		userService:  userService,
 
 		authMiddleware: authMiddlware,
 
 		authHandler:  authHandler,
 		seedHandler:  seedHandler,
 		plantHandler: plantHandler,
+		userHandler:  userHandler,
 	}
 
 	if err := app.serve(); err != nil {
