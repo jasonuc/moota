@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"math/rand/v2"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -70,6 +71,28 @@ func (h *SeedHandler) HandleGetUserSeeds(w http.ResponseWriter, r *http.Request)
 		switch {
 		case errors.Is(err, services.ErrInvalidPermissionsForSeed):
 			notPermittedResponse(w)
+		default:
+			serverErrorResponse(w, err)
+		}
+		return
+	}
+
+	//nolint:errcheck
+	writeJSON(w, http.StatusOK, envelope{"seeds": seedGroups}, nil)
+}
+
+func (h *SeedHandler) HandleRequestForNewSeeds(w http.ResponseWriter, r *http.Request) {
+	userIDFromReqParam, err := readStringReqParam(r, "userID")
+	if err != nil {
+		badRequestResponse(w, err)
+		return
+	}
+
+	seedGroups, err := h.seedService.GiveUserNewSeeds(r.Context(), userIDFromReqParam, 5+rand.IntN(5)+1) // 5-10 seeds
+	if err != nil {
+		switch {
+		case errors.Is(err, services.ErrSeedRequestInCooldown):
+			badRequestResponse(w, err)
 		default:
 			serverErrorResponse(w, err)
 		}

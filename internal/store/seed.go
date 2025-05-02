@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/jasonuc/moota/internal/models"
 )
@@ -12,7 +13,9 @@ type SeedStore interface {
 	Get(context.Context, string) (*models.Seed, error)
 	GetAllByOwnerID(context.Context, string) ([]*models.Seed, error)
 	GetCountByUsername(context.Context, string) (*models.SeedCount, error)
+	GetLastFulfilledSeedRequestTimeByUserID(context.Context, string) (time.Time, error)
 	Insert(context.Context, *models.Seed) error
+	InsertSeedRequest(context.Context, string, time.Time, bool, int) error
 	MarkAsPlanted(context.Context, string) error
 	Delete(context.Context, string) error
 }
@@ -167,4 +170,37 @@ func (s *seedStore) MarkAsPlanted(ctx context.Context, seedID string) error {
 	}
 
 	return nil
+}
+
+func (s *seedStore) InsertSeedRequest(ctx context.Context, userID string, requestedAt time.Time, fulfilled bool, seedCount int) error {
+	q := `INSERT INTO seed_requests (user_id, requested_at, fulfilled, seed_count)
+			VALUES ($1, $2, $3, $4);`
+
+	_, err := s.db.ExecContext(ctx, q, userID, requestedAt, fulfilled, seedCount)
+	if err != nil {
+		//TODO: check for conflict error
+		return err
+	}
+
+	return nil
+}
+
+func (s *seedStore) GetLastFulfilledSeedRequestTimeByUserID(ctx context.Context, userID string) (time.Time, error) {
+	q := `SELECT requested_at FROM seed_requests
+			WHERE user_id = $1 AND fulfilled = true
+			ORDER BY requested_at DESC
+			LIMIT 1;`
+
+	var requestedAt time.Time
+	err := s.db.QueryRowContext(ctx, q, userID).Scan(&requestedAt)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return time.Time{}, nil
+		default:
+			return time.Time{}, err
+		}
+	}
+
+	return requestedAt, nil
 }

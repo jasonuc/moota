@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -18,6 +19,7 @@ func errorResponse(w http.ResponseWriter, status int, message any) {
 }
 
 func serverErrorResponse(w http.ResponseWriter, err error) {
+	log.Println(err)
 	message := "a problem has occured on the server, try again later"
 	errorResponse(w, http.StatusInternalServerError, message)
 }

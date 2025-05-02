@@ -60,7 +60,10 @@ func (app *application) routes() http.Handler {
 
 			r.Route("/seeds", func(r chi.Router) {
 				r.Route("/u/{userID}", func(r chi.Router) {
+					r.Use(app.authMiddleware.ValidateUserAccess)
+
 					r.Get("/", app.seedHandler.HandleGetUserSeeds)
+					r.Post("/request", app.seedHandler.HandleRequestForNewSeeds)
 				})
 
 				r.Post("/{seedID}", app.seedHandler.HandlePlantSeed)

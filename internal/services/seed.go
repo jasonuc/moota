@@ -5,6 +5,7 @@ import (
 	"errors"
 	"maps"
 	"slices"
+	"time"
 
 	"github.com/jasonuc/moota/internal/contextkeys"
 	"github.com/jasonuc/moota/internal/dto"
@@ -15,6 +16,7 @@ import (
 type SeedService interface {
 	GetAllUserSeeds(context.Context, string) ([]*models.SeedGroup, error)
 	GetSeed(context.Context, string, string) (*models.Seed, error)
+	GiveUserNewSeeds(context.Context, string, int) ([]*models.SeedGroup, error)
 	PlantSeed(context.Context, string, dto.PlantSeedReq) (*models.Plant, error)
 	WithStore(*store.Store) SeedService
 }
@@ -23,6 +25,11 @@ var (
 	ErrUnauthorizedSeedPlanting  = errors.New("not authorised to plant this seed")
 	ErrNotPossibleToPlantSeed    = errors.New("not possible to plant seed")
 	ErrInvalidPermissionsForSeed = errors.New("invalid permissions to retreive seed")
+	ErrSeedRequestInCooldown     = errors.New("can not seed request right now")
+)
+
+var (
+	SeedRequestCooldown = 7 * 24 * time.Hour
 )
 
 type seedService struct {
@@ -158,4 +165,55 @@ func (s *seedService) PlantSeed(ctx context.Context, seedID string, dto dto.Plan
 	}
 
 	return plant, nil
+}
+
+func (s *seedService) GiveUserNewSeeds(ctx context.Context, userID string, count int) ([]*models.SeedGroup, error) {
+	transaction, err := s.store.Begin()
+	if err != nil {
+		return nil, store.ErrTransactionCouldNotStart
+	}
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	lastFulfilledSeedRequest, err := tx.Seed.GetLastFulfilledSeedRequestTimeByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !lastFulfilledSeedRequest.IsZero() {
+		if time.Since(lastFulfilledSeedRequest) < SeedRequestCooldown {
+			recordFailedSeedRequest(ctx, transaction, tx, userID, count)
+			return nil, ErrSeedRequestInCooldown
+		}
+	}
+
+	for range count {
+		newSeed := models.NewSeed(userID)
+		if err := tx.Seed.Insert(ctx, newSeed); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := tx.Seed.InsertSeedRequest(ctx, userID, time.Now(), true, count); err != nil {
+		return nil, err
+	}
+
+	if err := transaction.Commit(); err != nil {
+		return nil, err
+	}
+
+	return s.GetAllUserSeeds(ctx, userID)
+}
+
+func recordFailedSeedRequest(ctx context.Context, transaction *store.Transaction, txStore *store.Store, userID string, count int) error {
+	if err := txStore.Seed.InsertSeedRequest(ctx, userID, time.Now(), false, count); err != nil {
+		return err
+	}
+
+	if err := transaction.Commit(); err != nil {
+		return err
+	}
+	return nil
 }
