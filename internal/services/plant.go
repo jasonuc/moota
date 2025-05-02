@@ -49,10 +49,6 @@ var (
 )
 
 func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error) {
-	userIDFromCtx, err := contextkeys.GetUserIDFromCtx(ctx)
-	if err != nil {
-		return nil, err
-	}
 
 	coords := models.Coordinates{Lat: *dto.Latitude, Lng: *dto.Longitude}
 
@@ -62,10 +58,6 @@ func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto 
 	}
 	//nolint:errcheck
 	defer transaction.Rollback()
-
-	if userID != userIDFromCtx {
-		return nil, ErrUnauthorisedPlantAction
-	}
 
 	tx := s.store.WithTx(transaction)
 

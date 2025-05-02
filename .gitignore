@@ -69,3 +69,6 @@ web/.vite
 
 # air
 tmp/
+
+# vs code
+.vscode/

@@ -11,7 +11,6 @@ import (
 	"unicode"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/jasonuc/moota/internal/contextkeys"
 	"github.com/jasonuc/moota/internal/dto"
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/store"
@@ -222,7 +221,6 @@ func (s *authService) ChangeUserUsername(ctx context.Context, userID string, dto
 	if err != nil {
 		return nil, err
 	}
-
 	//nolint:errcheck
 	defer transaction.Rollback()
 
@@ -254,7 +252,6 @@ func (s *authService) ChangeUserEmail(ctx context.Context, userID string, dto dt
 	if err != nil {
 		return nil, err
 	}
-
 	//nolint:errcheck
 	defer transaction.Rollback()
 
@@ -281,20 +278,10 @@ func (s *authService) ChangeUserEmail(ctx context.Context, userID string, dto dt
 }
 
 func (s *authService) ChangeUserPassword(ctx context.Context, userID string, dto dto.ChangePasswordReq) (*models.User, error) {
-	userIDFromCtx, err := contextkeys.GetUserIDFromCtx(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if userID != userIDFromCtx {
-		return nil, fmt.Errorf("you do not have authorised access")
-	}
-
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, err
 	}
-
 	//nolint:errcheck
 	defer transaction.Rollback()
 
