@@ -192,7 +192,9 @@ func (s *seedService) GiveUserNewSeeds(ctx context.Context, userID string, count
 
 	if !lastFulfilledSeedRequest.IsZero() {
 		if time.Since(lastFulfilledSeedRequest) < SeedRequestCooldownDuration {
-			recordFailedSeedRequest(ctx, transaction, tx, userID, count)
+			if err := recordFailedSeedRequest(ctx, transaction, tx, userID, count); err != nil {
+				return nil, err
+			}
 			timeAvailable := lastFulfilledSeedRequest.Add(SeedRequestCooldownDuration)
 			return nil, &ErrSeedRequestInCooldown{TimeAvailable: timeAvailable, Message: "seed request in cooldown"}
 		}

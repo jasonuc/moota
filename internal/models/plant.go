@@ -107,7 +107,7 @@ func (p *Plant) Action(action PlantAction, t time.Time) (bool, error) {
 
 	switch action {
 	case PlantActionWater:
-		if t.Sub(p.LastActionTime) > minWateringInterval || p.TimePlanted == p.LastActionTime {
+		if t.Sub(p.LastActionTime) > minWateringInterval || p.TimePlanted.Equal(p.LastActionTime) {
 			p.addXp(wateringPlantXpGain)
 			p.changeHp(wateringPlantHpGain)
 			p.LastWateredTime = t
