@@ -22,12 +22,12 @@ type userStore struct {
 }
 
 func (s *userStore) Insert(ctx context.Context, user *models.User) error {
-	q := `INSERT INTO users (username, email, password_hash, created_at, updated_at, level, xp)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+	q := `INSERT INTO users (username, email, password_hash, level, xp)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at, updated_at;`
 
 	err := s.db.QueryRowContext(
-		ctx, q, user.Username, user.Email, user.PasswordHash, user.CreatedAt, user.UpdatedAt, user.Level, user.Xp,
+		ctx, q, user.Username, user.Email, user.PasswordHash, user.Level, user.Xp,
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
@@ -94,12 +94,12 @@ func (s *userStore) GetByUsername(ctx context.Context, username string) (*models
 }
 
 func (s *userStore) Update(ctx context.Context, updatedUser *models.User) error {
-	q := `UPDATE users SET username = $1, email = $2, password_hash = $3, updated_at = $4, level = $5, xp = $6
-		WHERE id = $7;`
+	q := `UPDATE users SET username = $1, email = $2, password_hash = $3, level = $4, xp = $5, updated_at = NOW()
+		WHERE id = $6;`
 
 	res, err := s.db.ExecContext(ctx, q,
 		updatedUser.Username, updatedUser.Email, updatedUser.PasswordHash,
-		updatedUser.UpdatedAt, updatedUser.Level, updatedUser.Xp, updatedUser.ID,
+		updatedUser.Level, updatedUser.Xp, updatedUser.ID,
 	)
 	if err != nil {
 		return err
