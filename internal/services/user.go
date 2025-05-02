@@ -34,7 +34,7 @@ func (s *userService) GetUser(ctx context.Context, userID string) (*models.User,
 func (s *userService) GetUserProfile(ctx context.Context, username string) (*models.UserProfile, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
-		return nil, err
+		return nil, store.ErrTransactionCouldNotStart
 	}
 	//nolint:errcheck
 	defer transaction.Rollback()

@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
 	"maps"
 	"slices"
 
@@ -59,7 +58,7 @@ func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*Se
 	}
 
 	if userID != userIDFromCtx {
-		return nil, fmt.Errorf("you do not have authorised access")
+		return nil, ErrInvalidPermissionsForSeed
 	}
 
 	seeds, err := s.store.Seed.GetAllByOwnerID(ctx, userID)

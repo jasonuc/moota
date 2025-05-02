@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/services"
 )
 
@@ -21,14 +24,19 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 
 func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := readStringReqParam(r, "userID")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err != nil || userID == "" {
+		badRequestResponse(w, fmt.Errorf("missing required param userID"))
 		return
 	}
 
 	user, err := h.userService.GetUser(r.Context(), userID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, models.ErrUserNotFound):
+			notFoundResponse(w)
+		default:
+			serverErrorResponse(w, err)
+		}
 		return
 	}
 
@@ -38,14 +46,19 @@ func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) HandleGetUserProfile(w http.ResponseWriter, r *http.Request) {
 	targetUsername, err := readStringReqParam(r, "username")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err != nil || targetUsername == "" {
+		badRequestResponse(w, fmt.Errorf("missing required param username"))
 		return
 	}
 
 	userProfile, err := h.userService.GetUserProfile(r.Context(), targetUsername)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, models.ErrUserNotFound):
+			notFoundResponse(w)
+		default:
+			serverErrorResponse(w, err)
+		}
 		return
 	}
 

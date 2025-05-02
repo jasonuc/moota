@@ -18,10 +18,12 @@ import (
 )
 
 var (
-	ErrUserAlreadyExists  = errors.New("user already exists")
-	ErrInvalidCredentials = errors.New("invalid credentials")
-	ErrInvalidUsername    = errors.New("invalid username")
-	ErrInvalidEmail       = errors.New("invalid email")
+	ErrUserAlreadyExists     = errors.New("user already exists")
+	ErrInvalidCredentials    = errors.New("invalid credentials")
+	ErrInvalidUsername       = errors.New("invalid username")
+	ErrInvalidEmail          = errors.New("invalid email")
+	ErrInvalidRefreshToken   = errors.New("invalid refresh token")
+	ErrTokenExpiredOrRevoked = errors.New("token expired or revoked")
 )
 
 type AuthService interface {
@@ -107,10 +109,7 @@ func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*m
 }
 
 func (s *authService) Login(ctx context.Context, dto dto.UserLoginReq) (*models.TokenPair, error) {
-	var user *models.User
-	var err error
-
-	user, err = s.store.User.GetByEmail(ctx, dto.Email)
+	user, err := s.store.User.GetByEmail(ctx, dto.Email)
 	if err != nil {
 		return nil, ErrInvalidCredentials
 	}
@@ -142,7 +141,7 @@ func (s *authService) Login(ctx context.Context, dto dto.UserLoginReq) (*models.
 func (s *authService) RefreshTokens(ctx context.Context, dto dto.TokenRefreshReq) (*models.TokenPair, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
-		return nil, err
+		return nil, store.ErrTransactionCouldNotStart
 	}
 	//nolint:errcheck
 	defer transaction.Rollback()
@@ -152,11 +151,11 @@ func (s *authService) RefreshTokens(ctx context.Context, dto dto.TokenRefreshReq
 
 	token, err := tx.RefreshToken.GetByHash(ctx, tokenHash[:])
 	if err != nil {
-		return nil, fmt.Errorf("invalid refresh token")
+		return nil, ErrInvalidRefreshToken
 	}
 
 	if token.ExpiresAt.Before(time.Now()) || token.RevokedAt != nil {
-		return nil, fmt.Errorf("token expired or revoked")
+		return nil, ErrTokenExpiredOrRevoked
 	}
 
 	user, err := tx.User.GetByID(ctx, token.UserID)
@@ -219,7 +218,7 @@ func (s *authService) VerifyAccessToken(ctx context.Context, accessToken string)
 func (s *authService) ChangeUserUsername(ctx context.Context, userID string, dto dto.ChangeUsernameReq) (*models.User, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
-		return nil, err
+		return nil, store.ErrTransactionCouldNotStart
 	}
 	//nolint:errcheck
 	defer transaction.Rollback()
@@ -254,7 +253,7 @@ func (s *authService) ChangeUserUsername(ctx context.Context, userID string, dto
 func (s *authService) ChangeUserEmail(ctx context.Context, userID string, dto dto.ChangeEmailReq) (*models.User, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
-		return nil, err
+		return nil, store.ErrTransactionCouldNotStart
 	}
 	//nolint:errcheck
 	defer transaction.Rollback()
@@ -285,7 +284,7 @@ func (s *authService) ChangeUserEmail(ctx context.Context, userID string, dto dt
 func (s *authService) ChangeUserPassword(ctx context.Context, userID string, dto dto.ChangePasswordReq) (*models.User, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
-		return nil, err
+		return nil, store.ErrTransactionCouldNotStart
 	}
 	//nolint:errcheck
 	defer transaction.Rollback()

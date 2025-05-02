@@ -44,17 +44,16 @@ var (
 	ErrInvalidPlantAction            = errors.New("invalid plant action")
 	ErrUnauthorisedPlantAction       = errors.New("unauthorised plant action")
 	ErrPlantAlreadyActivated         = errors.New("plant already activated")
-	ErrPlantAreadyDead               = errors.New("plant already dead")
+	ErrPlantAlreadyDead              = errors.New("plant already dead")
 	ErrPlantNotActivated             = errors.New("plant not activated")
 )
 
 func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error) {
-
 	coords := models.Coordinates{Lat: *dto.Latitude, Lng: *dto.Longitude}
 
 	transaction, err := s.store.Begin()
 	if err != nil {
-		return nil, err
+		return nil, store.ErrTransactionCouldNotStart
 	}
 	//nolint:errcheck
 	defer transaction.Rollback()
@@ -90,7 +89,7 @@ func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto 
 func (s *plantService) GetPlant(ctx context.Context, plantID string) (*models.Plant, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
-		return nil, err
+		return nil, store.ErrTransactionCouldNotStart
 	}
 	//nolint:errcheck
 	defer transaction.Rollback()
@@ -207,6 +206,11 @@ func (s *plantService) GetAllUserDeceasedPlants(ctx context.Context, userID stri
 }
 
 func (s *plantService) KillPlant(ctx context.Context, id string) error {
+	userIDFromCtx, err := contextkeys.GetUserIDFromCtx(ctx)
+	if err != nil {
+		return err
+	}
+
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return err
@@ -221,8 +225,12 @@ func (s *plantService) KillPlant(ctx context.Context, id string) error {
 		return err
 	}
 
+	if plant.OwnerID != userIDFromCtx {
+		return ErrUnauthorisedPlantAction
+	}
+
 	if plant.Dead {
-		return ErrPlantAreadyDead
+		return ErrPlantAlreadyDead
 	}
 
 	plant.Dead = true

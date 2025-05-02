@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/jasonuc/moota/internal/dto"
+	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/services"
 )
 
@@ -23,18 +25,27 @@ func NewAuthHandler(authService services.AuthService) *AuthHandler {
 func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Request) {
 	var payload dto.UserRegisterReq
 	if err := readJSON(w, r, &payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		failedValidationResponse(w, err)
 		return
 	}
 
 	user, tokenPair, err := h.authService.Register(r.Context(), payload)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, services.ErrUserAlreadyExists):
+			badRequestResponse(w, err)
+		case errors.Is(err, services.ErrInvalidEmail):
+			badRequestResponse(w, err)
+		case errors.Is(err, services.ErrInvalidUsername):
+			badRequestResponse(w, err)
+		default:
+			serverErrorResponse(w, err)
+		}
 		return
 	}
 
@@ -45,18 +56,23 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request) {
 	var payload dto.UserLoginReq
 	if err := readJSON(w, r, &payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		failedValidationResponse(w, err)
 		return
 	}
 
 	tokenPair, err := h.authService.Login(r.Context(), payload)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, services.ErrInvalidCredentials):
+			invalidCredentialsResponse(w)
+		default:
+			serverErrorResponse(w, err)
+		}
 		return
 	}
 
@@ -67,18 +83,25 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request) {
 	var payload dto.TokenRefreshReq
 	if err := readJSON(w, r, &payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		failedValidationResponse(w, err)
 		return
 	}
 
 	tokenPair, err := h.authService.RefreshTokens(r.Context(), payload)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, services.ErrInvalidRefreshToken):
+			invalidCredentialsResponse(w)
+		case errors.Is(err, services.ErrTokenExpiredOrRevoked):
+			invalidCredentialsResponse(w)
+		default:
+			serverErrorResponse(w, err)
+		}
 		return
 	}
 
@@ -89,24 +112,29 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 func (h *AuthHandler) HandleChangeUsername(w http.ResponseWriter, r *http.Request) {
 	var payload dto.ChangeUsernameReq
 	if err := readJSON(w, r, &payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		failedValidationResponse(w, err)
 		return
 	}
 
 	userID, err := readStringReqParam(r, "userID")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	user, err := h.authService.ChangeUserUsername(r.Context(), userID, payload)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, services.ErrInvalidUsername):
+			badRequestResponse(w, err)
+		case errors.Is(err, models.ErrUserNotFound):
+			notFoundResponse(w)
+		}
 		return
 	}
 
@@ -117,24 +145,31 @@ func (h *AuthHandler) HandleChangeUsername(w http.ResponseWriter, r *http.Reques
 func (h *AuthHandler) HandleChangePassword(w http.ResponseWriter, r *http.Request) {
 	var payload dto.ChangePasswordReq
 	if err := readJSON(w, r, &payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		failedValidationResponse(w, err)
 		return
 	}
 
 	userID, err := readStringReqParam(r, "userID")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	user, err := h.authService.ChangeUserPassword(r.Context(), userID, payload)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, models.ErrUserNotFound):
+			notFoundResponse(w)
+		case errors.Is(err, services.ErrInvalidCredentials):
+			invalidCredentialsResponse(w)
+		default:
+			serverErrorResponse(w, err)
+		}
 		return
 	}
 
@@ -145,24 +180,31 @@ func (h *AuthHandler) HandleChangePassword(w http.ResponseWriter, r *http.Reques
 func (h *AuthHandler) HandleChangeEmail(w http.ResponseWriter, r *http.Request) {
 	var payload dto.ChangeEmailReq
 	if err := readJSON(w, r, &payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		failedValidationResponse(w, err)
 		return
 	}
 
 	userID, err := readStringReqParam(r, "userID")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	user, err := h.authService.ChangeUserEmail(r.Context(), userID, payload)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, models.ErrUserNotFound):
+			notFoundResponse(w)
+		case errors.Is(err, services.ErrInvalidEmail):
+			badRequestResponse(w, err)
+		default:
+			serverErrorResponse(w, err)
+		}
 		return
 	}
 

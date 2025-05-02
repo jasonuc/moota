@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -23,24 +24,33 @@ func NewSeedHandler(seedService services.SeedService) *SeedHandler {
 func (h *SeedHandler) HandlePlantSeed(w http.ResponseWriter, r *http.Request) {
 	var payload dto.PlantSeedReq
 	if err := readJSON(w, r, &payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		failedValidationResponse(w, err)
 		return
 	}
 
 	seedID, err := readStringReqParam(r, "seedID")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	plant, err := h.seedService.PlantSeed(r.Context(), seedID, payload)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, services.ErrNotPossibleToCreatePlant):
+			badRequestResponse(w, err)
+		case errors.Is(err, services.ErrNotPossibleToPlantSeed):
+			badRequestResponse(w, err)
+		case errors.Is(err, services.ErrNotPossibleToPlantSeed):
+			badRequestResponse(w, err)
+		default:
+			serverErrorResponse(w, err)
+		}
 		return
 	}
 
@@ -51,13 +61,18 @@ func (h *SeedHandler) HandlePlantSeed(w http.ResponseWriter, r *http.Request) {
 func (h *SeedHandler) HandleGetUserSeeds(w http.ResponseWriter, r *http.Request) {
 	userIDFromReqParam, err := readStringReqParam(r, "userID")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequestResponse(w, err)
 		return
 	}
 
 	seedGroups, err := h.seedService.GetAllUserSeeds(r.Context(), userIDFromReqParam)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, services.ErrInvalidPermissionsForSeed):
+			notPermittedResponse(w)
+		default:
+			serverErrorResponse(w, err)
+		}
 		return
 	}
 
