@@ -25,11 +25,19 @@ var (
 	ErrUnauthorizedSeedPlanting  = errors.New("not authorised to plant this seed")
 	ErrNotPossibleToPlantSeed    = errors.New("not possible to plant seed")
 	ErrInvalidPermissionsForSeed = errors.New("invalid permissions to retreive seed")
-	ErrSeedRequestInCooldown     = errors.New("can not seed request right now")
 )
 
+type ErrSeedRequestInCooldown struct {
+	Message       string    `json:"message"`
+	TimeAvailable time.Time `json:"timeAvailable"`
+}
+
+func (e *ErrSeedRequestInCooldown) Error() string {
+	return e.Message
+}
+
 var (
-	SeedRequestCooldown = 7 * 24 * time.Hour
+	SeedRequestCooldownDuration = 7 * 24 * time.Hour
 )
 
 type seedService struct {
@@ -183,9 +191,10 @@ func (s *seedService) GiveUserNewSeeds(ctx context.Context, userID string, count
 	}
 
 	if !lastFulfilledSeedRequest.IsZero() {
-		if time.Since(lastFulfilledSeedRequest) < SeedRequestCooldown {
+		if time.Since(lastFulfilledSeedRequest) < SeedRequestCooldownDuration {
 			recordFailedSeedRequest(ctx, transaction, tx, userID, count)
-			return nil, ErrSeedRequestInCooldown
+			timeAvailable := lastFulfilledSeedRequest.Add(SeedRequestCooldownDuration)
+			return nil, &ErrSeedRequestInCooldown{TimeAvailable: timeAvailable, Message: "seed request in cooldown"}
 		}
 	}
 

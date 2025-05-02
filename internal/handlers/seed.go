@@ -90,9 +90,10 @@ func (h *SeedHandler) HandleRequestForNewSeeds(w http.ResponseWriter, r *http.Re
 
 	seedGroups, err := h.seedService.GiveUserNewSeeds(r.Context(), userIDFromReqParam, 5+rand.IntN(5)+1) // 5-10 seeds
 	if err != nil {
+		var errSeedRequestInCooldown *services.ErrSeedRequestInCooldown
 		switch {
-		case errors.Is(err, services.ErrSeedRequestInCooldown):
-			badRequestResponse(w, err)
+		case errors.As(err, &errSeedRequestInCooldown):
+			errorResponse(w, http.StatusForbidden, errSeedRequestInCooldown)
 		default:
 			serverErrorResponse(w, err)
 		}
