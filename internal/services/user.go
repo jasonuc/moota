@@ -32,21 +32,35 @@ func (s *userService) GetUser(ctx context.Context, userID string) (*models.User,
 }
 
 func (s *userService) GetUserProfile(ctx context.Context, username string) (*models.UserProfile, error) {
-	user, err := s.store.User.GetByUsername(ctx, username)
+	transaction, err := s.store.Begin()
+	if err != nil {
+		return nil, err
+	}
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	user, err := tx.User.GetByUsername(ctx, username)
 	if err != nil {
 		return nil, models.ErrUserNotFound
 	}
 
-	plantCount, err := s.store.Plant.GetCountByUsername(ctx, username)
+	plantCount, err := tx.Plant.GetCountByUsername(ctx, username)
 	if err != nil {
 		return nil, err
 	}
 
-	seedCount, err := s.store.Seed.GetCountByUsername(ctx, username)
+	seedCount, err := tx.Seed.GetCountByUsername(ctx, username)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := transaction.Commit(); err != nil {
 		return nil, err
 	}
 
 	userProfile := models.NewUserProfile(user, plantCount, seedCount)
+
 	return userProfile, nil
 }
