@@ -11,3 +11,7 @@ type ActionOnPlantReq struct {
 	Action int       `json:"action" validate:"required,number"`
 	Time   time.Time `json:"time" validate:"required"`
 }
+
+type ChangePlantNicknameReq struct {
+	NewNickname string `json:"newNickname" validate:"required"`
+}

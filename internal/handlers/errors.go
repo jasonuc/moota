@@ -51,8 +51,8 @@ func failedValidationResponse(w http.ResponseWriter, err error) {
 
 	message := "the request was invalid"
 	respEvenlope := envelope{
-		"error":  message,
-		"fields": errs,
+		"message": message,
+		"fields":  errs,
 	}
 	errorResponse(w, http.StatusUnprocessableEntity, respEvenlope)
 }

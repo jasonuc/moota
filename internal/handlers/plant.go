@@ -180,3 +180,38 @@ func (h *PlantHandler) HandleKillPlant(w http.ResponseWriter, r *http.Request) {
 	//nolint:errcheck
 	writeJSON(w, http.StatusAccepted, nil, nil)
 }
+
+func (h *PlantHandler) HandleChangePlantNickname(w http.ResponseWriter, r *http.Request) {
+	plantID, err := readStringReqParam(r, "plantID")
+	if err != nil {
+		badRequestResponse(w, err)
+		return
+	}
+
+	var payload dto.ChangePlantNicknameReq
+	if err := readJSON(w, r, &payload); err != nil {
+		badRequestResponse(w, err)
+		return
+	}
+
+	if err := h.validator.Struct(payload); err != nil {
+		failedValidationResponse(w, err)
+		return
+	}
+
+	plant, err := h.plantService.ChangePlantNickname(r.Context(), plantID, payload.NewNickname)
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrPlantNotFound):
+			notFoundResponse(w)
+		case errors.Is(err, services.ErrUnauthorisedPlantAction):
+			notPermittedResponse(w)
+		default:
+			serverErrorResponse(w, err)
+		}
+		return
+	}
+
+	//nolint:errcheck
+	writeJSON(w, http.StatusAccepted, envelope{"plant": plant}, nil)
+}

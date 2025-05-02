@@ -17,6 +17,7 @@ type PlantService interface {
 	GetPlant(context.Context, string) (*models.Plant, error)
 	CreatePlant(context.Context, *models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
 	GetAllUserDeceasedPlants(context.Context, string) ([]*models.Plant, error)
+	ChangePlantNickname(context.Context, string, string) (*models.Plant, error)
 	ActivatePlant(ctx context.Context, plantID string) (*models.Plant, error)
 	KillPlant(context.Context, string) error
 	WithStore(*store.Store) PlantService
@@ -203,6 +204,46 @@ func (s *plantService) GetAllUserDeceasedPlants(ctx context.Context, userID stri
 	}
 
 	return deceasedPlants, nil
+}
+
+func (s *plantService) ChangePlantNickname(ctx context.Context, plantID string, newNickname string) (*models.Plant, error) {
+	userID, err := contextkeys.GetUserIDFromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	transaction, err := s.store.Begin()
+	if err != nil {
+		return nil, store.ErrTransactionCouldNotStart
+	}
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	plant, err := tx.Plant.Get(ctx, plantID, false)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := refreshPlantData(ctx, tx, plant, time.Now()); err != nil {
+		return nil, err
+	}
+
+	if plant.OwnerID != userID {
+		return nil, ErrUnauthorisedPlantAction
+	}
+
+	plant.Nickname = newNickname
+	if err := tx.Plant.Update(ctx, plant); err != nil {
+		return nil, err
+	}
+
+	if err := transaction.Commit(); err != nil {
+		return nil, err
+	}
+
+	return plant, nil
 }
 
 func (s *plantService) KillPlant(ctx context.Context, id string) error {
