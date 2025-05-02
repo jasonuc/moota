@@ -69,7 +69,7 @@ func (h *PlantHandler) HandleGetPlant(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusAccepted, envelope{"plant": plant}, nil)
+	writeJSON(w, http.StatusOK, envelope{"plant": plant}, nil)
 }
 
 func (h *PlantHandler) HandleActionOnPlant(w http.ResponseWriter, r *http.Request) {
@@ -153,7 +153,7 @@ func (h *PlantHandler) HandleGetAllUserDeceasedPlants(w http.ResponseWriter, r *
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusAccepted, envelope{"plants": deceasedPlants}, nil)
+	writeJSON(w, http.StatusOK, envelope{"plants": deceasedPlants}, nil)
 }
 
 func (h *PlantHandler) HandleKillPlant(w http.ResponseWriter, r *http.Request) {

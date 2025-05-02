@@ -101,5 +101,5 @@ func (h *SeedHandler) HandleRequestForNewSeeds(w http.ResponseWriter, r *http.Re
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"seeds": seedGroups}, nil)
+	writeJSON(w, http.StatusCreated, envelope{"seeds": seedGroups}, nil)
 }
