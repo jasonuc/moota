@@ -147,7 +147,7 @@ func (s *plantService) ActivatePlant(ctx context.Context, plantID string) (*mode
 				return nil, err
 			}
 
-			return nil, ErrNotPossibleToActivatePlant
+			return nil, ErrNotPossibleToActivatePlantButSeedRefunded
 		}
 		return nil, ErrNotPossibleToActivatePlant
 	}

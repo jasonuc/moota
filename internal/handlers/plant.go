@@ -131,6 +131,8 @@ func (h *PlantHandler) HandleActivatePlant(w http.ResponseWriter, r *http.Reques
 			badRequestResponse(w, err)
 		case errors.Is(err, services.ErrNotPossibleToActivatePlant):
 			badRequestResponse(w, err)
+		case errors.Is(err, services.ErrNotPossibleToActivatePlantButSeedRefunded):
+			badRequestResponse(w, err)
 		default:
 			serverErrorResponse(w, err)
 		}
