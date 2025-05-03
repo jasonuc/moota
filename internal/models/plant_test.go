@@ -217,6 +217,10 @@ func TestChangeHp(t *testing.T) {
 		if !alive {
 			t.Errorf("expected plant to be alive")
 		}
+
+		if plant.TimeOfDeath != nil {
+			t.Errorf("expected plant to not have a time of death")
+		}
 	})
 
 	t.Run("decrease plant hp beyond 0", func(t *testing.T) {
@@ -231,6 +235,10 @@ func TestChangeHp(t *testing.T) {
 
 		if alive {
 			t.Errorf("expected plant to be dead")
+		}
+
+		if plant.TimeOfDeath == nil {
+			t.Errorf("expected plant to have a time of death")
 		}
 	})
 

@@ -35,17 +35,18 @@ func ValidPlantAction(action int) bool {
 }
 
 type Plant struct {
-	ID              string    `json:"id"`
-	Nickname        string    `json:"nickname"`
-	Hp              float64   `json:"hp"`
-	Dead            bool      `json:"dead"`
-	Activated       bool      `json:"activated"`
-	OwnerID         string    `json:"ownerID"`
-	Soil            *Soil     `json:"soil,omitempty"`
-	Tempers         *Tempers  `json:"tempers,omitempty"`
-	TimePlanted     time.Time `json:"timePlanted"`
-	LastWateredTime time.Time `json:"lastWateredAt"`
-	LastActionTime  time.Time `json:"lastActionTime"`
+	ID              string     `json:"id"`
+	Nickname        string     `json:"nickname"`
+	Hp              float64    `json:"hp"`
+	Dead            bool       `json:"dead"`
+	Activated       bool       `json:"activated"`
+	OwnerID         string     `json:"ownerID"`
+	Soil            *Soil      `json:"soil,omitempty"`
+	Tempers         *Tempers   `json:"tempers,omitempty"`
+	TimePlanted     time.Time  `json:"timePlanted"`
+	TimeOfDeath     *time.Time `json:"timeOfDeath"`
+	LastWateredTime time.Time  `json:"lastWateredAt"`
+	LastActionTime  time.Time  `json:"lastActionTime"`
 	SeedMeta
 	LevelMeta
 	CircleMeta
@@ -151,9 +152,17 @@ func (p *Plant) Alive() bool {
 func (p *Plant) changeHp(delta float64) bool {
 	p.Hp = math.Max(0, math.Min(100, p.Hp+delta)) // clamp hp between 0 and 100
 	if p.Hp == 0 {
+		timeOfDeath := time.Now()
+		p.TimeOfDeath = &timeOfDeath
 		p.Dead = true
 	}
 	return p.Alive()
+}
+
+func (p *Plant) Die(timeOfDeath time.Time) {
+	p.Hp = 0
+	p.Dead = true
+	p.TimeOfDeath = &timeOfDeath
 }
 
 func generateNickname() string {

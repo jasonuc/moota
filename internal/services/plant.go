@@ -274,7 +274,7 @@ func (s *plantService) KillPlant(ctx context.Context, id string) error {
 		return ErrPlantAlreadyDead
 	}
 
-	plant.Dead = true
+	plant.Die(time.Now())
 	if err := tx.Plant.Update(ctx, plant); err != nil {
 		return err
 	}
