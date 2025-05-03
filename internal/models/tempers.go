@@ -8,8 +8,8 @@ const (
 
 // Range: [0, 5]
 type Tempers struct {
-	Woe    float64 `json:"woe"`    // -ve effect on Plant.Xp
-	Frolic float64 `json:"frolic"` // +ve effect on Plant.Xp
+	Woe    float64 `json:"woe"`    // -ve effect on Plant.XP
+	Frolic float64 `json:"frolic"` // +ve effect on Plant.XP
 	Dread  float64 `json:"dread"`  // -ve effect on Plant.Health
 	Malice float64 `json:"malice"` // -ve effect on Plant.Health for nearby plants
 }

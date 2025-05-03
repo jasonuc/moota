@@ -41,8 +41,8 @@ func TestAction(t *testing.T) {
 			t.Errorf("expected LastActionTime to be updated to %v, got: %v", now, plant.LastActionTime)
 		}
 
-		if plant.Xp != wateringPlantXpGain {
-			t.Errorf("expected xp %v, got: %v", wateringPlantXpGain, plant.Xp)
+		if plant.XP != wateringPlantXpGain {
+			t.Errorf("expected xp %v, got: %v", wateringPlantXpGain, plant.XP)
 		}
 	})
 
@@ -78,7 +78,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases when plant has not been interacted with for over 12 hours", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(14 * time.Hour)
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredTime: futureTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredTime: futureTime}
 
 		plant.preActionHook(futureTime)
 
@@ -96,7 +96,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases when plant has not been watered for over 7 hours", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(10 * time.Hour)
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: futureTime, LastWateredTime: currentTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionTime: futureTime, LastWateredTime: currentTime}
 
 		plant.preActionHook(futureTime)
 
@@ -114,7 +114,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases down to zero if neglected for a long time", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(7 * 24 * time.Hour)
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredTime: currentTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredTime: currentTime}
 
 		plant.preActionHook(futureTime)
 
@@ -132,16 +132,16 @@ func TestPreActionHook(t *testing.T) {
 
 func TestAddXpAndLeveUp(t *testing.T) {
 	t.Run("add xp but not enough to increase level", func(t *testing.T) {
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}}
 		expPlant := struct {
 			Level int64
-			Xp    int64
-		}{Level: 1, Xp: 25}
+			XP    int64
+		}{Level: 1, XP: 25}
 
 		plant.addXp(25)
 
-		if plant.Xp != expPlant.Xp {
-			t.Errorf("expected %d xp but got %d", expPlant.Xp, plant.Xp)
+		if plant.XP != expPlant.XP {
+			t.Errorf("expected %d xp but got %d", expPlant.XP, plant.XP)
 		}
 
 		if plant.Level != expPlant.Level {
@@ -150,17 +150,17 @@ func TestAddXpAndLeveUp(t *testing.T) {
 	})
 
 	t.Run("add enough xp for plant to level up once", func(t *testing.T) {
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}}
 		expPlant := struct {
 			Level int64
-			Xp    int64
-		}{Level: 2, Xp: 25}
+			XP    int64
+		}{Level: 2, XP: 25}
 
 		xpToAdd := xpRequiredForLevel(expPlant.Level) + 25
 		plant.addXp(xpToAdd)
 
-		if plant.Xp != expPlant.Xp {
-			t.Errorf("expected %d xp but got %d", expPlant.Xp, plant.Xp)
+		if plant.XP != expPlant.XP {
+			t.Errorf("expected %d xp but got %d", expPlant.XP, plant.XP)
 		}
 
 		if plant.Level != expPlant.Level {
@@ -169,17 +169,17 @@ func TestAddXpAndLeveUp(t *testing.T) {
 	})
 
 	t.Run("add enough xp for plant to level up multiple times", func(t *testing.T) {
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, Xp: 0}}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}}
 		expPlant := struct {
 			Level int64
-			Xp    int64
-		}{Level: 5, Xp: 10}
+			XP    int64
+		}{Level: 5, XP: 10}
 
-		xpToAdd := xpRequiredForLevel(2) + xpRequiredForLevel(3) + xpRequiredForLevel(4) + xpRequiredForLevel(5) + expPlant.Xp
+		xpToAdd := xpRequiredForLevel(2) + xpRequiredForLevel(3) + xpRequiredForLevel(4) + xpRequiredForLevel(5) + expPlant.XP
 		plant.addXp(xpToAdd)
 
-		if plant.Xp != expPlant.Xp {
-			t.Errorf("expected %d xp but got %d", expPlant.Xp, plant.Xp)
+		if plant.XP != expPlant.XP {
+			t.Errorf("expected %d xp but got %d", expPlant.XP, plant.XP)
 		}
 
 		if plant.Level != expPlant.Level {

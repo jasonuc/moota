@@ -27,7 +27,7 @@ func (s *userStore) Insert(ctx context.Context, user *models.User) error {
 		RETURNING id, created_at, updated_at;`
 
 	err := s.db.QueryRowContext(
-		ctx, q, user.Username, user.Email, user.PasswordHash, user.Level, user.Xp,
+		ctx, q, user.Username, user.Email, user.PasswordHash, user.Level, user.XP,
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
@@ -43,7 +43,7 @@ func (s *userStore) GetByEmail(ctx context.Context, email string) (*models.User,
 	user := &models.User{}
 	err := s.db.QueryRowContext(ctx, q, email).Scan(
 		&user.ID, &user.Username, &user.Email, &user.PasswordHash,
-		&user.CreatedAt, &user.UpdatedAt, &user.Level, &user.Xp,
+		&user.CreatedAt, &user.UpdatedAt, &user.Level, &user.XP,
 	)
 
 	if err != nil {
@@ -62,7 +62,7 @@ func (s *userStore) GetByID(ctx context.Context, id string) (*models.User, error
 	user := &models.User{}
 	err := s.db.QueryRowContext(ctx, q, id).Scan(
 		&user.ID, &user.Username, &user.Email, &user.PasswordHash,
-		&user.CreatedAt, &user.UpdatedAt, &user.Level, &user.Xp,
+		&user.CreatedAt, &user.UpdatedAt, &user.Level, &user.XP,
 	)
 
 	if err != nil {
@@ -81,7 +81,7 @@ func (s *userStore) GetByUsername(ctx context.Context, username string) (*models
 	user := &models.User{}
 	err := s.db.QueryRowContext(ctx, q, username).Scan(
 		&user.ID, &user.Username, &user.Email, &user.PasswordHash,
-		&user.CreatedAt, &user.UpdatedAt, &user.Level, &user.Xp,
+		&user.CreatedAt, &user.UpdatedAt, &user.Level, &user.XP,
 	)
 
 	if err != nil {
@@ -99,7 +99,7 @@ func (s *userStore) Update(ctx context.Context, updatedUser *models.User) error 
 
 	res, err := s.db.ExecContext(ctx, q,
 		updatedUser.Username, updatedUser.Email, updatedUser.PasswordHash,
-		updatedUser.Level, updatedUser.Xp, updatedUser.ID,
+		updatedUser.Level, updatedUser.XP, updatedUser.ID,
 	)
 	if err != nil {
 		return err

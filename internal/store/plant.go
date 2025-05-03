@@ -84,7 +84,7 @@ func (s *plantStore) GetByOwnerIDAndProximity(ctx context.Context, ownerID strin
 		err := rows.Scan(
 			&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
 			&plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime, &centreText,
-			&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.Xp,
+			&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.XP,
 			&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.Activated,
 		)
 		if err != nil {
@@ -132,7 +132,7 @@ func (s *plantStore) GetBySoilIDAndProximity(ctx context.Context, soilID string,
 		err := rows.Scan(
 			&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
 			&plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime, &centreText,
-			&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.Xp,
+			&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.XP,
 			&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.Activated,
 		)
 		if err != nil {
@@ -184,7 +184,7 @@ func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string, includeDe
 		err := rows.Scan(
 			&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
 			&plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime, &centreText,
-			&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.Xp,
+			&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.XP,
 			&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.Activated,
 		)
 		if err != nil {
@@ -233,7 +233,7 @@ func (s *plantStore) Get(ctx context.Context, id string, includeDeceased bool) (
 	err := s.db.QueryRowContext(ctx, q, id).Scan(
 		&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
 		&plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime, &plantCentreText,
-		&plantRadiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.Xp,
+		&plantRadiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.XP,
 		&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.Activated,
 		&soilCentreText, &soilRadiusM, &plant.Soil.Type, &plant.Soil.WaterRetention, &plant.Soil.NutrientRichness, &plant.Soil.CreatedAt,
 	)
@@ -269,7 +269,7 @@ func (s *plantStore) Insert(ctx context.Context, plant *models.Plant) error {
 		plant.Nickname, plant.Hp, plant.OwnerID,
 		plant.CircleMeta.Centre().Lng, plant.CircleMeta.Centre().Lat, plant.CircleMeta.RadiusM(),
 		plant.Soil.ID, plant.OptimalSoil, plant.BotanicalName,
-		plant.Level, plant.Xp,
+		plant.Level, plant.XP,
 		plant.Tempers.Woe, plant.Tempers.Frolic, plant.Tempers.Dread, plant.Tempers.Malice,
 	).Scan(
 		&plant.ID, &plant.Dead, &plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime, &plant.Activated,
@@ -291,7 +291,7 @@ func (s *plantStore) Update(ctx context.Context, plant *models.Plant) error {
 
 	res, err := s.db.ExecContext(ctx, q,
 		plant.Nickname, plant.Hp, plant.Dead,
-		plant.Level, plant.Xp,
+		plant.Level, plant.XP,
 		plant.LastActionTime, plant.LastWateredTime,
 		plant.ID)
 	if err != nil {

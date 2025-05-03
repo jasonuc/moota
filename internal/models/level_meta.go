@@ -4,13 +4,13 @@ import "math"
 
 type LevelMeta struct {
 	Level int64 `json:"level"`
-	Xp    int64 `json:"xp"`
+	XP    int64 `json:"xp"`
 }
 
 func NewLeveLMeta(initalLevel, initialXp int64) LevelMeta {
 	return LevelMeta{
 		Level: initalLevel,
-		Xp:    initialXp,
+		XP:    initialXp,
 	}
 }
 
@@ -19,13 +19,13 @@ func (l *LevelMeta) levelUp() {
 }
 
 func (l *LevelMeta) addXp(xp int64) {
-	l.Xp += xp
+	l.XP += xp
 
 	// Handles scenario where plant needs to level up multiple times in one go
 	for {
 		nextLevelXpReq := xpRequiredForLevel(l.Level + 1)
-		if l.Xp >= nextLevelXpReq {
-			l.Xp -= nextLevelXpReq
+		if l.XP >= nextLevelXpReq {
+			l.XP -= nextLevelXpReq
 			l.levelUp()
 		} else {
 			break

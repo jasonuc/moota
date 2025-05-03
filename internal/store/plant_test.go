@@ -193,7 +193,7 @@ func TestPlantStore(t *testing.T) {
 				t.Errorf("unexpected error: %v", err)
 			}
 
-			plant.Xp += 10
+			plant.XP += 10
 			err = store.Update(context.Background(), plant)
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
@@ -204,8 +204,8 @@ func TestPlantStore(t *testing.T) {
 				t.Errorf("unexpected error: %v", err)
 			}
 
-			if updatedPlant.Xp != plant.Xp {
-				t.Errorf("expected plant XP to be updated, got %d", updatedPlant.Xp)
+			if updatedPlant.XP != plant.XP {
+				t.Errorf("expected plant XP to be updated, got %d", updatedPlant.XP)
 			}
 		})
 
