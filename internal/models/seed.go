@@ -92,3 +92,12 @@ func NewSeed(ownerID string) *Seed {
 		SeedMeta: SeedMetaCatalog[rand.IntN(len(SeedMetaCatalog))],
 	}
 }
+
+func NewSeedWithMeta(ownerID string, seedMeta SeedMeta) *Seed {
+	return &Seed{
+		Hp:       50.0,
+		Planted:  false,
+		OwnerID:  ownerID,
+		SeedMeta: seedMeta,
+	}
+}
