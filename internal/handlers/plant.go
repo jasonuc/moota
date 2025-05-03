@@ -129,6 +129,8 @@ func (h *PlantHandler) HandleActivatePlant(w http.ResponseWriter, r *http.Reques
 			notFoundResponse(w)
 		case errors.Is(err, services.ErrPlantAlreadyActivated):
 			badRequestResponse(w, err)
+		case errors.Is(err, services.ErrNotPossibleToActivatePlant):
+			badRequestResponse(w, err)
 		default:
 			serverErrorResponse(w, err)
 		}

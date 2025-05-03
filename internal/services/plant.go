@@ -41,6 +41,7 @@ func (s *plantService) WithStore(store *store.Store) PlantService {
 
 var (
 	ErrNotPossibleToCreatePlant      = errors.New("not possible to create plant here")
+	ErrNotPossibleToActivatePlant    = errors.New("not possible to activate plant")
 	ErrOutsidePlantInteractionRadius = errors.New("user is not within plant interaction radius")
 	ErrInvalidPlantAction            = errors.New("invalid plant action")
 	ErrUnauthorisedPlantAction       = errors.New("unauthorised plant action")
@@ -116,6 +117,16 @@ func (s *plantService) ActivatePlant(ctx context.Context, plantID string) (*mode
 	if err != nil {
 		return nil, err
 	}
+
+	plantsWithinInteractionRadius, err := s.store.Plant.GetBySoilIDAndProximity(ctx, plant.Soil.ID, plant.Centre(), models.PlantInteractionRadius)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(plantsWithinInteractionRadius) != 0 {
+		return nil, ErrNotPossibleToActivatePlant
+	}
+
 	if plant.Activated {
 		return nil, ErrPlantAlreadyActivated
 	}
