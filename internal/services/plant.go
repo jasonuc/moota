@@ -218,7 +218,7 @@ func (s *plantService) ActionOnPlant(ctx context.Context, plantID string, dto dt
 		return nil, ErrOutsidePlantInteractionRadius
 	}
 
-	_, err = plant.Action(models.PlantAction(dto.Action), dto.Time)
+	_, err = plant.Action(models.PlantAction(dto.Action), time.Now())
 	if err != nil {
 		return nil, err
 	}

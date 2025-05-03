@@ -152,9 +152,7 @@ func (p *Plant) Alive() bool {
 func (p *Plant) changeHp(delta float64) bool {
 	p.Hp = math.Max(0, math.Min(100, p.Hp+delta)) // clamp hp between 0 and 100
 	if p.Hp == 0 {
-		timeOfDeath := time.Now()
-		p.TimeOfDeath = &timeOfDeath
-		p.Dead = true
+		p.Die(time.Now())
 	}
 	return p.Alive()
 }
