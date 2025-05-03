@@ -169,7 +169,7 @@ func (s *plantService) ActivatePlant(ctx context.Context, plantID string) (*mode
 
 func (s *plantService) CreatePlant(ctx context.Context, soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
 	plantCircleMeta := models.NewCircleMeta(soil.Centre(), models.PlantInteractionRadius)
-	nearbyPlants, err := s.store.Plant.GetBySoilIDAndProximity(ctx, soil.ID, centre, models.PlantInteractionRadius+1)
+	nearbyPlants, err := s.store.Plant.GetBySoilIDAndProximity(ctx, soil.ID, centre, models.PlantInteractionRadius+0.1)
 	if err != nil {
 		return nil, err
 	}
