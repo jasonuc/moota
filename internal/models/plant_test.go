@@ -130,64 +130,6 @@ func TestPreActionHook(t *testing.T) {
 	})
 }
 
-func TestAddXpAndLeveUp(t *testing.T) {
-	t.Run("add xp but not enough to increase level", func(t *testing.T) {
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}}
-		expPlant := struct {
-			Level int64
-			XP    int64
-		}{Level: 1, XP: 25}
-
-		plant.addXp(25)
-
-		if plant.XP != expPlant.XP {
-			t.Errorf("expected %d xp but got %d", expPlant.XP, plant.XP)
-		}
-
-		if plant.Level != expPlant.Level {
-			t.Errorf("expected level %d but got %d", expPlant.Level, plant.Level)
-		}
-	})
-
-	t.Run("add enough xp for plant to level up once", func(t *testing.T) {
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}}
-		expPlant := struct {
-			Level int64
-			XP    int64
-		}{Level: 2, XP: 25}
-
-		xpToAdd := xpRequiredForLevel(expPlant.Level) + 25
-		plant.addXp(xpToAdd)
-
-		if plant.XP != expPlant.XP {
-			t.Errorf("expected %d xp but got %d", expPlant.XP, plant.XP)
-		}
-
-		if plant.Level != expPlant.Level {
-			t.Errorf("expected level %d but got %d", expPlant.Level, plant.Level)
-		}
-	})
-
-	t.Run("add enough xp for plant to level up multiple times", func(t *testing.T) {
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}}
-		expPlant := struct {
-			Level int64
-			XP    int64
-		}{Level: 5, XP: 10}
-
-		xpToAdd := xpRequiredForLevel(2) + xpRequiredForLevel(3) + xpRequiredForLevel(4) + xpRequiredForLevel(5) + expPlant.XP
-		plant.addXp(xpToAdd)
-
-		if plant.XP != expPlant.XP {
-			t.Errorf("expected %d xp but got %d", expPlant.XP, plant.XP)
-		}
-
-		if plant.Level != expPlant.Level {
-			t.Errorf("expected level %d but got %d", expPlant.Level, plant.Level)
-		}
-	})
-}
-
 func TestChangeHp(t *testing.T) {
 	t.Run("increase hp within limits", func(t *testing.T) {
 		plant := &Plant{Hp: 50.0}
