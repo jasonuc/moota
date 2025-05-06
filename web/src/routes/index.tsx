@@ -15,7 +15,7 @@ function Index() {
         </Link>
 
         <div className='flex space-x-2'>
-          <Link to='/dashboard'>
+          <Link to='/home'>
             <Button>
               Home
             </Button>

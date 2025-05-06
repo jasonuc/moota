@@ -11,7 +11,7 @@ type HeaderProps = {
 export default function Header({ seedCount }: HeaderProps) {
     return (
         <div className="flex w-full items-center justify-between">
-            <Link to="/dashboard" className="flex items-center space-x-2">
+            <Link to="/home" className="flex items-center space-x-2">
                 <Logo />
             </Link>
 

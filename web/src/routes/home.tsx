@@ -4,13 +4,13 @@ import { Button } from '@/components/ui/button';
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { BeanIcon, SproutIcon } from 'lucide-react';
 
-export const Route = createFileRoute('/dashboard')({
+export const Route = createFileRoute('/home')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const seedCount = 10;
-  const navigate = useNavigate({ from: '/dashboard' })
+  const navigate = useNavigate({ from: '/home' })
 
   const nearbyPlants = [
     {
