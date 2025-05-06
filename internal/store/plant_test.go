@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/jasonuc/moota/internal/models"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPlantStore(t *testing.T) {
@@ -61,25 +62,15 @@ func TestPlantStore(t *testing.T) {
 
 	t.Run("GetByOwnerID", func(t *testing.T) {
 		plants, err := store.GetByOwnerID(context.Background(), ownerID, false)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if len(plants) != 5 {
-			t.Errorf("expected 5 plants, got %d", len(plants))
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.Len(t, plants, 5, "expected 5 plants")
 	})
 
 	t.Run("Get", func(t *testing.T) {
 		var plantID = "00000000-0000-4000-a000-000000000201"
 		plant, err := store.Get(context.Background(), plantID, false)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if plant.ID != plantID {
-			t.Errorf("expected plant ID %s, got %s", plantID, plant.ID)
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.Equalf(t, plantID, plant.ID, "expected plant ID %s, got %s", plantID, plant.ID)
 	})
 
 	t.Run("GetBySoilIDAndProximity", func(t *testing.T) {
@@ -90,22 +81,12 @@ func TestPlantStore(t *testing.T) {
 		}
 
 		plants, err := store.GetBySoilIDAndProximity(context.Background(), soilID, coords, models.SoilRadiusMMedium)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if len(plants) != 3 {
-			t.Errorf("expected 3 plants, got %d", len(plants))
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.Len(t, plants, 3, "expected 3 plants")
 
 		plants, err = store.GetBySoilIDAndProximity(context.Background(), soilID, coords, models.PlantInteractionRadius+1)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if len(plants) != 1 {
-			t.Errorf("expected 1 plant with tight radius, got %d", len(plants))
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.Len(t, plants, 1, "expected 1 plant with tight radius")
 	})
 
 	t.Run("GetByOwnerIDAndProximity_CentralPark", func(t *testing.T) {
@@ -115,18 +96,12 @@ func TestPlantStore(t *testing.T) {
 		}
 
 		plants, err := store.GetByOwnerIDAndProximity(context.Background(), ownerID, userCentralParkCoords)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if len(plants) != 5 {
-			t.Errorf("expected 5 plants, got %d", len(plants))
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.Len(t, plants, 5, "expected 5 plants")
 
 		firstPlant := plants[0]
-		if firstPlant.ID != "00000000-0000-4000-a000-000000000201" {
-			t.Errorf("expected first plant to be Oak Tree in Central Park, got %s", firstPlant.Nickname)
-		}
+		assert.Equal(t, "00000000-0000-4000-a000-000000000201", firstPlant.ID,
+			"expected first plant to be Oak Tree in Central Park")
 	})
 
 	t.Run("GetByOwnerIDAndProximity_MiamiBeach", func(t *testing.T) {
@@ -136,36 +111,22 @@ func TestPlantStore(t *testing.T) {
 		}
 
 		plants, err := store.GetByOwnerIDAndProximity(context.Background(), ownerID, userMiamiCoords)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if len(plants) != 5 {
-			t.Errorf("expected 5 plants, got %d", len(plants))
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.Len(t, plants, 5, "expected 5 plants")
 
 		firstPlant := plants[0]
-		if firstPlant.ID != "00000000-0000-4000-a000-000000000204" {
-			t.Errorf("expected first plant to be Palm Tree in Miami Beach, got %s", firstPlant.Nickname)
-		}
+		assert.Equal(t, "00000000-0000-4000-a000-000000000204", firstPlant.ID,
+			"expected first plant to be Palm Tree in Miami Beach")
 	})
 
 	t.Run("ActivatePlant", func(t *testing.T) {
 		plantID := "00000000-0000-4000-a000-000000000207"
 		err := store.ActivatePlant(context.Background(), plantID)
-
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		assert.NoError(t, err, "unexpected error")
 
 		plant, err := store.Get(context.Background(), plantID, false)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if plant.Activated != true {
-			t.Errorf("expected plant to be activated, got %v", plant.Activated)
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.True(t, plant.Activated, "expected plant to be activated")
 	})
 
 	t.Run("Insert", func(t *testing.T) {
@@ -173,76 +134,50 @@ func TestPlantStore(t *testing.T) {
 		soil := models.NewLargeSizedSoil(models.RandomSoilMeta(), models.Coordinates{Lat: 29.153291, Lng: -89.254120})
 		soil.ID = "00000000-0000-4000-a000-000000000103"
 		plant, err := models.NewPlant(seed, soil, models.Coordinates{Lat: 29.153291, Lng: -89.254120})
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		assert.NoError(t, err, "unexpected error")
 
 		plant.ID = "00000000-0000-4000-a000-000000000999"
 
 		err = store.Insert(context.Background(), plant)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		assert.NoError(t, err, "unexpected error")
 	})
 
 	t.Run("Update", func(t *testing.T) {
 		t.Run("Update Plant xp", func(t *testing.T) {
 			plantID := "00000000-0000-4000-a000-000000000201"
 			plant, err := store.Get(context.Background(), plantID, false)
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			assert.NoError(t, err, "unexpected error")
 
 			plant.XP += 10
 			err = store.Update(context.Background(), plant)
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			assert.NoError(t, err, "unexpected error")
 
 			updatedPlant, err := store.Get(context.Background(), plantID, false)
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
-
-			if updatedPlant.XP != plant.XP {
-				t.Errorf("expected plant XP to be updated, got %d", updatedPlant.XP)
-			}
+			assert.NoError(t, err, "unexpected error")
+			assert.Equal(t, plant.XP, updatedPlant.XP, "expected plant XP to be updated")
 		})
 
 		t.Run("Update Plant nickname", func(t *testing.T) {
 			plantID := "00000000-0000-4000-a000-000000000201"
 			plant, err := store.Get(context.Background(), plantID, false)
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			assert.NoError(t, err, "unexpected error")
 
 			plant.Nickname = "Nickname"
 			err = store.Update(context.Background(), plant)
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			assert.NoError(t, err, "unexpected error")
 
 			updatedPlant, err := store.Get(context.Background(), plantID, false)
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
-
-			if updatedPlant.Nickname != plant.Nickname {
-				t.Errorf("expected plant nickname to be updated, got %s", updatedPlant.Nickname)
-			}
+			assert.NoError(t, err, "unexpected error")
+			assert.Equal(t, plant.Nickname, updatedPlant.Nickname, "expected plant nickname to be updated")
 		})
 	})
 
 	t.Run("Delete", func(t *testing.T) {
 		plantID := "00000000-0000-4000-a000-000000000201"
 		err := store.Delete(context.Background(), plantID)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		assert.NoError(t, err, "unexpected error")
 
 		_, err = store.Get(context.Background(), plantID, false)
-		if err == nil {
-			t.Errorf("expected plant to be deleted, but it was found")
-		}
+		assert.Error(t, err, "expected plant to be deleted, but it was found")
 	})
 }

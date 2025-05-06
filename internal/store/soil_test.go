@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/jasonuc/moota/internal/models"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSoilStore(t *testing.T) {
@@ -61,35 +62,20 @@ func TestSoilStore(t *testing.T) {
 	t.Run("Get_Existing", func(t *testing.T) {
 		soilID := "00000000-0000-4000-c000-000000000101"
 		soil, err := store.Get(context.Background(), soilID)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if soil.ID != soilID {
-			t.Errorf("expected soil ID %s, got %s", soilID, soil.ID)
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.Equalf(t, soilID, soil.ID, "expected soil ID %s, got %s", soilID, soil.ID)
 
 		// Central Park coordinates
-		if soil.Centre().Lat != 40.782865 || soil.Centre().Lng != -73.965355 {
-			t.Errorf("incorrect coordinates, expected (40.782865, -73.965355), got (%f, %f)",
-				soil.Centre().Lat, soil.Centre().Lng)
-		}
-
-		if soil.Type != "loam" {
-			t.Errorf("expected type 'loam', got '%s'", soil.Type)
-		}
-
-		if soil.RadiusM() != 22.0 {
-			t.Errorf("expected radius 22.0, got %f", soil.RadiusM())
-		}
+		assert.Equal(t, 40.782865, soil.Centre().Lat, "incorrect latitude")
+		assert.Equal(t, -73.965355, soil.Centre().Lng, "incorrect longitude")
+		assert.EqualValues(t, "loam", soil.Type, "expected type 'loam'")
+		assert.Equal(t, 22.0, soil.RadiusM(), "expected radius 22.0")
 	})
 
 	t.Run("Get_NonExisting", func(t *testing.T) {
 		soilID := "00000000-0000-4000-c000-999999999999"
 		_, err := store.Get(context.Background(), soilID)
-		if err != models.ErrSoilNotFound {
-			t.Errorf("expected ErrSoilNotFound, got %v", err)
-		}
+		assert.ErrorIs(t, err, models.ErrSoilNotFound, "expected ErrSoilNotFound")
 	})
 
 	t.Run("GetAllInProximity_SF_5km", func(t *testing.T) {
@@ -100,16 +86,11 @@ func TestSoilStore(t *testing.T) {
 
 		// 5km radius - should only include San Francisco soil
 		soils, err := store.GetAllInProximity(context.Background(), coords, 5000)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.Len(t, soils, 1, "expected 1 soil")
 
-		if len(soils) != 1 {
-			t.Errorf("expected 1 soil, got %d", len(soils))
-		}
-
-		if len(soils) > 0 && soils[0].ID != "00000000-0000-4000-c000-000000000105" {
-			t.Errorf("expected SF soil, got %s", soils[0].ID)
+		if len(soils) > 0 {
+			assert.Equal(t, "00000000-0000-4000-c000-000000000105", soils[0].ID, "expected SF soil")
 		}
 	})
 
@@ -122,13 +103,8 @@ func TestSoilStore(t *testing.T) {
 
 		// 15km radius - should include San Francisco and Oakland soils
 		soils, err := store.GetAllInProximity(context.Background(), coords, 15000)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if len(soils) != 2 {
-			t.Errorf("expected 2 soils, got %d", len(soils))
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.Len(t, soils, 2, "expected 2 soils")
 	})
 
 	t.Run("GetAllInProximity_SF_50km", func(t *testing.T) {
@@ -140,13 +116,8 @@ func TestSoilStore(t *testing.T) {
 
 		// 50km radius - should include all 3 Bay Area soils
 		soils, err := store.GetAllInProximity(context.Background(), coords, 50000)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if len(soils) != 3 {
-			t.Errorf("expected 3 soils, got %d", len(soils))
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.Len(t, soils, 3, "expected 3 soils")
 	})
 
 	t.Run("Insert", func(t *testing.T) {
@@ -166,62 +137,36 @@ func TestSoilStore(t *testing.T) {
 		newSoil.CircleMeta = models.NewCircleMeta(centre, 25.0)
 
 		err := store.Insert(context.Background(), newSoil)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if newSoil.ID == "" {
-			t.Error("expected ID to be set after insert")
-		}
-
-		if newSoil.CreatedAt.IsZero() {
-			t.Error("expected CreatedAt to be set after insert")
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.NotEmpty(t, newSoil.ID, "expected ID to be set after insert")
+		assert.False(t, newSoil.CreatedAt.IsZero(), "expected CreatedAt to be set after insert")
 
 		retrievedSoil, err := store.Get(context.Background(), newSoil.ID)
-		if err != nil {
-			t.Errorf("unexpected error retrieving inserted soil: %v", err)
-		}
-
-		if retrievedSoil.Type != "sandy" {
-			t.Errorf("expected type 'sandy', got '%s'", retrievedSoil.Type)
-		}
-
-		if retrievedSoil.RadiusM() != 25.0 {
-			t.Errorf("expected radius 25.0, got %f", retrievedSoil.RadiusM())
-		}
+		assert.NoError(t, err, "unexpected error retrieving inserted soil")
+		assert.EqualValues(t, "sandy", retrievedSoil.Type, "expected type 'sandy'")
+		assert.Equal(t, 25.0, retrievedSoil.RadiusM(), "expected radius 25.0")
 
 		// Los Angeles coordinates
-		if retrievedSoil.Centre().Lat != 34.052235 || retrievedSoil.Centre().Lng != -118.243683 {
-			t.Errorf("incorrect coordinates, expected (34.052235, -118.243683), got (%f, %f)",
-				retrievedSoil.Centre().Lat, retrievedSoil.Centre().Lng)
-		}
+		assert.Equal(t, 34.052235, retrievedSoil.Centre().Lat, "incorrect latitude")
+		assert.Equal(t, -118.243683, retrievedSoil.Centre().Lng, "incorrect longitude")
 	})
 
 	t.Run("Delete", func(t *testing.T) {
 		soilID := "00000000-0000-4000-c000-000000000104"
 
 		_, err := store.Get(context.Background(), soilID)
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
+		assert.NoError(t, err, "unexpected error")
 
 		err = store.Delete(context.Background(), soilID)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		assert.NoError(t, err, "unexpected error")
 
 		_, err = store.Get(context.Background(), soilID)
-		if err != models.ErrSoilNotFound {
-			t.Errorf("expected ErrSoilNotFound, got %v", err)
-		}
+		assert.ErrorIs(t, err, models.ErrSoilNotFound, "expected ErrSoilNotFound")
 	})
 
 	t.Run("Delete_NonExisting", func(t *testing.T) {
 		soilID := "00000000-0000-4000-c000-999999999999"
 		err := store.Delete(context.Background(), soilID)
-		if err != models.ErrSoilNotFound {
-			t.Errorf("expected ErrSoilNotFound, got %v", err)
-		}
+		assert.ErrorIs(t, err, models.ErrSoilNotFound, "expected ErrSoilNotFound")
 	})
 }

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/jasonuc/moota/internal/models"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSeedStore(t *testing.T) {
@@ -61,43 +62,26 @@ func TestSeedStore(t *testing.T) {
 	t.Run("GetAllByOwnerID", func(t *testing.T) {
 		ownerID := "00000000-0000-4000-a000-000000000001"
 		seeds, err := store.GetAllByOwnerID(context.Background(), ownerID)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if len(seeds) != 3 {
-			t.Errorf("expected 3 seeds, got %d", len(seeds))
-		}
+		assert.NoError(t, err)
+		assert.Len(t, seeds, 3, "expected 3 seeds")
 
 		for _, seed := range seeds {
-			if seed.Planted {
-				t.Errorf("expected unplanted seed, got planted seed %s", seed.ID)
-			}
+			assert.Falsef(t, seed.Planted, "expected unplanted seed, got planted seed %s", seed.ID)
 		}
 	})
 
 	t.Run("Get_Existing", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-000000000001"
 		seed, err := store.Get(context.Background(), seedID)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if seed.ID != seedID {
-			t.Errorf("expected seed ID %s, got %s", seedID, seed.ID)
-		}
-
-		if seed.OptimalSoil != "loam" {
-			t.Errorf("expected optimal soil 'loam', got '%s'", seed.OptimalSoil)
-		}
+		assert.NoError(t, err)
+		assert.Equalf(t, seedID, seed.ID, "expected seed ID %s, got %s", seedID, seed.ID)
+		assert.EqualValuesf(t, "loam", seed.OptimalSoil, "expected optimal soil 'loam', got '%s'", seed.OptimalSoil)
 	})
 
 	t.Run("Get_NonExisting", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-999999999999"
 		_, err := store.Get(context.Background(), seedID)
-		if err != models.ErrSeedNotFound {
-			t.Errorf("expected ErrSeedNotFound, got %v", err)
-		}
+		assert.ErrorIs(t, err, models.ErrSeedNotFound, "expected ErrSeedNotFound")
 	})
 
 	t.Run("Insert", func(t *testing.T) {
@@ -112,85 +96,53 @@ func TestSeedStore(t *testing.T) {
 		}
 
 		err := store.Insert(context.Background(), newSeed)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-
-		if newSeed.ID == "" {
-			t.Error("expected ID to be set after insert")
-		}
-
-		if newSeed.CreatedAt.IsZero() {
-			t.Error("expected CreatedAt to be set after insert")
-		}
+		assert.NoError(t, err)
+		assert.NotEmpty(t, newSeed.ID, "expected ID to be set after insert")
+		assert.False(t, newSeed.CreatedAt.IsZero(), "expected CreatedAt to be set after insert")
 
 		retrievedSeed, err := store.Get(context.Background(), newSeed.ID)
-		if err != nil {
-			t.Errorf("unexpected error retrieving inserted seed: %v", err)
-		}
-
-		if retrievedSeed.BotanicalName != "Ficus benjamina" {
-			t.Errorf("expected botanical name 'Ficus benjamina', got '%s'", retrievedSeed.BotanicalName)
-		}
+		assert.NoError(t, err, "unexpected error retrieving inserted seed")
+		assert.Equalf(t, "Ficus benjamina", retrievedSeed.BotanicalName,
+			"expected botanical name 'Ficus benjamina', got '%s'", retrievedSeed.BotanicalName)
 	})
 
 	t.Run("MarkAsPlanted", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-000000000002"
 
 		seed, err := store.Get(context.Background(), seedID)
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
-		if seed.Planted {
-			t.Fatal("seed is already planted before test")
-		}
+		assert.NoError(t, err)
+		assert.False(t, seed.Planted, "seed is already planted before test")
 
 		err = store.MarkAsPlanted(context.Background(), seedID)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		assert.NoError(t, err)
 
 		seed, err = store.Get(context.Background(), seedID)
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
-		if !seed.Planted {
-			t.Error("seed was not marked as planted")
-		}
+		assert.NoError(t, err)
+		assert.True(t, seed.Planted, "seed was not marked as planted")
 	})
 
 	t.Run("MarkAsPlanted_NonExisting", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-999999999999"
 		err := store.MarkAsPlanted(context.Background(), seedID)
-		if err != models.ErrSeedNotFound {
-			t.Errorf("expected ErrSeedNotFound, got %v", err)
-		}
+		assert.ErrorIs(t, err, models.ErrSeedNotFound, "expected ErrSeedNotFound")
 	})
 
 	t.Run("Delete", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-000000000003"
 
 		_, err := store.Get(context.Background(), seedID)
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
+		assert.NoError(t, err)
 
 		err = store.Delete(context.Background(), seedID)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		assert.NoError(t, err)
 
 		_, err = store.Get(context.Background(), seedID)
-		if err != models.ErrSeedNotFound {
-			t.Errorf("expected ErrSeedNotFound, got %v", err)
-		}
+		assert.ErrorIs(t, err, models.ErrSeedNotFound, "expected ErrSeedNotFound")
 	})
 
 	t.Run("Delete_NonExisting", func(t *testing.T) {
 		seedID := "00000000-0000-4000-b000-999999999999"
 		err := store.Delete(context.Background(), seedID)
-		if err != models.ErrSeedNotFound {
-			t.Errorf("expected ErrSeedNotFound, got %v", err)
-		}
+		assert.ErrorIs(t, err, models.ErrSeedNotFound, "expected ErrSeedNotFound")
 	})
 }
