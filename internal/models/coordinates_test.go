@@ -44,3 +44,28 @@ func TestDistanceM(t *testing.T) {
 		}
 	})
 }
+
+func TestCoordinatesFromPostGIS(t *testing.T) {
+	t.Run("valid point", func(t *testing.T) {
+		pointText := "POINT(10.0 20.0)"
+		got, err := CoordinatesFromPostGIS(pointText)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		exp := Coordinates{Lat: 20.0, Lng: 10.0}
+		if got != exp {
+			t.Errorf("got %v but expected %v", got, exp)
+		}
+	})
+
+	t.Run("invalid point format", func(t *testing.T) {
+		pointText := "POINT(10.0)"
+		got, err := CoordinatesFromPostGIS(pointText)
+		if err == nil {
+			t.Fatal("expected error but got nil")
+		}
+		if got != (Coordinates{}) {
+			t.Errorf("got %v but expected empty coordinates", got)
+		}
+	})
+}
