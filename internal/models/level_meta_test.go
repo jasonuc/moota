@@ -1,6 +1,10 @@
 package models
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestLevelMeta(t *testing.T) {
 	t.Run("add xp but not enough to increase level", func(t *testing.T) {
@@ -9,13 +13,8 @@ func TestLevelMeta(t *testing.T) {
 
 		lm.addXp(25)
 
-		if lm.XP != expectedLevelMeta.XP {
-			t.Errorf("expected %d xp but got %d", expectedLevelMeta.XP, lm.XP)
-		}
-
-		if lm.Level != expectedLevelMeta.Level {
-			t.Errorf("expected level %d but got %d", expectedLevelMeta.Level, lm.Level)
-		}
+		assert.Equal(t, lm.XP, expectedLevelMeta.XP)
+		assert.Equal(t, lm.Level, expectedLevelMeta.Level)
 	})
 
 	t.Run("add enough xp for one level up", func(t *testing.T) {
@@ -25,13 +24,8 @@ func TestLevelMeta(t *testing.T) {
 		xpToAdd := xpRequiredForLevel(expectedLevelMeta.Level) + 25
 		lm.addXp(xpToAdd)
 
-		if lm.XP != expectedLevelMeta.XP {
-			t.Errorf("expected %d xp but got %d", expectedLevelMeta.XP, lm.XP)
-		}
-
-		if lm.Level != expectedLevelMeta.Level {
-			t.Errorf("expected level %d but got %d", expectedLevelMeta.Level, lm.Level)
-		}
+		assert.Equal(t, lm.XP, expectedLevelMeta.XP)
+		assert.Equal(t, lm.Level, expectedLevelMeta.Level)
 	})
 
 	t.Run("add enough xp for to level up to occur multiple times", func(t *testing.T) {
@@ -41,12 +35,7 @@ func TestLevelMeta(t *testing.T) {
 		xpToAdd := xpRequiredForLevel(2) + xpRequiredForLevel(3) + xpRequiredForLevel(4) + xpRequiredForLevel(5) + expectedLevelMeta.XP
 		lm.addXp(xpToAdd)
 
-		if lm.XP != expectedLevelMeta.XP {
-			t.Errorf("expected %d xp but got %d", expectedLevelMeta.XP, lm.XP)
-		}
-
-		if lm.Level != expectedLevelMeta.Level {
-			t.Errorf("expected level %d but got %d", expectedLevelMeta.Level, lm.Level)
-		}
+		assert.Equal(t, lm.XP, expectedLevelMeta.XP)
+		assert.Equal(t, lm.Level, expectedLevelMeta.Level)
 	})
 }
