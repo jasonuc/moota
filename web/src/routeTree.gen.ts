@@ -16,6 +16,7 @@ import { Route as HomeImport } from './routes/home'
 import { Route as AuthRouteImport } from './routes/_auth/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as PlantsIndexImport } from './routes/plants/index'
+import { Route as ProfileUsernameImport } from './routes/profile.$username'
 import { Route as AuthRegisterImport } from './routes/_auth/register'
 import { Route as AuthLoginImport } from './routes/_auth/login'
 import { Route as PlantsPlantIdIndexImport } from './routes/plants/$plantId/index'
@@ -48,6 +49,12 @@ const IndexRoute = IndexImport.update({
 const PlantsIndexRoute = PlantsIndexImport.update({
   id: '/plants/',
   path: '/plants/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProfileUsernameRoute = ProfileUsernameImport.update({
+  id: '/profile/$username',
+  path: '/profile/$username',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -115,6 +122,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRegisterImport
       parentRoute: typeof AuthRouteImport
     }
+    '/profile/$username': {
+      id: '/profile/$username'
+      path: '/profile/$username'
+      fullPath: '/profile/$username'
+      preLoaderRoute: typeof ProfileUsernameImport
+      parentRoute: typeof rootRoute
+    }
     '/plants/': {
       id: '/plants/'
       path: '/plants'
@@ -155,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/seeds': typeof SeedsRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/profile/$username': typeof ProfileUsernameRoute
   '/plants': typeof PlantsIndexRoute
   '/plants/$plantId': typeof PlantsPlantIdIndexRoute
 }
@@ -166,6 +181,7 @@ export interface FileRoutesByTo {
   '/seeds': typeof SeedsRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/profile/$username': typeof ProfileUsernameRoute
   '/plants': typeof PlantsIndexRoute
   '/plants/$plantId': typeof PlantsPlantIdIndexRoute
 }
@@ -178,6 +194,7 @@ export interface FileRoutesById {
   '/seeds': typeof SeedsRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
+  '/profile/$username': typeof ProfileUsernameRoute
   '/plants/': typeof PlantsIndexRoute
   '/plants/$plantId/': typeof PlantsPlantIdIndexRoute
 }
@@ -191,6 +208,7 @@ export interface FileRouteTypes {
     | '/seeds'
     | '/login'
     | '/register'
+    | '/profile/$username'
     | '/plants'
     | '/plants/$plantId'
   fileRoutesByTo: FileRoutesByTo
@@ -201,6 +219,7 @@ export interface FileRouteTypes {
     | '/seeds'
     | '/login'
     | '/register'
+    | '/profile/$username'
     | '/plants'
     | '/plants/$plantId'
   id:
@@ -211,6 +230,7 @@ export interface FileRouteTypes {
     | '/seeds'
     | '/_auth/login'
     | '/_auth/register'
+    | '/profile/$username'
     | '/plants/'
     | '/plants/$plantId/'
   fileRoutesById: FileRoutesById
@@ -221,6 +241,7 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   HomeRoute: typeof HomeRoute
   SeedsRoute: typeof SeedsRoute
+  ProfileUsernameRoute: typeof ProfileUsernameRoute
   PlantsIndexRoute: typeof PlantsIndexRoute
   PlantsPlantIdIndexRoute: typeof PlantsPlantIdIndexRoute
 }
@@ -230,6 +251,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   HomeRoute: HomeRoute,
   SeedsRoute: SeedsRoute,
+  ProfileUsernameRoute: ProfileUsernameRoute,
   PlantsIndexRoute: PlantsIndexRoute,
   PlantsPlantIdIndexRoute: PlantsPlantIdIndexRoute,
 }
@@ -248,6 +270,7 @@ export const routeTree = rootRoute
         "/_auth",
         "/home",
         "/seeds",
+        "/profile/$username",
         "/plants/",
         "/plants/$plantId/"
       ]
@@ -275,6 +298,9 @@ export const routeTree = rootRoute
     "/_auth/register": {
       "filePath": "_auth/register.tsx",
       "parent": "/_auth"
+    },
+    "/profile/$username": {
+      "filePath": "profile.$username.tsx"
     },
     "/plants/": {
       "filePath": "plants/index.tsx"
