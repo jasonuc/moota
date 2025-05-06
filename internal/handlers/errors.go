@@ -20,12 +20,12 @@ func errorResponse(w http.ResponseWriter, status int, message any) {
 
 func serverErrorResponse(w http.ResponseWriter, err error) {
 	log.Println(err)
-	message := "a problem has occured on the server, try again later"
+	message := "A problem has occured on the server, try again later"
 	errorResponse(w, http.StatusInternalServerError, message)
 }
 
 func notFoundResponse(w http.ResponseWriter) {
-	message := "the requested resource could not be found"
+	message := "Requested resource could not be found"
 	errorResponse(w, http.StatusNotFound, message)
 }
 
@@ -34,12 +34,12 @@ func badRequestResponse(w http.ResponseWriter, err error) {
 }
 
 func invalidCredentialsResponse(w http.ResponseWriter) {
-	message := "invalid credentials"
+	message := "Invalid credentials"
 	errorResponse(w, http.StatusUnauthorized, message)
 }
 
 func notPermittedResponse(w http.ResponseWriter) {
-	message := "you do not have permission to access this resource"
+	message := "You do not have permission to access this resource"
 	errorResponse(w, http.StatusForbidden, message)
 }
 
@@ -49,7 +49,7 @@ func failedValidationResponse(w http.ResponseWriter, err error) {
 		errs[err.Field()] = err.Tag()
 	}
 
-	message := "the request was invalid"
+	message := "Request was invalid"
 	respEvenlope := envelope{
 		"message": message,
 		"fields":  errs,
