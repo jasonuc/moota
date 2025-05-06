@@ -13,6 +13,9 @@ const (
 	wateringPlantXpGain    = 30
 	wateringPlantHpGain    = 5
 	minWateringInterval    = 6 * time.Hour
+
+	hpPenaltyPlantNeglect = 0.1
+	hpPenaltyLackOfWater  = 0.3
 )
 
 var (
@@ -129,19 +132,19 @@ func (p *Plant) Refresh(t time.Time) bool {
 func (p *Plant) preActionHook(t time.Time) {
 	// Hp reduction for plant neglect
 	hoursSinceLastAction := t.Sub(p.LastActionTime).Hours()
-	decreaseMult := math.Floor(hoursSinceLastAction - 12)
+	decreaseMult := math.Floor(hoursSinceLastAction - 24)
 	if decreaseMult > 0 {
-		alive := p.changeHp(-5 * decreaseMult)
+		alive := p.changeHp(-hpPenaltyPlantNeglect * decreaseMult)
 		if !alive {
 			return
 		}
 	}
 
 	// Hp reduction for lack of watering
-	hoursSinceLastWatering := math.Floor(t.Sub(p.LastWateredTime).Hours())
-	decreaseMult = math.Floor(hoursSinceLastWatering - 7)
+	hoursSinceLastWatered := math.Floor(t.Sub(p.LastWateredTime).Hours())
+	decreaseMult = math.Floor(hoursSinceLastWatered - 12)
 	if decreaseMult > 0 {
-		p.changeHp(-1 * decreaseMult)
+		p.changeHp(-hpPenaltyLackOfWater * decreaseMult)
 	}
 }
 

@@ -3,6 +3,8 @@ package models
 import (
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAction(t *testing.T) {
@@ -75,32 +77,32 @@ func TestAction(t *testing.T) {
 }
 
 func TestPreActionHook(t *testing.T) {
-	t.Run("hp decreases when plant has not been interacted with for over 12 hours", func(t *testing.T) {
+	t.Run("hp decreases when plant has not been interacted with for over 2 days", func(t *testing.T) {
 		currentTime := time.Now()
-		futureTime := currentTime.Add(14 * time.Hour)
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredTime: futureTime}
+		futureTime := currentTime.Add(2 * 24 * time.Hour)
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredTime: currentTime}
 
 		plant.preActionHook(futureTime)
 
-		expHp := 40.0
+		expHp := 36.80
 
 		if !plant.Alive() {
 			t.Errorf("expected plant to be alive")
 		}
 
-		if plant.Hp != expHp {
+		if !assert.InDelta(t, expHp, plant.Hp, 0.01) {
 			t.Errorf("expected %f hp but got %f", expHp, plant.Hp)
 		}
 	})
 
 	t.Run("hp decreases when plant has not been watered for over 7 hours", func(t *testing.T) {
 		currentTime := time.Now()
-		futureTime := currentTime.Add(10 * time.Hour)
+		futureTime := currentTime.Add(13 * time.Hour)
 		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionTime: futureTime, LastWateredTime: currentTime}
 
 		plant.preActionHook(futureTime)
 
-		expHp := 47.0
+		expHp := 49.7
 
 		if !plant.Alive() {
 			t.Errorf("expected plant to be alive")
@@ -196,6 +198,57 @@ func TestChangeHp(t *testing.T) {
 
 		if !alive {
 			t.Errorf("expected plant ot be alive")
+		}
+	})
+}
+
+func TestRefresh(t *testing.T) {
+	t.Run("refresh plant for plant that would die after refresh", func(t *testing.T) {
+		currentTime := time.Now()
+		timeForRefresh := currentTime.Add(7 * 24 * time.Hour)
+
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionTime: time.Now().Add(-7 * 24 * time.Hour), LastWateredTime: time.Now().Add(-7 * 24 * time.Hour)}
+
+		plant.Refresh(timeForRefresh)
+
+		expAlive := false
+		expHp := 0.0
+		expTimeOfDeath := timeForRefresh
+
+		if plant.Alive() != expAlive {
+			t.Errorf("expected plant to be dead")
+		}
+
+		if plant.Hp != expHp {
+			t.Errorf("expected %f hp but got %f", expHp, plant.Hp)
+		}
+
+		if plant.TimeOfDeath.Equal(expTimeOfDeath) {
+			t.Errorf("expected plant to have a time of death")
+		}
+	})
+
+	t.Run("refresh plant for plant that would not die after refresh", func(t *testing.T) {
+		currentTime := time.Now()
+		timeForRefresh := currentTime.Add(36 * time.Hour)
+
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredTime: currentTime}
+
+		plant.Refresh(timeForRefresh)
+
+		expAlive := true
+		expHP := 41.6
+
+		if plant.Alive() != expAlive {
+			t.Errorf("expected plant to be alive")
+		}
+
+		if !assert.InDelta(t, expHP, plant.Hp, 0.01) {
+			t.Errorf("expected %f hp but got %f", expHP, plant.Hp)
+		}
+
+		if plant.TimeOfDeath != nil {
+			t.Errorf("expected plant to not have a time of death")
 		}
 	})
 }
