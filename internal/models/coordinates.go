@@ -12,26 +12,26 @@ const earthRadiusM = 6.378e+06 // in metres
 
 type Coordinates struct {
 	Lat float64 `json:"Lat"`
-	Lng float64 `json:"Lng"`
+	Lon float64 `json:"Lon"`
 }
 
 func (p Coordinates) latRad() float64 {
 	return p.Lat * (math.Pi / 180)
 }
 
-func (p Coordinates) lngRad() float64 {
-	return p.Lng * (math.Pi / 180)
+func (p Coordinates) lonRad() float64 {
+	return p.Lon * (math.Pi / 180)
 }
 
 // source: https://www.movable-type.co.uk/scripts/latlong.html#distance
 func (p Coordinates) DistanceM(p2 Coordinates) float64 {
 	dLat := p2.latRad() - p.latRad()
-	dLng := p2.lngRad() - p.lngRad()
+	dLon := p2.lonRad() - p.lonRad()
 
 	// Haversine formula
 	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
 		math.Cos(p.latRad())*math.Cos(p2.latRad())*
-			math.Sin(dLng/2)*math.Sin(dLng/2)
+			math.Sin(dLon/2)*math.Sin(dLon/2)
 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
 
 	// Distance in metres
@@ -48,7 +48,7 @@ func CoordinatesFromPostGIS(pointText string) (Coordinates, error) {
 		return Coordinates{}, errors.New("invalid point format")
 	}
 
-	lng, err := strconv.ParseFloat(coords[0], 64)
+	lon, err := strconv.ParseFloat(coords[0], 64)
 	if err != nil {
 		return Coordinates{}, err
 	}
@@ -58,5 +58,5 @@ func CoordinatesFromPostGIS(pointText string) (Coordinates, error) {
 		return Coordinates{}, err
 	}
 
-	return Coordinates{Lat: lat, Lng: lng}, nil
+	return Coordinates{Lat: lat, Lon: lon}, nil
 }

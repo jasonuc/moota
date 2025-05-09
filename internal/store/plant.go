@@ -66,7 +66,7 @@ func (s *plantStore) GetByOwnerIDAndProximity(ctx context.Context, ownerID strin
 			WHERE owner_id = $1 AND activated = true AND dead = false
 			ORDER BY ST_Distance(centre, ST_SetSRID(ST_MakePoint($2, $3), 4326)::GEOGRAPHY) ASC;`
 
-	rows, err := s.db.QueryContext(ctx, q, ownerID, point.Lng, point.Lat)
+	rows, err := s.db.QueryContext(ctx, q, ownerID, point.Lon, point.Lat)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (s *plantStore) GetBySoilIDAndProximity(ctx context.Context, soilID string,
 			WHERE soil_id = $1 AND dead = false AND activated = true
 			AND ST_DWithin(centre, ST_SetSRID(ST_MakePoint($2, $3), 4326)::GEOGRAPHY, $4);`
 
-	rows, err := s.db.QueryContext(ctx, q, soilID, point.Lng, point.Lat, distanceM)
+	rows, err := s.db.QueryContext(ctx, q, soilID, point.Lon, point.Lat, distanceM)
 	if err != nil {
 		return nil, err
 	}
@@ -267,7 +267,7 @@ func (s *plantStore) Insert(ctx context.Context, plant *models.Plant) error {
 	err := s.db.QueryRowContext(ctx,
 		q,
 		plant.Nickname, plant.Hp, plant.OwnerID,
-		plant.CircleMeta.Centre().Lng, plant.CircleMeta.Centre().Lat, plant.CircleMeta.RadiusM(),
+		plant.CircleMeta.Centre().Lon, plant.CircleMeta.Centre().Lat, plant.CircleMeta.RadiusM(),
 		plant.Soil.ID, plant.OptimalSoil, plant.BotanicalName,
 		plant.Level, plant.XP,
 		plant.Tempers.Woe, plant.Tempers.Frolic, plant.Tempers.Dread, plant.Tempers.Malice,

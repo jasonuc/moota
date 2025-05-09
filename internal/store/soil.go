@@ -52,7 +52,7 @@ func (s *soilStore) GetAllInProximity(ctx context.Context, point models.Coordina
 	q := `SELECT id, ST_AsText(centre) as centre, radius_m, soil_type, water_retention, nutrient_richness, created_at FROM soils
 			WHERE ST_DWithin(centre, ST_SetSRID(ST_MakePoint($1, $2), 4326)::GEOGRAPHY, $3);`
 
-	rows, err := s.db.QueryContext(ctx, q, point.Lng, point.Lat, distanceM)
+	rows, err := s.db.QueryContext(ctx, q, point.Lon, point.Lat, distanceM)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (s *soilStore) Insert(ctx context.Context, soil *models.Soil) error {
 			RETURNING id, created_at;`
 
 	err := s.db.QueryRowContext(
-		ctx, q, soil.Centre().Lng, soil.Centre().Lat, soil.RadiusM(), soil.Type, soil.NutrientRichness, soil.WaterRetention,
+		ctx, q, soil.Centre().Lon, soil.Centre().Lat, soil.RadiusM(), soil.Type, soil.NutrientRichness, soil.WaterRetention,
 	).Scan(
 		&soil.ID, &soil.CreatedAt,
 	)

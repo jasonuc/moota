@@ -52,7 +52,7 @@ var (
 )
 
 func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error) {
-	coords := models.Coordinates{Lat: *dto.Latitude, Lng: *dto.Longitude}
+	coords := models.Coordinates{Lat: *dto.Latitude, Lon: *dto.Longitude}
 
 	transaction, err := s.store.Begin()
 	if err != nil {
@@ -213,7 +213,7 @@ func (s *plantService) ActionOnPlant(ctx context.Context, plantID string, dto dt
 		return nil, ErrPlantNotActivated
 	}
 
-	userCoords := models.Coordinates{Lng: *dto.Longitude, Lat: *dto.Latitude}
+	userCoords := models.Coordinates{Lon: *dto.Longitude, Lat: *dto.Latitude}
 	if !plant.ContainsPoint(userCoords) {
 		return nil, ErrOutsidePlantInteractionRadius
 	}

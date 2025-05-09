@@ -67,7 +67,7 @@ func TestSoilStore(t *testing.T) {
 
 		// Central Park coordinates
 		assert.Equal(t, 40.782865, soil.Centre().Lat, "incorrect latitude")
-		assert.Equal(t, -73.965355, soil.Centre().Lng, "incorrect longitude")
+		assert.Equal(t, -73.965355, soil.Centre().Lon, "incorrect longitude")
 		assert.EqualValues(t, "loam", soil.Type, "expected type 'loam'")
 		assert.Equal(t, 22.0, soil.RadiusM(), "expected radius 22.0")
 	})
@@ -81,7 +81,7 @@ func TestSoilStore(t *testing.T) {
 	t.Run("GetAllInProximity_SF_5km", func(t *testing.T) {
 		coords := models.Coordinates{
 			Lat: 37.774929,
-			Lng: -122.419416,
+			Lon: -122.419416,
 		}
 
 		// 5km radius - should only include San Francisco soil
@@ -98,7 +98,7 @@ func TestSoilStore(t *testing.T) {
 		// San Francisco coordinates
 		coords := models.Coordinates{
 			Lat: 37.774929,
-			Lng: -122.419416,
+			Lon: -122.419416,
 		}
 
 		// 15km radius - should include San Francisco and Oakland soils
@@ -111,7 +111,7 @@ func TestSoilStore(t *testing.T) {
 		// San Francisco coordinates
 		coords := models.Coordinates{
 			Lat: 37.774929,
-			Lng: -122.419416,
+			Lon: -122.419416,
 		}
 
 		// 50km radius - should include all 3 Bay Area soils
@@ -132,7 +132,7 @@ func TestSoilStore(t *testing.T) {
 
 		centre := models.Coordinates{
 			Lat: 34.052235,
-			Lng: -118.243683,
+			Lon: -118.243683,
 		}
 		newSoil.CircleMeta = models.NewCircleMeta(centre, 25.0)
 
@@ -148,7 +148,7 @@ func TestSoilStore(t *testing.T) {
 
 		// Los Angeles coordinates
 		assert.Equal(t, 34.052235, retrievedSoil.Centre().Lat, "incorrect latitude")
-		assert.Equal(t, -118.243683, retrievedSoil.Centre().Lng, "incorrect longitude")
+		assert.Equal(t, -118.243683, retrievedSoil.Centre().Lon, "incorrect longitude")
 	})
 
 	t.Run("Delete", func(t *testing.T) {

@@ -10,13 +10,13 @@ func TestContainsFullCircle(t *testing.T) {
 	t.Run("return true if circle and soil are concentric", func(t *testing.T) {
 		soil := &Soil{
 			CircleMeta: CircleMeta{
-				C:       Coordinates{Lat: 0, Lng: 0},
+				C:       Coordinates{Lat: 0, Lon: 0},
 				radiusM: 20,
 			},
 		}
 
 		circle := CircleMeta{
-			C:       Coordinates{Lat: 0, Lng: 0},
+			C:       Coordinates{Lat: 0, Lon: 0},
 			radiusM: 10,
 		}
 
@@ -26,13 +26,13 @@ func TestContainsFullCircle(t *testing.T) {
 	t.Run("return true if circle is inside soil", func(t *testing.T) {
 		soil := &Soil{
 			CircleMeta: CircleMeta{
-				C:       Coordinates{Lat: 0, Lng: 0},
+				C:       Coordinates{Lat: 0, Lon: 0},
 				radiusM: 20,
 			},
 		}
 
 		circle := CircleMeta{
-			C:       Coordinates{Lat: 0.000045, Lng: 0}, // ~5m north at equator
+			C:       Coordinates{Lat: 0.000045, Lon: 0}, // ~5m north at equator
 			radiusM: 10,
 		}
 
@@ -42,13 +42,13 @@ func TestContainsFullCircle(t *testing.T) {
 	t.Run("return false if circle is partially extends outside of soil", func(t *testing.T) {
 		soil := &Soil{
 			CircleMeta: CircleMeta{
-				C:       Coordinates{Lat: 0, Lng: 0},
+				C:       Coordinates{Lat: 0, Lon: 0},
 				radiusM: 20,
 			},
 		}
 
 		circle := CircleMeta{
-			C:       Coordinates{Lat: 0.000135, Lng: 0},
+			C:       Coordinates{Lat: 0.000135, Lon: 0},
 			radiusM: 10,
 		}
 
@@ -58,13 +58,13 @@ func TestContainsFullCircle(t *testing.T) {
 	t.Run("return false if circle is completely outside soil", func(t *testing.T) {
 		soil := &Soil{
 			CircleMeta: CircleMeta{
-				C:       Coordinates{Lat: 0, Lng: 0},
+				C:       Coordinates{Lat: 0, Lon: 0},
 				radiusM: 20,
 			},
 		}
 
 		circle := CircleMeta{
-			C:       Coordinates{Lat: 0.00036, Lng: 0},
+			C:       Coordinates{Lat: 0.00036, Lon: 0},
 			radiusM: 10,
 		}
 
@@ -74,13 +74,13 @@ func TestContainsFullCircle(t *testing.T) {
 	t.Run("return true if circle is tangential to soil but still inside it", func(t *testing.T) {
 		soil := &Soil{
 			CircleMeta: CircleMeta{
-				C:       Coordinates{Lat: 0.0, Lng: 0.0},
+				C:       Coordinates{Lat: 0.0, Lon: 0.0},
 				radiusM: 50,
 			},
 		}
 
 		circle := CircleMeta{
-			C:       Coordinates{Lat: 0.00026947, Lng: 0.0},
+			C:       Coordinates{Lat: 0.00026947, Lon: 0.0},
 			radiusM: 20,
 		}
 

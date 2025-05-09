@@ -77,7 +77,7 @@ func TestPlantStore(t *testing.T) {
 		soilID := "00000000-0000-4000-a000-000000000101"
 		coords := models.Coordinates{
 			Lat: 40.782865,
-			Lng: -73.965355,
+			Lon: -73.965355,
 		}
 
 		plants, err := store.GetBySoilIDAndProximity(context.Background(), soilID, coords, models.SoilRadiusMMedium)
@@ -92,7 +92,7 @@ func TestPlantStore(t *testing.T) {
 	t.Run("GetByOwnerIDAndProximity_CentralPark", func(t *testing.T) {
 		userCentralParkCoords := models.Coordinates{
 			Lat: 40.782865,
-			Lng: -73.965355,
+			Lon: -73.965355,
 		}
 
 		plants, err := store.GetByOwnerIDAndProximity(context.Background(), ownerID, userCentralParkCoords)
@@ -107,7 +107,7 @@ func TestPlantStore(t *testing.T) {
 	t.Run("GetByOwnerIDAndProximity_MiamiBeach", func(t *testing.T) {
 		userMiamiCoords := models.Coordinates{
 			Lat: 25.792236,
-			Lng: -80.134358,
+			Lon: -80.134358,
 		}
 
 		plants, err := store.GetByOwnerIDAndProximity(context.Background(), ownerID, userMiamiCoords)
@@ -131,9 +131,9 @@ func TestPlantStore(t *testing.T) {
 
 	t.Run("Insert", func(t *testing.T) {
 		seed := models.NewSeed(ownerID)
-		soil := models.NewLargeSizedSoil(models.RandomSoilMeta(), models.Coordinates{Lat: 29.153291, Lng: -89.254120})
+		soil := models.NewLargeSizedSoil(models.RandomSoilMeta(), models.Coordinates{Lat: 29.153291, Lon: -89.254120})
 		soil.ID = "00000000-0000-4000-a000-000000000103"
-		plant, err := models.NewPlant(seed, soil, models.Coordinates{Lat: 29.153291, Lng: -89.254120})
+		plant, err := models.NewPlant(seed, soil, models.Coordinates{Lat: 29.153291, Lon: -89.254120})
 		assert.NoError(t, err, "unexpected error")
 
 		plant.ID = "00000000-0000-4000-a000-000000000999"

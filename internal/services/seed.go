@@ -132,7 +132,7 @@ func (s *seedService) PlantSeed(ctx context.Context, seedID string, dto dto.Plan
 		return nil, ErrUnauthorizedSeedPlanting
 	}
 
-	targetCentre := models.Coordinates{Lat: *dto.Latitude, Lng: *dto.Longitude}
+	targetCentre := models.Coordinates{Lat: *dto.Latitude, Lon: *dto.Longitude}
 	plantCircleMeta := models.NewCircleMeta(targetCentre, models.PlantInteractionRadius)
 
 	nearbySoils, err := tx.Soil.GetAllInProximity(ctx, targetCentre, models.SoilRadiusMLarge)
