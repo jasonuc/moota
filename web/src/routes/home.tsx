@@ -1,16 +1,16 @@
-import Header from '@/components/header'
-import PlantsList from '@/components/plants-list';
-import { Button } from '@/components/ui/button';
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { BeanIcon, SproutIcon } from 'lucide-react';
+import Header from "@/components/header";
+import PlantsList from "@/components/plants-list";
+import { Button } from "@/components/ui/button";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { BeanIcon, SproutIcon } from "lucide-react";
 
-export const Route = createFileRoute('/home')({
+export const Route = createFileRoute("/home")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
   const seedCount = 10;
-  const navigate = useNavigate({ from: '/home' })
+  const navigate = useNavigate({ from: "/home" });
 
   const nearbyPlants = [
     {
@@ -18,56 +18,58 @@ function RouteComponent() {
       nickname: "Fernie",
       botanicalName: "Neoregalia Fosteriana",
       hp: 70,
-      distance: 50
+      distance: 50,
     },
     {
       id: "2",
       nickname: "Leafy",
       botanicalName: "Spathiphyllum Wallisii",
       hp: 60,
-      distance: 100
+      distance: 100,
     },
     {
       id: "3",
       nickname: "Zoogarte",
       botanicalName: "Ficus elastica",
       hp: 80,
-      distance: 150
+      distance: 150,
     },
     {
       id: "4",
       nickname: "Sproutlet",
       botanicalName: "Monstera deliciosa",
       hp: 50,
-      distance: 200
+      distance: 200,
     },
-  ]
+  ];
 
   return (
-    <div className='flex flex-col space-y-5 grow'>
+    <div className="flex flex-col space-y-5 grow">
       <Header seedCount={seedCount} />
 
       <h1 className="text-3xl font-heading mb-5">My Nearby Plants</h1>
 
       <PlantsList plants={nearbyPlants} />
 
-      <div className='pt-20' />
+      <div className="pt-20" />
 
       <div className="fixed left-0 bottom-0 w-full flex gap-x-5 p-5 md:p-10">
         <Button
           onClick={() => navigate({ to: "/plants" })}
-          className='hover:cursor-pointer grow md:min-h-12'>
+          className="hover:cursor-pointer grow md:min-h-12"
+        >
           Plants
           <SproutIcon className="ml-2" />
         </Button>
 
         <Button
           onClick={() => navigate({ to: "/seeds" })}
-          className='hover:cursor-pointer grow md:min-h-12'>
+          className="hover:cursor-pointer grow md:min-h-12"
+        >
           Seeds
           <BeanIcon className="ml-2" />
         </Button>
       </div>
     </div>
-  )
+  );
 }

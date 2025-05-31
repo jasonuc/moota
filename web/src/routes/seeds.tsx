@@ -1,11 +1,11 @@
-import Header from '@/components/header'
-import { Button } from '@/components/ui/button'
-import { createFileRoute } from '@tanstack/react-router'
-import { AudioLinesIcon } from 'lucide-react'
+import Header from "@/components/header";
+import { Button } from "@/components/ui/button";
+import { createFileRoute } from "@tanstack/react-router";
+import { AudioLinesIcon } from "lucide-react";
 
-export const Route = createFileRoute('/seeds')({
+export const Route = createFileRoute("/seeds")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
   const seeds = [
@@ -45,7 +45,7 @@ function RouteComponent() {
       createdAt: "2023-10-06",
       count: 2,
     },
-  ]
+  ];
 
   return (
     <div className="flex flex-col space-y-5 pb-10 w-full">
@@ -57,21 +57,23 @@ function RouteComponent() {
         {seeds.map(({ id, botanicalName, count }) => (
           <Button asChild className="relative h-36 group" key={id}>
             <div className="size-full relative">
-              <AudioLinesIcon
-                className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 left-0 rotate-45" />
-              <AudioLinesIcon
-                className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 right-0 -rotate-45" />
-              <AudioLinesIcon
-                className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 right-0 rotate-45" />
-              {!(count > 1) && <AudioLinesIcon
-                className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 left-0 -rotate-45" />}
+              <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 left-0 rotate-45" />
+              <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 right-0 -rotate-45" />
+              <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 right-0 rotate-45" />
+              {!(count > 1) && (
+                <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 left-0 -rotate-45" />
+              )}
 
-              {count > 1 && <small className="absolute left-1 -top-2 bg-background px-2 rounded-full">x{count}</small>}
+              {count > 1 && (
+                <small className="absolute left-1 -top-2 bg-background px-2 rounded-full">
+                  x{count}
+                </small>
+              )}
               <p className="italic text-wrap text-center">{botanicalName}</p>
             </div>
           </Button>
         ))}
       </div>
     </div>
-  )
+  );
 }
