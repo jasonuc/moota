@@ -11,8 +11,18 @@ dbu:
 dbd:
 	@migrate -path=$(MIGRATIONS_PATH) -database=$(DB_ADDR) -verbose down $(filter-out $@,$(MAKECMDGOALS))
 
-wdev:
-	@cd web/ && pnpm run dev
-
 ideps:
 	@cd web/ && pnpm i
+
+dev:
+	@docker compose up -d 
+	@sleep 2
+	@air &
+	@cd web && pnpm dev &
+	@caddy run --config Caddyfile.dev &
+
+stop:
+	@docker-compose down
+	-@pkill -x "air"
+	-@pkill -f "vite"
+	-@caddy stop
