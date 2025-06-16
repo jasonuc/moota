@@ -31,6 +31,11 @@ func (app *application) routes() http.Handler {
 			})
 		})
 
+		r.Route("/whoami", func(r chi.Router) {
+			r.Use(app.authMiddleware.Authorise)
+			r.Get("/", app.userHandler.HandleWhoAmI)
+		})
+
 		r.Group(func(r chi.Router) {
 			r.Use(app.authMiddleware.Authorise)
 
