@@ -34,6 +34,8 @@ type AuthService interface {
 	ChangeUserUsername(context.Context, string, dto.ChangeUsernameReq) (*models.User, error)
 	ChangeUserEmail(context.Context, string, dto.ChangeEmailReq) (*models.User, error)
 	ChangeUserPassword(context.Context, string, dto.ChangePasswordReq) (*models.User, error)
+	GetAccessTokenTTL() int
+	GetRefreshTokenTTL() int
 }
 
 type authService struct {
@@ -343,6 +345,14 @@ func (s *authService) generateAccessToken(user *models.User) (string, error) {
 	}
 
 	return accessToken, nil
+}
+
+func (s *authService) GetAccessTokenTTL() int {
+	return int(s.accessTokenTTL)
+}
+
+func (s *authService) GetRefreshTokenTTL() int {
+	return int(s.refreshTokenTTL)
 }
 
 func (s *authService) generateRefreshToken(user *models.User) (*models.RefreshToken, error) {
