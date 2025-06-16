@@ -49,8 +49,26 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    tokenPair.AccessToken,
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    tokenPair.RefreshToken,
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
 	//nolint:errcheck
-	writeJSON(w, http.StatusCreated, envelope{"user": user, "tokens": tokenPair}, nil)
+	writeJSON(w, http.StatusCreated, envelope{"user": user}, nil)
 }
 
 func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request) {
@@ -76,23 +94,41 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    tokenPair.AccessToken,
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    tokenPair.RefreshToken,
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"tokens": tokenPair}, nil)
+	writeJSON(w, http.StatusOK, nil, nil)
 }
 
 func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request) {
-	var payload dto.TokenRefreshReq
-	if err := readJSON(w, r, &payload); err != nil {
-		badRequestResponse(w, err)
+	refreshToken, err := r.Cookie("refresh_token")
+	if err != nil {
+		switch {
+		case errors.Is(err, http.ErrNoCookie):
+			http.Error(w, "unauthorised", http.StatusUnauthorized)
+		default:
+			http.Error(w, "server error", http.StatusInternalServerError)
+		}
 		return
 	}
 
-	if err := h.validator.Struct(payload); err != nil {
-		failedValidationResponse(w, err)
-		return
-	}
-
-	tokenPair, err := h.authService.RefreshTokens(r.Context(), payload)
+	tokenPair, err := h.authService.RefreshTokens(r.Context(), refreshToken)
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrInvalidRefreshToken):
@@ -105,8 +141,26 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    tokenPair.AccessToken,
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    tokenPair.RefreshToken,
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"tokens": tokenPair}, nil)
+	writeJSON(w, http.StatusOK, nil, nil)
 }
 
 func (h *AuthHandler) HandleChangeUsername(w http.ResponseWriter, r *http.Request) {
