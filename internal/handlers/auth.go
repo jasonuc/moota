@@ -144,6 +144,7 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
 		Value:    tokenPair.AccessToken,
+		MaxAge:   h.authService.GetAccessTokenTTL(),
 		Path:     "/",
 		Secure:   true,
 		HttpOnly: true,
@@ -153,6 +154,7 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    tokenPair.RefreshToken,
+		MaxAge:   h.authService.GetRefreshTokenTTL(),
 		Path:     "/",
 		Secure:   true,
 		HttpOnly: true,
@@ -264,4 +266,29 @@ func (h *AuthHandler) HandleChangeEmail(w http.ResponseWriter, r *http.Request) 
 
 	//nolint:errcheck
 	writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
+}
+
+func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
+	//nolint:errcheck
+	writeJSON(w, http.StatusOK, nil, nil)
 }
