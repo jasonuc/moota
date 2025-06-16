@@ -1,8 +1,8 @@
 package middlewares
 
 import (
+	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jasonuc/moota/internal/contextkeys"
@@ -26,20 +26,23 @@ func NewAuthMiddleware(authService services.AuthService) AuthMiddleware {
 
 func (m *authMiddleware) Authorise(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authorizationHeader := r.Header.Get("Authorization")
+		accessToken, err := r.Cookie("access_token")
 
-		if authorizationHeader == "" || !strings.HasPrefix(authorizationHeader, "Bearer ") {
+		if err != nil {
+			switch {
+			case errors.Is(err, http.ErrNoCookie):
+			default:
+				http.Error(w, "unauthorised", http.StatusUnauthorized)
+			}
+			return
+		}
+
+		if accessToken.Value == "" {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 
-		accessToken := strings.TrimSpace(strings.TrimPrefix(authorizationHeader, "Bearer "))
-		if accessToken == "" {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		userID, err := m.authService.VerifyAccessToken(r.Context(), accessToken)
+		userID, err := m.authService.VerifyAccessToken(r.Context(), accessToken.Value)
 		if err != nil {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
