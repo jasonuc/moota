@@ -11,10 +11,6 @@ type UserLoginReq struct {
 	Password string `json:"password" validate:"required"`
 }
 
-type TokenRefreshReq struct {
-	RefreshToken string `json:"refreshToken" validate:"required,base64rawurl"`
-}
-
 type ChangeUsernameReq struct {
 	NewUsername string `json:"newUsername" validate:"required"`
 }

@@ -128,7 +128,7 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	tokenPair, err := h.authService.RefreshTokens(r.Context(), refreshToken)
+	tokenPair, err := h.authService.RefreshTokens(r.Context(), refreshToken.Value)
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrInvalidRefreshToken):
