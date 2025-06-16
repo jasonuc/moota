@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -29,11 +28,7 @@ func (m *authMiddleware) Authorise(next http.Handler) http.Handler {
 		accessToken, err := r.Cookie("access_token")
 
 		if err != nil {
-			switch {
-			case errors.Is(err, http.ErrNoCookie):
-			default:
-				http.Error(w, "unauthorised", http.StatusUnauthorized)
-			}
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 
