@@ -18,7 +18,9 @@ dev:
 	@docker compose up -d 
 	@sleep 2
 	@air &
+	@sleep 2
 	@cd web && pnpm dev &
+	@sleep 2
 	@caddy run --config Caddyfile.dev &
 
 stop:
