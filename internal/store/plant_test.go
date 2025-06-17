@@ -61,14 +61,14 @@ func TestPlantStore(t *testing.T) {
 	ownerID := "00000000-0000-4000-a000-000000000001"
 
 	t.Run("GetByOwnerID", func(t *testing.T) {
-		plants, err := store.GetByOwnerID(context.Background(), ownerID, false)
+		plants, err := store.GetByOwnerID(context.Background(), ownerID, &GetPlantsOpts{})
 		assert.NoError(t, err, "unexpected error")
 		assert.Len(t, plants, 5, "expected 5 plants")
 	})
 
 	t.Run("Get", func(t *testing.T) {
 		var plantID = "00000000-0000-4000-a000-000000000201"
-		plant, err := store.Get(context.Background(), plantID, false)
+		plant, err := store.Get(context.Background(), plantID, &GetPlantsOpts{})
 		assert.NoError(t, err, "unexpected error")
 		assert.Equalf(t, plantID, plant.ID, "expected plant ID %s, got %s", plantID, plant.ID)
 	})
@@ -124,7 +124,7 @@ func TestPlantStore(t *testing.T) {
 		err := store.ActivatePlant(context.Background(), plantID)
 		assert.NoError(t, err, "unexpected error")
 
-		plant, err := store.Get(context.Background(), plantID, false)
+		plant, err := store.Get(context.Background(), plantID, &GetPlantsOpts{})
 		assert.NoError(t, err, "unexpected error")
 		assert.True(t, plant.Activated, "expected plant to be activated")
 	})
@@ -145,28 +145,28 @@ func TestPlantStore(t *testing.T) {
 	t.Run("Update", func(t *testing.T) {
 		t.Run("Update Plant xp", func(t *testing.T) {
 			plantID := "00000000-0000-4000-a000-000000000201"
-			plant, err := store.Get(context.Background(), plantID, false)
+			plant, err := store.Get(context.Background(), plantID, &GetPlantsOpts{})
 			assert.NoError(t, err, "unexpected error")
 
 			plant.XP += 10
 			err = store.Update(context.Background(), plant)
 			assert.NoError(t, err, "unexpected error")
 
-			updatedPlant, err := store.Get(context.Background(), plantID, false)
+			updatedPlant, err := store.Get(context.Background(), plantID, &GetPlantsOpts{})
 			assert.NoError(t, err, "unexpected error")
 			assert.Equal(t, plant.XP, updatedPlant.XP, "expected plant XP to be updated")
 		})
 
 		t.Run("Update Plant nickname", func(t *testing.T) {
 			plantID := "00000000-0000-4000-a000-000000000201"
-			plant, err := store.Get(context.Background(), plantID, false)
+			plant, err := store.Get(context.Background(), plantID, &GetPlantsOpts{})
 			assert.NoError(t, err, "unexpected error")
 
 			plant.Nickname = "Nickname"
 			err = store.Update(context.Background(), plant)
 			assert.NoError(t, err, "unexpected error")
 
-			updatedPlant, err := store.Get(context.Background(), plantID, false)
+			updatedPlant, err := store.Get(context.Background(), plantID, &GetPlantsOpts{})
 			assert.NoError(t, err, "unexpected error")
 			assert.Equal(t, plant.Nickname, updatedPlant.Nickname, "expected plant nickname to be updated")
 		})
@@ -177,7 +177,7 @@ func TestPlantStore(t *testing.T) {
 		err := store.Delete(context.Background(), plantID)
 		assert.NoError(t, err, "unexpected error")
 
-		_, err = store.Get(context.Background(), plantID, false)
+		_, err = store.Get(context.Background(), plantID, &GetPlantsOpts{})
 		assert.Error(t, err, "expected plant to be deleted, but it was found")
 	})
 }
