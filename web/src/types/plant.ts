@@ -4,7 +4,8 @@ import { Soil } from "./soil";
 type Plant = {
   id: string;
   nickname: string;
-  Hp: number;
+  botanicalName: string;
+  hp: number;
   dead: boolean;
   activated: boolean;
   ownerID: string;
@@ -23,4 +24,8 @@ type Tempers = {
   dread: number;
 };
 
-export type { Plant };
+type PlantWithDistanceMFromUser = Plant & {
+  distanceM?: number;
+};
+
+export type { Plant, PlantWithDistanceMFromUser };

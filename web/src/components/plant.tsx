@@ -1,4 +1,3 @@
-import { Heart, LocateFixed } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -6,23 +5,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "./ui/button";
+import { formatDistance } from "@/lib/utils";
+import type { PlantWithDistanceMFromUser } from "@/types/plant";
+import { Heart, LocateFixed } from "lucide-react";
 import { Link } from "react-router";
+import { Button } from "./ui/button";
 
-type PlantProps = {
-  id: string;
-  nickname: string;
-  botanicalName: string;
-  hp: number;
-  distance: number;
-};
+type PlantProps = PlantWithDistanceMFromUser;
 
 export default function Plant({
   id,
   nickname,
   botanicalName,
   hp,
-  distance,
+  distanceM,
 }: PlantProps) {
   return (
     <Link to={`/plants/${id}`}>
@@ -35,7 +31,7 @@ export default function Plant({
             </div>
             <div className="flex items-center gap-x-1.5">
               <LocateFixed size={15} />
-              {distance}m
+              {formatDistance(distanceM!)}
             </div>
           </CardContent>
           <CardHeader className="w-full p-0 pb-3">

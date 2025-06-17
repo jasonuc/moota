@@ -1,19 +1,14 @@
-import Plant from "./plant";
+import { PlantWithDistanceMFromUser } from "@/types/plant";
 import { Link } from "react-router";
+import Plant from "./plant";
 import { Button } from "./ui/button";
 
 type PlantProps = {
   maxPlants?: number;
-  plants: {
-    id: string;
-    nickname: string;
-    botanicalName: string;
-    hp: number;
-    distance: number;
-  }[];
+  plants: PlantWithDistanceMFromUser[] | undefined;
 };
 
-export default function PlantsList({ plants, maxPlants = 4 }: PlantProps) {
+export default function PlantsList({ plants = [], maxPlants = 4 }: PlantProps) {
   return (
     <div className="flex flex-col grow">
       {plants.length ? (

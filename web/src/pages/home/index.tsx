@@ -1,47 +1,35 @@
 import Header from "@/components/header";
 import PlantsList from "@/components/plants-list";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { getUserNearbyPlants } from "@/services/api/plants";
+import { PlantWithDistanceMFromUser } from "@/types/plant";
+import { useGeolocation } from "@uidotdev/usehooks";
 import { BeanIcon, SproutIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 export default function HomePage() {
-  const seedCount = 10;
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { latitude, longitude } = useGeolocation();
+  const [nearbyPlants, setNearbyPlants] = useState<
+    PlantWithDistanceMFromUser[] | undefined
+  >();
 
-  const nearbyPlants = [
-    {
-      id: "1",
-      nickname: "Fernie",
-      botanicalName: "Neoregalia Fosteriana",
-      hp: 70,
-      distance: 50,
-    },
-    {
-      id: "2",
-      nickname: "Leafy",
-      botanicalName: "Spathiphyllum Wallisii",
-      hp: 60,
-      distance: 100,
-    },
-    {
-      id: "3",
-      nickname: "Zoogarte",
-      botanicalName: "Ficus elastica",
-      hp: 80,
-      distance: 150,
-    },
-    {
-      id: "4",
-      nickname: "Sproutlet",
-      botanicalName: "Monstera deliciosa",
-      hp: 50,
-      distance: 200,
-    },
-  ];
+  useEffect(() => {
+    if (!user?.id || !latitude || !longitude) {
+      return;
+    }
+
+    getUserNearbyPlants(user.id, latitude, longitude)
+      .then(setNearbyPlants)
+      .catch(console.error);
+  }, [user?.id, latitude, longitude]);
 
   return (
     <div className="flex flex-col space-y-5 grow">
-      <Header seedCount={seedCount} />
+      <Header seedCount={10} />
 
       <h1 className="text-3xl font-heading mb-5">My Nearby Plants</h1>
 
