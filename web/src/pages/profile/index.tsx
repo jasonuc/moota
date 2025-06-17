@@ -1,13 +1,41 @@
 import Header from "@/components/header";
+import { getUserProfile } from "@/services/api/user";
+import { UserProfile } from "@/types/user";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
+// TODO: This page needs work maybe I add a detailed section of the user's stats
 export default function ProfilePage() {
+  const [profile, setProfile] = useState<UserProfile>();
   const { username } = useParams();
-  const level = 4;
-  const title = "The citrus mage";
-  const plantsAlive = 6;
-  const plantsDead = 6;
-  const seedCount = 5;
+
+  const noTitleMessages = [
+    "has no title",
+    `is yet to learn the ways of the plant`,
+    `is still finding their roots`,
+    `hasn't bloomed yet`,
+    `is a seedling in training`,
+    `is cultivating their potential`,
+    `needs more sunlight`,
+    `is working on their green thumb`,
+    `is branching out slowly`,
+    `is photosynthesizing their skills`,
+    `is still germinating`,
+    `is pruning their abilities`,
+    `hasn't found their soil yet`,
+    `is a work in progress`,
+    `is planting seeds of knowledge`,
+    `is watering their dreams`,
+    `is rooting for themselves`,
+    `is growing at their own pace`,
+    `is composting their mistakes`,
+  ];
+  useEffect(() => {
+    getUserProfile(username!).then((data) => {
+      console.log(data);
+      setProfile(data);
+    });
+  }, [username]);
 
   return (
     <div className="flex flex-col space-y-5 grow">
@@ -22,9 +50,23 @@ export default function ProfilePage() {
 
         <div>
           <h1 className="text-2xl font-bold">{`@${username}`}</h1>
-          {/* <p className='italic'>Untitled <span className='text-gray-600 not-italic'>{" - User has no title"}</span></p> */}
-          <p className="italic">{title}</p>
-          <h3 className="text-xl font-semibold mt-1.5">Level {level}</h3>
+          {!profile?.title && (
+            <p className="italic">
+              Untitled{" "}
+              <span className="text-gray-600 not-italic">
+                {" - "}
+                {`This user ${
+                  noTitleMessages[
+                    Math.floor(Math.random() * noTitleMessages.length)
+                  ]
+                }`}
+              </span>
+            </p>
+          )}
+          <p className="italic">{profile?.title}</p>
+          <h3 className="text-xl font-semibold mt-1.5">
+            Level {profile?.level}
+          </h3>
         </div>
 
         <div className="flex justify-between items-center space-y-2">
@@ -37,7 +79,7 @@ export default function ProfilePage() {
               />
               <h2>🌿</h2>
             </div>
-            <p>{plantsAlive}</p>
+            <p>{profile?.plantCount.alive}</p>
           </div>
 
           <div className="flex flex-col items-center justify-between space-y-2">
@@ -49,7 +91,7 @@ export default function ProfilePage() {
               />
               <h2>🪦</h2>
             </div>
-            <p>{plantsDead}</p>
+            <p>{profile?.plantCount.deceased}</p>
           </div>
 
           <div className="flex flex-col items-center justify-between space-y-2">
@@ -61,7 +103,7 @@ export default function ProfilePage() {
               />
               <h2>🫘</h2>
             </div>
-            <p>{seedCount}</p>
+            <p>{profile?.seedCount.unused}</p>
           </div>
         </div>
       </div>
