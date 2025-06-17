@@ -2,14 +2,13 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/jasonuc/moota/internal/dto"
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/services"
+	"github.com/jasonuc/moota/internal/store"
 )
 
 type PlantHandler struct {
@@ -25,31 +24,19 @@ func NewPlantService(plantService services.PlantService) *PlantHandler {
 }
 
 func (h *PlantHandler) HandleGetAllUserPlants(w http.ResponseWriter, r *http.Request) {
-	var lon, lat float64
-
-	lonStr, err := readQueryParam(r, "lon")
+	lon, err := readFloatQueryParam(r, "lon")
 	if err != nil {
 		badRequestResponse(w, err)
 		return
 	}
 
-	latStr, err := readQueryParam(r, "lat")
-	if err != nil {
-		badRequestResponse(w, fmt.Errorf("missing query param: lon"))
-		return
-	}
-
-	lat, err = strconv.ParseFloat(latStr, 64)
+	lat, err := readFloatQueryParam(r, "lat")
 	if err != nil {
 		badRequestResponse(w, err)
 		return
 	}
 
-	lon, err = strconv.ParseFloat(lonStr, 64)
-	if err != nil {
-		badRequestResponse(w, err)
-		return
-	}
+	userCoords := &models.Coordinates{Lat: lat, Lon: lon}
 
 	userID, err := readStringReqParam(r, "userID")
 	if err != nil {
@@ -57,7 +44,10 @@ func (h *PlantHandler) HandleGetAllUserPlants(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	plants, err := h.plantService.GetAllUserPlants(r.Context(), userID, &models.Coordinates{Lat: lat, Lon: lon})
+	includeInactive := readBoolQueryParam(r, "includeInactive")
+	IncludeDeceased := readBoolQueryParam(r, "includeDeceased")
+
+	plants, err := h.plantService.GetAllUserPlants(r.Context(), userID, userCoords, &store.GetPlantsOpts{IncludeDeceased: IncludeDeceased, IncludeInactive: includeInactive})
 	if err != nil {
 		serverErrorResponse(w, err)
 		return

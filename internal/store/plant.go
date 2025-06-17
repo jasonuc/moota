@@ -9,8 +9,8 @@ import (
 )
 
 type PlantStore interface {
-	Get(context.Context, string, bool) (*models.Plant, error)
-	GetByOwnerID(context.Context, string, bool) ([]*models.Plant, error)
+	Get(context.Context, string, *GetPlantsOpts) (*models.Plant, error)
+	GetByOwnerID(context.Context, string, *GetPlantsOpts) ([]*models.Plant, error)
 	GetCountByUsername(context.Context, string) (*models.PlantCount, error)
 	GetBySoilIDAndProximity(context.Context, string, models.Coordinates, float64) ([]*models.Plant, error)
 	GetByOwnerIDAndProximity(context.Context, string, models.Coordinates) ([]*models.Plant, error)
@@ -24,11 +24,16 @@ type plantStore struct {
 	db Querier
 }
 
+type GetPlantsOpts struct {
+	IncludeDeceased bool
+	IncludeInactive bool
+}
+
 func (s *plantStore) GetCountByUsername(ctx context.Context, userID string) (*models.PlantCount, error) {
 	q := `SELECT p.dead, count(*) AS plant_count FROM plants p
 			JOIN users u ON p.owner_id = u.id
 			WHERE u.username = $1 AND p.activated = true
-			GROUP BY p.dead ORDER BY p.dead ASC;` // so alive count always comes first and dead count comes second
+			GROUP BY p.dead ORDER BY p.dead ASC;`
 
 	plantCount := new(models.PlantCount)
 
@@ -156,14 +161,25 @@ func (s *plantStore) GetBySoilIDAndProximity(ctx context.Context, soilID string,
 	return plants, nil
 }
 
-func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string, includeDeceased bool) ([]*models.Plant, error) {
-	var deadEqualsFalseClause string
-	if !includeDeceased {
-		deadEqualsFalseClause = "AND dead = false"
+func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string, opts *GetPlantsOpts) ([]*models.Plant, error) {
+	fmt.Printf("%+v\n", opts)
+
+	q := `SELECT id, nickname, hp, dead, owner_id, time_planted, last_watered_time, 
+         last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, 
+         optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, 
+         activated, time_of_death 
+		FROM plants
+		WHERE owner_id = $1`
+
+	if !opts.IncludeInactive {
+		q += ` AND activated = true`
 	}
 
-	q := fmt.Sprintf(`SELECT id, nickname, hp, dead, owner_id, time_planted, last_watered_time, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, activated, time_of_death FROM plants
-			WHERE owner_id = $1 AND activated = true %s;`, deadEqualsFalseClause)
+	if !opts.IncludeDeceased {
+		q += ` AND dead = false`
+	}
+
+	fmt.Println(q)
 
 	rows, err := s.db.QueryContext(ctx, q, ownerID)
 	if err != nil {
@@ -208,18 +224,13 @@ func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string, includeDe
 	return plants, nil
 }
 
-func (s *plantStore) Get(ctx context.Context, id string, includeDeceased bool) (*models.Plant, error) {
-	var deadEqualsFalseClause string
-	if !includeDeceased {
-		deadEqualsFalseClause = "AND p.dead = false"
-	}
-
-	q := fmt.Sprintf(`SELECT 
+func (s *plantStore) Get(ctx context.Context, id string, opts *GetPlantsOpts) (*models.Plant, error) {
+	q := `SELECT 
 			p.id, p.nickname, p.hp, p.dead, p.owner_id, p.time_planted, p.last_watered_time, p.last_action_time, ST_AsText(p.centre), 
 			p.radius_m, p.soil_id, p.optimal_soil, p.botanical_name, p.level, p.xp, p.woe, p.frolic, p.dread, p.malice, p.activated, 
 			ST_AsText(s.centre), s.radius_m, s.soil_type, s.water_retention, s.nutrient_richness, s.created_at, p.time_of_death
 			FROM plants p JOIN soils s ON p.soil_id = s.id
-			WHERE p.id = $1 %s;`, deadEqualsFalseClause)
+			WHERE p.id = $1 AND (activated = true OR activated = $2) AND (dead = false OR dead = $3);`
 
 	var plantCentreText string
 	var plantRadiusM float64
@@ -230,7 +241,7 @@ func (s *plantStore) Get(ctx context.Context, id string, includeDeceased bool) (
 	plant.Soil = new(models.Soil)
 	plant.Tempers = new(models.Tempers)
 
-	err := s.db.QueryRowContext(ctx, q, id).Scan(
+	err := s.db.QueryRowContext(ctx, q, id, opts.IncludeInactive, opts.IncludeDeceased).Scan(
 		&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
 		&plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime, &plantCentreText,
 		&plantRadiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.XP,

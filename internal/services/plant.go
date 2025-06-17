@@ -12,7 +12,7 @@ import (
 )
 
 type PlantService interface {
-	GetAllUserPlants(context.Context, string, *models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error)
+	GetAllUserPlants(context.Context, string, *models.Coordinates, *store.GetPlantsOpts) ([]*models.PlantWithDistanceMFromUser, error)
 	ActionOnPlant(context.Context, string, dto.ActionOnPlantReq) (*models.Plant, error)
 	GetPlant(context.Context, string) (*models.Plant, error)
 	CreatePlant(context.Context, *models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
@@ -51,7 +51,7 @@ var (
 	ErrPlantNotActivated                         = errors.New("plant not activated")
 )
 
-func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto *models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
+func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto *models.Coordinates, opts *store.GetPlantsOpts) ([]*models.PlantWithDistanceMFromUser, error) {
 	coords := models.Coordinates{Lat: dto.Lat, Lon: dto.Lon}
 
 	transaction, err := s.store.Begin()
@@ -63,7 +63,7 @@ func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto 
 
 	tx := s.store.WithTx(transaction)
 
-	plants, err := tx.Plant.GetByOwnerID(ctx, userID, false)
+	plants, err := tx.Plant.GetByOwnerID(ctx, userID, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (s *plantService) GetPlant(ctx context.Context, plantID string) (*models.Pl
 
 	tx := s.store.WithTx(transaction)
 
-	plant, err := tx.Plant.Get(ctx, plantID, false)
+	plant, err := tx.Plant.Get(ctx, plantID, &store.GetPlantsOpts{})
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (s *plantService) ActivatePlant(ctx context.Context, plantID string) (*mode
 	defer transaction.Rollback()
 	tx := s.store.WithTx(transaction)
 
-	plant, err := tx.Plant.Get(ctx, plantID, false)
+	plant, err := tx.Plant.Get(ctx, plantID, &store.GetPlantsOpts{})
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ func (s *plantService) ActivatePlant(ctx context.Context, plantID string) (*mode
 		return nil, err
 	}
 
-	return s.store.Plant.Get(ctx, plant.ID, false)
+	return s.store.Plant.Get(ctx, plant.ID, &store.GetPlantsOpts{})
 }
 
 func (s *plantService) CreatePlant(ctx context.Context, soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
@@ -232,7 +232,7 @@ func (s *plantService) ActionOnPlant(ctx context.Context, plantID string, dto dt
 }
 
 func (s *plantService) GetAllUserDeceasedPlants(ctx context.Context, userID string) ([]*models.Plant, error) {
-	allUserPlants, err := s.store.Plant.GetByOwnerID(ctx, userID, true)
+	allUserPlants, err := s.store.Plant.GetByOwnerID(ctx, userID, &store.GetPlantsOpts{IncludeDeceased: true})
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +262,7 @@ func (s *plantService) ChangePlantNickname(ctx context.Context, plantID string, 
 
 	tx := s.store.WithTx(transaction)
 
-	plant, err := tx.Plant.Get(ctx, plantID, false)
+	plant, err := tx.Plant.Get(ctx, plantID, &store.GetPlantsOpts{})
 	if err != nil {
 		return nil, err
 	}
@@ -302,7 +302,7 @@ func (s *plantService) KillPlant(ctx context.Context, id string) error {
 
 	tx := s.store.WithTx(transaction)
 
-	plant, err := tx.Plant.Get(ctx, id, false)
+	plant, err := tx.Plant.Get(ctx, id, &store.GetPlantsOpts{})
 	if err != nil {
 		return err
 	}
