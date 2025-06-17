@@ -1,6 +1,7 @@
 import Footer from "@/components/footer";
 import { LogoWithText } from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import UserButton from "@/components/user-button";
 import { useAuth } from "@/hooks/use-auth";
 import {
   CompassIcon,
@@ -83,6 +84,9 @@ export default function LandingPage() {
                 </Button>
               </Link>
             )}
+
+            {isLoggedIn && <UserButton />}
+
             {!isLoggedIn && (
               <Link to="/login">
                 <Button className="bg-main text-main-foreground border-2 border-border hover:bg-secondary-background hover:text-foreground transition-all duration-300 font-medium rounded-[10px] shadow-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none">
