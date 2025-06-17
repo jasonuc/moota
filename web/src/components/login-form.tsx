@@ -1,6 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -11,7 +8,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/use-auth";
 import { loginFormSchema } from "@/schemas/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 export default function LoginForm() {
   const form = useForm<z.infer<typeof loginFormSchema>>({
@@ -22,8 +23,10 @@ export default function LoginForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof loginFormSchema>) {
-    console.log({ ...values, password: "" });
+  const { login, isLoading } = useAuth();
+
+  async function onSubmit(values: z.infer<typeof loginFormSchema>) {
+    await login(values);
   }
 
   return (
@@ -61,7 +64,7 @@ export default function LoginForm() {
           )}
         />
 
-        <Button type="submit" className="w-full">
+        <Button disabled={isLoading} type="submit" className="w-full">
           Login
         </Button>
       </form>
