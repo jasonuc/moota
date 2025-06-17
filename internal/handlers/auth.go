@@ -11,14 +11,16 @@ import (
 )
 
 type AuthHandler struct {
-	authService services.AuthService
-	validator   *validator.Validate
+	authService  services.AuthService
+	validator    *validator.Validate
+	cookieDomain string
 }
 
-func NewAuthHandler(authService services.AuthService) *AuthHandler {
+func NewAuthHandler(authService services.AuthService, cookieDomain string) *AuthHandler {
 	return &AuthHandler{
-		authService: authService,
-		validator:   validator.New(),
+		authService:  authService,
+		validator:    validator.New(),
+		cookieDomain: cookieDomain,
 	}
 }
 
@@ -55,6 +57,7 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 		Path:     "/",
 		Secure:   true,
 		HttpOnly: true,
+		Domain:   h.cookieDomain,
 		SameSite: http.SameSiteStrictMode,
 	})
 
@@ -64,6 +67,7 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 		Path:     "/",
 		Secure:   true,
 		HttpOnly: true,
+		Domain:   h.cookieDomain,
 		SameSite: http.SameSiteStrictMode,
 	})
 
@@ -99,6 +103,7 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 		Value:    tokenPair.AccessToken,
 		Path:     "/",
 		Secure:   true,
+		Domain:   h.cookieDomain,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 	})
@@ -108,6 +113,7 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 		Value:    tokenPair.RefreshToken,
 		Path:     "/",
 		Secure:   true,
+		Domain:   h.cookieDomain,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 	})
@@ -147,6 +153,7 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 		MaxAge:   h.authService.GetAccessTokenTTL(),
 		Path:     "/",
 		Secure:   true,
+		Domain:   h.cookieDomain,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 	})
@@ -156,6 +163,7 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 		Value:    tokenPair.RefreshToken,
 		MaxAge:   h.authService.GetRefreshTokenTTL(),
 		Path:     "/",
+		Domain:   h.cookieDomain,
 		Secure:   true,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
@@ -274,6 +282,7 @@ func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		Path:     "/",
 		MaxAge:   -1,
+		Domain:   h.cookieDomain,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
@@ -284,6 +293,7 @@ func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		Path:     "/",
 		MaxAge:   -1,
+		Domain:   h.cookieDomain,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,

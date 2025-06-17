@@ -22,6 +22,7 @@ type config struct {
 		accessTokenTTL    time.Duration
 		refreshTokenTTL   time.Duration
 		issuer            string
+		cookieDomain      string
 	}
 }
 
@@ -41,6 +42,7 @@ func parseConfig() config {
 	cfg.auth.accessTokenTTL = getTimeDurationEnv("AUTH_ACCESS_TOKEN_TTL", 24*time.Hour)
 	cfg.auth.refreshTokenTTL = getTimeDurationEnv("AUTH_REFRESH_TOKEN_TTL", 7*24*time.Hour)
 	cfg.auth.issuer = getStringEnv("AUTH_ISSUER", "moota")
+	cfg.auth.cookieDomain = getStringEnv("AUTH_COOKIE_DOMAIN", ".moota.localhost")
 
 	return cfg
 }
