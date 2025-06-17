@@ -1,46 +1,36 @@
 import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { getUserSeeds, plantSeed } from "@/services/api/seeds";
+import { Seed, SeedGroup } from "@/types/seed";
+import { useGeolocation } from "@uidotdev/usehooks";
 import { AudioLinesIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function SeedsPage() {
-  const seeds = [
-    {
-      id: 1,
-      botanicalName: "Neoregalia Fosteriana",
-      createdAt: "2023-10-01",
-      count: 3,
-    },
-    {
-      id: 2,
-      botanicalName: "Spathiphyllum Wallisii",
-      createdAt: "2023-10-02",
-      count: 1,
-    },
-    {
-      id: 3,
-      botanicalName: "Ficus elastica",
-      createdAt: "2023-10-03",
-      count: 1,
-    },
-    {
-      id: 4,
-      botanicalName: "Monstera deliciosa",
-      createdAt: "2023-10-04",
-      count: 2,
-    },
-    {
-      id: 5,
-      botanicalName: "Aloe Vera",
-      createdAt: "2023-10-05",
-      count: 1,
-    },
-    {
-      id: 6,
-      botanicalName: "Cactus",
-      createdAt: "2023-10-06",
-      count: 2,
-    },
-  ];
+  const [seeds, setSeeds] = useState<SeedGroup[] | undefined>();
+  const { user } = useAuth();
+  const { latitude, longitude } = useGeolocation();
+
+  useEffect(() => {
+    if (!user?.id) {
+      return;
+    }
+
+    getUserSeeds(user.id)
+      .then(setSeeds)
+      .catch((error) => console.error(error));
+  }, [user?.id]);
+
+  const decideSeedToPlant = async (count: number, seeds: Seed[]) => {
+    const seedToPlant = seeds[Math.floor(Math.random() * count)];
+
+    plantSeed(seedToPlant.id, latitude!, longitude!).then(() =>
+      getUserSeeds(user!.id)
+        .then(setSeeds)
+        .catch((error) => console.error(error))
+    );
+  };
 
   return (
     <div className="flex flex-col space-y-5 pb-10 w-full">
@@ -49,8 +39,13 @@ export default function SeedsPage() {
       <h1 className="text-3xl font-heading mb-5">My Seeds</h1>
 
       <div className="grid grid-cols-3 md:grid-cols-4 gap-5">
-        {seeds.map(({ id, botanicalName, count }) => (
-          <Button asChild className="relative h-36 group" key={id}>
+        {seeds?.map(({ botanicalName, count, seeds }) => (
+          <Button
+            asChild
+            className="relative h-36 group"
+            key={botanicalName}
+            onClick={() => decideSeedToPlant(count, seeds)}
+          >
             <div className="size-full relative">
               <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 left-0 rotate-45" />
               <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 right-0 -rotate-45" />
