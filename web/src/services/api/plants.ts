@@ -1,4 +1,4 @@
-import { PlantWithDistanceMFromUser } from "@/types/plant";
+import { Plant, PlantWithDistanceMFromUser } from "@/types/plant";
 import { ax } from "./index";
 
 export const getUserNearbyPlants = async (
@@ -28,3 +28,22 @@ export const getAllUserPlants = async (
       }
     )
   ).data.plants;
+
+export const getPlant = async (plantId: string) =>
+  (await ax.get<{ plant: Plant }>(`/plants/${plantId}`)).data.plant;
+
+export const killPlant = async (plantId: string) =>
+  (await ax.post(`/plants/${plantId}/kill`)).status;
+
+export const waterPlant = async (
+  plantId: string,
+  latitude: number,
+  longitude: number
+) =>
+  (
+    await ax.post<{ plant: Plant }>(`plants/${plantId}/action`, {
+      latitude,
+      longitude,
+      action: 1,
+    })
+  ).data;
