@@ -7,6 +7,7 @@ import (
 	"io"
 	"maps"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -20,12 +21,40 @@ func readStringReqParam(r *http.Request, key string) (string, error) {
 	return value, nil
 }
 
-func readQueryParam(r *http.Request, key string) (string, error) {
+// func readStringQueryParam(r *http.Request, key string) (string, error) {
+// 	value := r.URL.Query().Get(key)
+// 	if value == "" {
+// 		return "", fmt.Errorf("missing required query param: %s", key)
+// 	}
+// 	return value, nil
+// }
+
+func readFloatQueryParam(r *http.Request, key string) (float64, error) {
 	value := r.URL.Query().Get(key)
 	if value == "" {
-		return "", fmt.Errorf("missing required query param: %s", key)
+		return 0, fmt.Errorf("missing required query param: %s", key)
 	}
-	return value, nil
+
+	floatVal, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return floatVal, nil
+}
+
+func readBoolQueryParam(r *http.Request, key string) bool {
+	value := r.URL.Query().Get(key)
+	if value == "" {
+		return false
+	}
+
+	boolValue, err := strconv.ParseBool(value)
+	if err != nil {
+		return false
+	}
+
+	return boolValue
 }
 
 type envelope map[string]any
