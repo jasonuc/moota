@@ -1,7 +1,12 @@
 import { LogoWithText } from "@/components/logo";
-import { Link, Outlet } from "react-router";
+import { useAuth } from "@/hooks/use-auth";
+import { Link, Navigate, Outlet } from "react-router";
 
 function AuthLayout() {
+  const { isLoggedIn } = useAuth();
+
+  if (!isLoggedIn) return <Navigate to={"/home"} />;
+
   return (
     <div className="w-full flex flex-col gap-y-10">
       <div className="">
