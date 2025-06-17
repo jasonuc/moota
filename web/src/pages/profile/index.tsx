@@ -11,7 +11,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col space-y-5 grow">
-      <Header seedCount={10} />
+      <Header />
 
       <div className="flex flex-col space-y-5 w-full max-w-md mx-auto">
         <img

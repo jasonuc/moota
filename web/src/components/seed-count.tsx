@@ -1,7 +1,7 @@
 import { HexagonIcon } from "lucide-react";
 
 type SeedCountProps = {
-  number: number;
+  number?: number;
   size: number;
 };
 

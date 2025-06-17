@@ -7,7 +7,6 @@ import { useGeolocation } from "@uidotdev/usehooks";
 import { useEffect, useState } from "react";
 
 export default function AllUserPlantsPage() {
-  const seedCount = 10;
   const { user } = useAuth();
   const { latitude, longitude } = useGeolocation();
   const [plants, setPlants] = useState<
@@ -26,7 +25,7 @@ export default function AllUserPlantsPage() {
 
   return (
     <div className="flex flex-col space-y-5 pb-10 grow">
-      <Header seedCount={seedCount} />
+      <Header />
 
       <h1 className="text-3xl font-heading mb-5">
         My Plants ({plants?.length})

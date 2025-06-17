@@ -29,7 +29,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col space-y-5 grow">
-      <Header seedCount={10} />
+      <Header />
 
       <h1 className="text-3xl font-heading mb-5">My Nearby Plants</h1>
 

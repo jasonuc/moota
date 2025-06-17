@@ -61,7 +61,7 @@ export default function IndividualPlantPage() {
 
   return (
     <div className="flex flex-col space-y-5 grow">
-      <Header seedCount={10} />
+      <Header />
 
       <div className="grid md:flex grid-cols-2 md:justify-center md:items-center gap-x-10">
         <img
