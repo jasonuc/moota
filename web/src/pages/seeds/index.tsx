@@ -8,7 +8,7 @@ import { AudioLinesIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function SeedsPage() {
-  const [seeds, setSeeds] = useState<SeedGroup[] | undefined>();
+  const [seeds, setSeeds] = useState<SeedGroup[]>();
   const { user } = useAuth();
   const { latitude, longitude } = useGeolocation();
 
