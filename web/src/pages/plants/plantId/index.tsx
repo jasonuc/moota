@@ -2,18 +2,61 @@ import Header from "@/components/header";
 import PlantMap from "@/components/plant-map";
 import PlantTempers from "@/components/plant-tempers";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { getPlant, killPlant, waterPlant } from "@/services/api/plants";
+import { Plant } from "@/types/plant";
+import { useGeolocation } from "@uidotdev/usehooks";
+import { formatDate, isValid, parseJSON } from "date-fns";
 import { DropletIcon, MenuIcon, SkullIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 
-// TODO: This component should run an auth check so other non-owners do not have access to this page or at least not in it's entirety
 export default function IndividualPlantPage() {
-  const { id, nickname, botanicalName, level, plantedAt, soilType, hp } = {
-    id: "1",
-    nickname: "Sproutlet",
-    botanicalName: "Monstera deliciosa",
-    level: 3,
-    soilType: "Loam",
-    hp: 78,
-    plantedAt: "12/02/24",
+  const params = useParams();
+  const navigate = useNavigate();
+  const [plant, setPlant] = useState<Plant | null>(null);
+  const { user } = useAuth();
+  const { latitude, longitude } = useGeolocation();
+
+  useEffect(() => {
+    if (params.plantId) {
+      getPlant(params.plantId)
+        .then((data) => {
+          if (data.ownerID != user?.id) {
+            navigate("/home");
+            return;
+          }
+          setPlant(data);
+        })
+        .catch(console.error);
+    }
+  }, [params.plantId, navigate, user?.id]);
+
+  const formatPlantDate = (dateString: string | undefined) => {
+    if (!dateString) return "Unknown";
+
+    try {
+      const date = parseJSON(dateString);
+      return isValid(date) ? formatDate(date, "dd/MM/yy") : "Invalid date";
+    } catch {
+      return "Invalid date";
+    }
+  };
+
+  const handleKillPlant = () => {
+    //TODO: Make a better UX for this
+    const confirmed = window.confirm(
+      "Are you sure you want to kill this plant?"
+    );
+    if (confirmed) {
+      killPlant(plant!.id).then(() => navigate("/plants"));
+    }
+  };
+
+  const handleWaterPlant = () => {
+    waterPlant(plant!.id, latitude!, longitude!).then(() => {
+      getPlant(params.plantId!).then(setPlant).catch(console.error);
+    });
   };
 
   return (
@@ -26,35 +69,42 @@ export default function IndividualPlantPage() {
           width={200}
           height={200}
           draggable={false}
-          src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${id}&backgroundColor=${"transparent"}&shapeRotation=-20`}
+          src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${plant?.id}&backgroundColor=transparent&shapeRotation=-20`}
+          alt={`Avatar for ${plant?.nickname}`}
         />
 
         <div className="flex flex-col items-center justify-center gap-y-2">
-          <h1 className="text-2xl font-heading">{nickname}</h1>
-          <small className="italic">{botanicalName}</small>
+          <h1 className="text-2xl font-heading">{plant?.nickname}</h1>
+          <small className="italic">{plant?.botanicalName}</small>
           <div className="font-semibold flex gap-x-1.5">
-            <p>lv. {level}</p>
+            <p>lv. {plant?.level ?? 0}</p>
             <span>•</span>
-            <p>{plantedAt}</p>
+            <p>{formatPlantDate(plant?.timePlanted)}</p>
           </div>
           <div className="flex gap-x-4">
-            <p>{soilType}</p>
-            <p>H: {hp}%</p>
+            <p>{`${plant?.soil.type} Soil`}</p>
+            <p>H: {plant?.hp ?? 0}%</p>
           </div>
         </div>
       </div>
 
-      <PlantTempers woe={4} frolic={3} dread={1} malice={2} />
+      <PlantTempers {...plant?.tempers} />
 
       <PlantMap />
 
       <div className="flex flex-col grow justify-end">
         <div className="grid grid-cols-3 gap-x-5 gap-y-5">
-          <Button className="md:min-h-12 col-span-1 flex items-center justify-center space-x-1.5 bg-red-400">
+          <Button
+            className="md:min-h-12 col-span-1 flex items-center justify-center space-x-1.5 bg-red-400 hover:bg-red-500"
+            onClick={handleKillPlant}
+          >
             Kill <SkullIcon />
           </Button>
 
-          <Button className="md:min-h-12 col-span-2 md:col-span-1 flex items-center justify-center space-x-1.5">
+          <Button
+            className="md:min-h-12 col-span-2 md:col-span-1 flex items-center justify-center space-x-1.5"
+            onClick={handleWaterPlant}
+          >
             Water <DropletIcon />
           </Button>
 
@@ -62,7 +112,7 @@ export default function IndividualPlantPage() {
             className="md:min-h-12 col-span-3 md:col-span-1 flex items-center justify-center space-x-1.5"
             variant="neutral"
           >
-            more <MenuIcon />
+            More <MenuIcon />
           </Button>
         </div>
       </div>

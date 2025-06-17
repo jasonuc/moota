@@ -59,7 +59,7 @@ export default function App() {
               <IndividualPlantPage />
             </ProtectedRoute>
           }
-          path="/plants/:plantID"
+          path="/plants/:plantId"
         />
       </Route>
     </Routes>
