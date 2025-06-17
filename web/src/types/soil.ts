@@ -3,7 +3,7 @@ import { CircleMeta } from "./circle";
 type SoilType = "loam" | "sandy" | "silt" | "clay";
 
 type SoilMeta = {
-  soilType: SoilType;
+  type: SoilType;
   waterRetention: number;
   nutrientRichness: number;
 };

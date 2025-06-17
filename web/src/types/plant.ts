@@ -1,4 +1,5 @@
 import { CircleMeta } from "./circle";
+import { LevelMeta } from "./level";
 import { Soil } from "./soil";
 
 type Plant = {
@@ -10,12 +11,13 @@ type Plant = {
   activated: boolean;
   ownerID: string;
   tempers: Tempers;
-  timePlanted: Date;
-  timeOfDeath: Date;
-  lastWateredTime: Date;
-  lastActionTime: Date;
+  timePlanted: string;
+  timeOfDeath: string;
+  lastWateredTime: string;
+  lastActionTime: string;
+  soil: Soil;
 } & CircleMeta &
-  (Soil | undefined);
+  LevelMeta;
 
 type Tempers = {
   woe: number;
