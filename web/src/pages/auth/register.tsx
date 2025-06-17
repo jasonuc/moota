@@ -1,4 +1,3 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Card,
   CardContent,
@@ -7,12 +6,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import RegisterForm from "@/components/register-form";
+import { Link } from "react-router";
 
-export const Route = createFileRoute("/_auth/register")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
+export default function RegisterPage() {
   return (
     <Card className="w-md h-fit">
       <CardHeader className="text-center">

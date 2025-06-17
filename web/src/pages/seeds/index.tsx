@@ -1,13 +1,8 @@
 import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
-import { createFileRoute } from "@tanstack/react-router";
 import { AudioLinesIcon } from "lucide-react";
 
-export const Route = createFileRoute("/seeds")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
+export default function SeedsPage() {
   const seeds = [
     {
       id: 1,

@@ -1,12 +1,7 @@
 import Header from "@/components/header";
 import PlantsList from "@/components/plants-list";
-import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/plants/")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
+export default function AllUserPlantsPage() {
   const seedCount = 10;
 
   const plants = [

@@ -1,5 +1,5 @@
 import Plant from "./plant";
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 import { Button } from "./ui/button";
 
 type PlantProps = {

@@ -1,16 +1,12 @@
 import Header from "@/components/header";
 import PlantsList from "@/components/plants-list";
 import { Button } from "@/components/ui/button";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BeanIcon, SproutIcon } from "lucide-react";
+import { useNavigate } from "react-router";
 
-export const Route = createFileRoute("/home")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
+export default function HomePage() {
   const seedCount = 10;
-  const navigate = useNavigate({ from: "/home" });
+  const navigate = useNavigate();
 
   const nearbyPlants = [
     {
@@ -55,7 +51,7 @@ function RouteComponent() {
 
       <div className="fixed left-0 bottom-0 w-full flex gap-x-5 p-5 md:p-10">
         <Button
-          onClick={() => navigate({ to: "/plants" })}
+          onClick={() => navigate({ pathname: "/plants" })}
           className="hover:cursor-pointer grow md:min-h-12"
         >
           Plants
@@ -63,7 +59,7 @@ function RouteComponent() {
         </Button>
 
         <Button
-          onClick={() => navigate({ to: "/seeds" })}
+          onClick={() => navigate({ pathname: "/seeds" })}
           className="hover:cursor-pointer grow md:min-h-12"
         >
           Seeds

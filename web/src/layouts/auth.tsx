@@ -1,11 +1,7 @@
 import { LogoWithText } from "@/components/logo";
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { Link, Outlet } from "react-router";
 
-export const Route = createFileRoute("/_auth")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
+function AuthLayout() {
   return (
     <div className="w-full flex flex-col gap-y-10">
       <div className="">
@@ -20,3 +16,5 @@ function RouteComponent() {
     </div>
   );
 }
+
+export default AuthLayout;

@@ -1,7 +1,7 @@
 import { AuthContext } from "@/contexts/auth-context";
 import { LoginCredentials, RegisterCredentials } from "@/types/auth";
 import { User } from "@/types/user";
-import { useRouter } from "@tanstack/react-router";
+import { useNavigate } from "react-router";
 import { AxiosError } from "axios";
 import { ax } from "../api";
 import React, { useCallback, useEffect, useState } from "react";
@@ -21,7 +21,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     user: null,
     isLoggedIn: false,
   });
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const checkStatus = useCallback(async () => {
     const response = await ax.get<{ user: User | null }>("/whoami", {
@@ -55,7 +55,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       })
         .then(() => {
           checkStatus();
-          router.navigate({ to: "/home" });
+          navigate("/home");
         })
         .catch((err: AxiosError<{ error: string }>) => {
           setState((prev) => ({
@@ -65,7 +65,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         });
       setIsLoading(false);
     },
-    [checkStatus, router]
+    [checkStatus, navigate]
   );
 
   const login = useCallback(
@@ -76,7 +76,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       })
         .then(() => {
           checkStatus();
-          router.navigate({ to: "/home" });
+          navigate("/home");
         })
         .catch((err: AxiosError<{ error: string }>) => {
           setState((prev) => ({
@@ -86,7 +86,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         });
       setIsLoading(false);
     },
-    [checkStatus, router]
+    [checkStatus, navigate]
   );
 
   const logout = useCallback(async () => {
@@ -95,7 +95,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     })
       .then(() => {
         checkStatus();
-        router.navigate({ to: "/" });
+        navigate("/");
       })
       .catch((err: AxiosError<{ error: string }>) => {
         setState((prev) => ({
@@ -104,7 +104,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         }));
       });
     setIsLoading(false);
-  }, [checkStatus, router]);
+  }, [checkStatus, navigate]);
 
   return (
     <AuthContext

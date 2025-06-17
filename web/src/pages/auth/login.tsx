@@ -1,4 +1,3 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Card,
   CardContent,
@@ -7,12 +6,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import LoginForm from "@/components/login-form";
+import { Link } from "react-router";
 
-export const Route = createFileRoute("/_auth/login")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
+export default function LoginPage() {
   return (
     <Card className="w-md h-fit">
       <CardHeader className="text-center">

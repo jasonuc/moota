@@ -2,15 +2,10 @@ import Header from "@/components/header";
 import PlantMap from "@/components/plant-map";
 import PlantTempers from "@/components/plant-tempers";
 import { Button } from "@/components/ui/button";
-import { createFileRoute } from "@tanstack/react-router";
 import { DropletIcon, MenuIcon, SkullIcon } from "lucide-react";
 
-export const Route = createFileRoute("/plants/$plantId/")({
-  component: RouteComponent,
-});
-
 // TODO: This component should run an auth check so other non-owners do not have access to this page or at least not in it's entirety
-function RouteComponent() {
+export default function IndividualPlantPage() {
   const { id, nickname, botanicalName, level, plantedAt, soilType, hp } = {
     id: "1",
     nickname: "Sproutlet",

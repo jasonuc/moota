@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "./ui/button";
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 
 type PlantProps = {
   id: string;
@@ -25,7 +25,7 @@ export default function Plant({
   distance,
 }: PlantProps) {
   return (
-    <Link to="/plants/$plantId" params={{ plantId: id }}>
+    <Link to={`/plants/${id}`}>
       <Button asChild className="relative overflow-hidden group h-fit">
         <Card className="gap-y-1.5 bg-background flex w-full">
           <CardContent className="flex justify-end w-full gap-x-2 p-0 pt-1.5">

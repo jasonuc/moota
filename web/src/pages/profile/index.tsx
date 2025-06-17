@@ -1,12 +1,8 @@
 import Header from "@/components/header";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { useParams } from "react-router";
 
-export const Route = createFileRoute("/profile/$username")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
-  const { username } = useParams({ from: "/profile/$username" });
+export default function ProfilePage() {
+  const { username } = useParams();
   const level = 4;
   const title = "The citrus mage";
   const plantsAlive = 6;
