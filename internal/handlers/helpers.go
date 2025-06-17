@@ -20,6 +20,14 @@ func readStringReqParam(r *http.Request, key string) (string, error) {
 	return value, nil
 }
 
+func readQueryParam(r *http.Request, key string) (string, error) {
+	value := r.URL.Query().Get(key)
+	if value == "" {
+		return "", fmt.Errorf("missing required query param: %s", key)
+	}
+	return value, nil
+}
+
 type envelope map[string]any
 
 func readJSON(w http.ResponseWriter, r *http.Request, v any) error {

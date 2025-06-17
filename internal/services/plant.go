@@ -12,7 +12,7 @@ import (
 )
 
 type PlantService interface {
-	GetAllUserPlants(context.Context, string, dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error)
+	GetAllUserPlants(context.Context, string, *models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error)
 	ActionOnPlant(context.Context, string, dto.ActionOnPlantReq) (*models.Plant, error)
 	GetPlant(context.Context, string) (*models.Plant, error)
 	CreatePlant(context.Context, *models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
@@ -51,8 +51,8 @@ var (
 	ErrPlantNotActivated                         = errors.New("plant not activated")
 )
 
-func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto dto.GetAllUserPlantsReq) ([]*models.PlantWithDistanceMFromUser, error) {
-	coords := models.Coordinates{Lat: *dto.Latitude, Lon: *dto.Longitude}
+func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto *models.Coordinates) ([]*models.PlantWithDistanceMFromUser, error) {
+	coords := models.Coordinates{Lat: dto.Lat, Lon: dto.Lon}
 
 	transaction, err := s.store.Begin()
 	if err != nil {

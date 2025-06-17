@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/jasonuc/moota/internal/dto"
@@ -23,14 +25,29 @@ func NewPlantService(plantService services.PlantService) *PlantHandler {
 }
 
 func (h *PlantHandler) HandleGetAllUserPlants(w http.ResponseWriter, r *http.Request) {
-	var payload dto.GetAllUserPlantsReq
-	if err := readJSON(w, r, &payload); err != nil {
+	var lon, lat float64
+
+	lonStr, err := readQueryParam(r, "lon")
+	if err != nil {
 		badRequestResponse(w, err)
 		return
 	}
 
-	if err := h.validator.Struct(payload); err != nil {
-		failedValidationResponse(w, err)
+	latStr, err := readQueryParam(r, "lat")
+	if err != nil {
+		badRequestResponse(w, fmt.Errorf("missing query param: lon"))
+		return
+	}
+
+	lat, err = strconv.ParseFloat(latStr, 64)
+	if err != nil {
+		badRequestResponse(w, err)
+		return
+	}
+
+	lon, err = strconv.ParseFloat(lonStr, 64)
+	if err != nil {
+		badRequestResponse(w, err)
 		return
 	}
 
@@ -40,7 +57,7 @@ func (h *PlantHandler) HandleGetAllUserPlants(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	plants, err := h.plantService.GetAllUserPlants(r.Context(), userID, payload)
+	plants, err := h.plantService.GetAllUserPlants(r.Context(), userID, &models.Coordinates{Lat: lat, Lon: lon})
 	if err != nil {
 		serverErrorResponse(w, err)
 		return
