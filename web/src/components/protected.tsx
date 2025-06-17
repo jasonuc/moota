@@ -7,9 +7,9 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isLoggedIn, isLoading } = useAuth();
+  const { isLoggedIn, isInitialized } = useAuth();
 
-  if (isLoading) return null;
+  if (!isInitialized) return null;
   if (!isLoggedIn) return <Navigate to="/" />;
 
   return children;

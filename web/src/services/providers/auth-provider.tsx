@@ -12,14 +12,16 @@ interface AuthProviderProps {
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [{ isLoggedIn, user, error }, setState] = useState<{
+  const [{ isLoggedIn, user, error, isInitialized }, setState] = useState<{
     isLoggedIn: boolean;
     user?: User | null;
     error: string | null;
+    isInitialized: boolean;
   }>({
     error: null,
     user: null,
     isLoggedIn: false,
+    isInitialized: false,
   });
   const navigate = useNavigate();
 
@@ -40,6 +42,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       isLoggedIn: !!response.data.user,
       user: response.data.user,
       error: null,
+      isInitialized: true,
     }));
   }, []);
 
@@ -50,6 +53,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         setState((prev) => ({
           ...prev,
           error: err?.response?.data?.error || "Something went wrong",
+          isInitialized: true,
         }));
       })
       .finally(() => {
@@ -137,7 +141,16 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   return (
     <AuthContext.Provider
-      value={{ isLoading, isLoggedIn, user, error, login, register, logout }}
+      value={{
+        isLoading,
+        isInitialized,
+        isLoggedIn,
+        user,
+        error,
+        login,
+        register,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
