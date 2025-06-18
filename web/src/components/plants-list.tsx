@@ -3,12 +3,15 @@ import { Link } from "react-router";
 import Plant from "./plant";
 import { Button } from "./ui/button";
 
-type PlantProps = {
+type PlantsListProps = {
   maxPlants?: number;
   plants: PlantWithDistanceMFromUser[] | undefined;
 };
 
-export default function PlantsList({ plants = [], maxPlants = 4 }: PlantProps) {
+export default function PlantsList({
+  plants = [],
+  maxPlants = 4,
+}: PlantsListProps) {
   return (
     <div className="flex flex-col grow">
       {plants.length ? (
