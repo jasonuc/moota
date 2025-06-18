@@ -5,7 +5,7 @@ import { Link, Navigate, Outlet } from "react-router";
 function AuthLayout() {
   const { isLoggedIn } = useAuth();
 
-  if (!isLoggedIn) return <Navigate to={"/home"} />;
+  if (isLoggedIn) return <Navigate to={"/home"} />;
 
   return (
     <div className="w-full flex flex-col gap-y-10">
