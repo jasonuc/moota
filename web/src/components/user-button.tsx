@@ -1,6 +1,13 @@
 import { useAuth } from "@/hooks/use-auth";
+import { requestSeeds } from "@/services/api/seeds";
 import { DropdownMenuGroup } from "@radix-ui/react-dropdown-menu";
-import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { AxiosError } from "axios";
+import {
+  HandCoinsIcon,
+  LogOutIcon,
+  SettingsIcon,
+  UserIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -16,6 +23,22 @@ import {
 export default function UserButton() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+
+  const handleRequestSeeds = async () => {
+    requestSeeds(user!.id)
+      .then(() => {
+        navigate("/seeds");
+      })
+      .catch(
+        (
+          err: AxiosError<{ error: { message: string; timeAvailable: string } }>
+        ) => {
+          console.error(
+            `error-message: ${err.response?.data.error.message}\ntime-available: ${err.response?.data.error.timeAvailable}`
+          );
+        }
+      );
+  };
 
   return (
     <DropdownMenu>
@@ -42,6 +65,10 @@ export default function UserButton() {
           >
             <UserIcon />
             <span>Profile</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleRequestSeeds}>
+            <HandCoinsIcon />
+            <span>Request seeds</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <SettingsIcon />

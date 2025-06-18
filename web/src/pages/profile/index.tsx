@@ -30,9 +30,9 @@ export default function ProfilePage() {
     `is growing at their own pace`,
     `is composting their mistakes`,
   ];
+
   useEffect(() => {
     getUserProfile(username!).then((data) => {
-      console.log(data);
       setProfile(data);
     });
   }, [username]);

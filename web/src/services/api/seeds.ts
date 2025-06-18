@@ -16,3 +16,7 @@ export const plantSeed = async (
     longitude: longitude,
   });
 };
+
+export const requestSeeds = async (userId: string) =>
+  (await ax.post<{ seeds: SeedGroup[] }>(`/seeds/u/${userId}/request`)).data
+    .seeds;
