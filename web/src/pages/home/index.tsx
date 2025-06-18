@@ -1,6 +1,7 @@
 import Header from "@/components/header";
 import PlantsList from "@/components/plants-list";
 import { Button } from "@/components/ui/button";
+import UnactivatedPlantsIndicator from "@/components/unactivated-plants-indicator";
 import { useAuth } from "@/hooks/use-auth";
 import { getUserNearbyPlants } from "@/services/api/plants";
 import { PlantWithDistanceMFromUser } from "@/types/plant";
@@ -31,7 +32,8 @@ export default function HomePage() {
     <div className="flex flex-col space-y-5 grow">
       <Header />
 
-      <h1 className="text-3xl font-heading mb-5">My Nearby Plants</h1>
+      <h1 className="text-3xl font-heading mb-2">My Nearby Plants</h1>
+      <UnactivatedPlantsIndicator />
 
       <PlantsList plants={nearbyPlants} />
 

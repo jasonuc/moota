@@ -4,7 +4,7 @@ import { InfoIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
-export default function UnactivatedPlantsBanner() {
+export default function UnactivatedPlantsIndicator() {
   const { user } = useAuth();
   const [unactivatedPlantsCount, setUnactivatedPlantsCount] = useState(0);
 
