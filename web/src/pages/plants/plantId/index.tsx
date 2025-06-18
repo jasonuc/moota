@@ -82,7 +82,13 @@ export default function IndividualPlantPage() {
             <p>{formatPlantDate(plant?.timePlanted)}</p>
           </div>
           <div className="flex gap-x-4">
-            <p>{`${plant?.soil.type} Soil`}</p>
+            {plant?.soil?.type && (
+              <p>
+                {`${plant.soil.type
+                  .charAt(0)
+                  .toUpperCase()}${plant.soil.type.slice(1)} soil`}
+              </p>
+            )}
             <p>H: {plant?.hp ?? 0}%</p>
           </div>
         </div>
