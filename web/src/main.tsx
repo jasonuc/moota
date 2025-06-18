@@ -3,6 +3,7 @@ import AuthProvider from "@/services/providers/auth-provider";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
+import { Toaster } from "@/components/ui/sonner";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
@@ -12,6 +13,7 @@ createRoot(document.getElementById("root")!).render(
         <div className="flex font-archivo p-5 md:p-10 min-h-screen w-full">
           <App />
         </div>
+        <Toaster />
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>
