@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/jasonuc/moota/internal/models"
 )
@@ -162,8 +161,6 @@ func (s *plantStore) GetBySoilIDAndProximity(ctx context.Context, soilID string,
 }
 
 func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string, opts *GetPlantsOpts) ([]*models.Plant, error) {
-	fmt.Printf("%+v\n", opts)
-
 	q := `SELECT id, nickname, hp, dead, owner_id, time_planted, last_watered_time, 
          last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, 
          optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, 
@@ -178,8 +175,6 @@ func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string, opts *Get
 	if !opts.IncludeDeceased {
 		q += ` AND dead = false`
 	}
-
-	fmt.Println(q)
 
 	rows, err := s.db.QueryContext(ctx, q, ownerID)
 	if err != nil {
