@@ -1,14 +1,15 @@
-import { Route, Routes } from "react-router";
 import LandingPage from "@/pages/landing/index";
+import { Route, Routes } from "react-router";
+import ProtectedRoute from "./components/protected";
 import AuthLayout from "./layouts/auth";
 import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
-import SeedsPage from "./pages/seeds";
 import HomePage from "./pages/home";
-import ProfilePage from "./pages/profile";
 import AllUserPlantsPage from "./pages/plants";
 import IndividualPlantPage from "./pages/plants/plantId";
-import ProtectedRoute from "./components/protected";
+import UnactivatedPlantsPage from "./pages/plants/unactivated";
+import ProfilePage from "./pages/profile";
+import SeedsPage from "./pages/seeds";
 
 export default function App() {
   return (
@@ -52,6 +53,14 @@ export default function App() {
             </ProtectedRoute>
           }
           path="/plants"
+        />
+        <Route
+          element={
+            <ProtectedRoute>
+              <UnactivatedPlantsPage />
+            </ProtectedRoute>
+          }
+          path="/plants/unactivated"
         />
         <Route
           element={
