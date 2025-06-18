@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { formatDistance } from "@/lib/utils";
+import { formatDistance, formatHp } from "@/lib/utils";
 import type { PlantWithDistanceMFromUser } from "@/types/plant";
 import { Heart, LocateFixed } from "lucide-react";
 import { Link } from "react-router";
@@ -27,7 +27,7 @@ export default function Plant({
           <CardContent className="flex justify-end w-full gap-x-2 p-0 pt-1.5">
             <div className="flex items-center gap-x-1.5">
               <Heart size={15} />
-              {hp}%
+              {formatHp(hp)}%
             </div>
             <div className="flex items-center gap-x-1.5">
               <LocateFixed size={15} />

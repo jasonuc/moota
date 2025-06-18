@@ -9,5 +9,9 @@ export function formatDistance(meters: number) {
   if (meters >= 1000) {
     return `${(meters / 1000).toFixed(1)} km`;
   }
-  return `${meters} m`;
+  return `${meters.toFixed(2)} m`;
+}
+
+export function formatHp(hp: number) {
+  return `${hp.toFixed(0)}`;
 }
