@@ -1,4 +1,5 @@
 import Header from "@/components/header";
+import NoSeeds from "@/components/no-seeds";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { startSentenceWithUppercase } from "@/lib/utils";
@@ -57,32 +58,36 @@ export default function SeedsPage() {
 
       <h1 className="text-3xl font-heading mb-5">My Seeds</h1>
 
-      <div className="grid grid-cols-3 md:grid-cols-4 gap-5">
-        {seeds?.map(({ botanicalName, count, seeds }) => (
-          <Button
-            asChild
-            className="relative h-36 group"
-            key={botanicalName}
-            onClick={() => decideSeedToPlant(count, seeds)}
-          >
-            <div className="size-full relative">
-              <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 left-0 rotate-45" />
-              <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 right-0 -rotate-45" />
-              <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 right-0 rotate-45" />
-              {!(count > 1) && (
-                <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 left-0 -rotate-45" />
-              )}
+      {seeds?.length && (
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-5">
+          {seeds?.map(({ botanicalName, count, seeds }) => (
+            <Button
+              asChild
+              className="relative h-36 group"
+              key={botanicalName}
+              onClick={() => decideSeedToPlant(count, seeds)}
+            >
+              <div className="size-full relative">
+                <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 left-0 rotate-45" />
+                <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 right-0 -rotate-45" />
+                <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 right-0 rotate-45" />
+                {!(count > 1) && (
+                  <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 left-0 -rotate-45" />
+                )}
 
-              {count > 1 && (
-                <small className="absolute left-1 -top-2 bg-background px-2 rounded-full">
-                  x{count}
-                </small>
-              )}
-              <p className="italic text-wrap text-center">{botanicalName}</p>
-            </div>
-          </Button>
-        ))}
-      </div>
+                {count > 1 && (
+                  <small className="absolute left-1 -top-2 bg-background px-2 rounded-full">
+                    x{count}
+                  </small>
+                )}
+                <p className="italic text-wrap text-center">{botanicalName}</p>
+              </div>
+            </Button>
+          ))}
+        </div>
+      )}
+
+      {!seeds?.length && <NoSeeds />}
     </div>
   );
 }
