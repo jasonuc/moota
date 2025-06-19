@@ -15,9 +15,7 @@ export default function UnactivatedPlantsPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user?.id || !latitude || !longitude) {
-      return;
-    }
+    if (!user?.id || !latitude || !longitude) return;
 
     getAllUserUnactivatedPlants(user.id, latitude, longitude).then(
       (unactivatedPlantCount) => {

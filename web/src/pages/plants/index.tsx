@@ -6,6 +6,7 @@ import { getAllUserPlants } from "@/services/api/plants";
 import { PlantWithDistanceMFromUser } from "@/types/plant";
 import { useGeolocation } from "@uidotdev/usehooks";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function AllUserPlantsPage() {
   const { user } = useAuth();
@@ -13,13 +14,16 @@ export default function AllUserPlantsPage() {
   const [plants, setPlants] = useState<PlantWithDistanceMFromUser[]>();
 
   useEffect(() => {
-    if (!user?.id || !latitude || !longitude) {
-      return;
-    }
+    if (!user?.id || !latitude || !longitude) return;
 
     getAllUserPlants(user.id, latitude, longitude)
       .then(setPlants)
-      .catch(console.error);
+      .catch(() => {
+        toast.error("Error occured on the server", {
+          description: `Try again later.`,
+          descriptionClassName: "!text-white",
+        });
+      });
   }, [user, latitude, longitude]);
 
   return (

@@ -22,16 +22,24 @@ export default function IndividualPlantPage() {
   const { latitude, longitude } = useGeolocation();
 
   useEffect(() => {
+    if (!user?.id) return;
+
     if (params.plantId) {
       getPlant(params.plantId)
-        .then((data) => {
-          if (data.ownerID != user?.id) {
+        .then((plant) => {
+          if (plant.ownerID != user.id) {
             navigate("/home");
+            toast.error("You are not allowed to access that page", {
+              description: "That plant belongs to another user",
+              descriptionClassName: "!text-white",
+            });
             return;
           }
-          setPlant(data);
+          setPlant(plant);
         })
-        .catch(console.error);
+        .catch((err: AxiosError<string>) => {
+          toast.error(err.response?.data);
+        });
     }
   }, [params.plantId, navigate, user?.id]);
 
