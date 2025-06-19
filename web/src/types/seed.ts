@@ -19,4 +19,9 @@ type SeedGroup = {
   seeds: Seed[];
 };
 
-export type { Seed, SeedMeta, SeedGroup };
+type SeedAvailability = {
+  timeAvailable: string;
+  availableNow: boolean;
+};
+
+export type { Seed, SeedAvailability, SeedGroup, SeedMeta };

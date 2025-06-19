@@ -1,5 +1,5 @@
 import { Plant } from "@/types/plant";
-import { SeedGroup } from "@/types/seed";
+import { SeedAvailability, SeedGroup } from "@/types/seed";
 import { ax } from "./index";
 
 export const getUserSeeds = async (userId: string) => {
@@ -21,3 +21,6 @@ export const plantSeed = async (
 export const requestSeeds = async (userId: string) =>
   (await ax.post<{ seeds: SeedGroup[] }>(`/seeds/u/${userId}/request`)).data
     .seeds;
+
+export const checkWhenUserCanRequestSeeds = async (userId: string) =>
+  (await ax.get<SeedAvailability>(`/seeds/u/${userId}/request`)).data;

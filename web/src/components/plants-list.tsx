@@ -1,5 +1,6 @@
 import { PlantWithDistanceMFromUser } from "@/types/plant";
 import { Link } from "react-router";
+import LearnMoreButton from "./learn-more-button";
 import Plant from "./plant";
 import { Button } from "./ui/button";
 
@@ -30,11 +31,7 @@ export default function PlantsList({
             <Link to="/seeds">
               <Button>Plant a seed</Button>
             </Link>
-            <Link to="/">
-              <Button variant="neutral">
-                <p className="text-blue-600">Learn more</p>
-              </Button>
-            </Link>
+            <LearnMoreButton />
           </div>
         </div>
       )}
