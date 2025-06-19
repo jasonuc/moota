@@ -1,13 +1,16 @@
 import Header from "@/components/header";
 import { getUserProfile } from "@/services/api/user";
 import { UserProfile } from "@/types/user";
+import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import { toast } from "sonner";
 
 // TODO: This page needs work maybe I add a detailed section of the user's stats
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile>();
   const { username } = useParams();
+  const navigate = useNavigate();
 
   const noTitleMessages = [
     "has no title",
@@ -32,10 +35,18 @@ export default function ProfilePage() {
   ];
 
   useEffect(() => {
-    getUserProfile(username!).then((data) => {
-      setProfile(data);
-    });
-  }, [username]);
+    getUserProfile(username!)
+      .then((data) => {
+        setProfile(data);
+      })
+      .catch((err: AxiosError<{ error: string }>) => {
+        navigate("/home");
+        toast.error("User does not exist", {
+          description: err.response?.data.error,
+          descriptionClassName: "!text-white",
+        });
+      });
+  }, [username, navigate]);
 
   return (
     <div className="flex flex-col space-y-5 grow">
