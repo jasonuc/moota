@@ -35,12 +35,12 @@ export default function SeedsPage() {
         getUserSeeds(user!.id).then(() => navigate("/plants/unactivated"))
       )
       .catch((error: AxiosError<{ error: string }>) => {
-        console.log(error.response?.data.error);
         toast.error(
           startSentenceWithUppercase(error.response?.data.error ?? ""),
           {
             description: "There is another plant in the area",
             descriptionClassName: "!text-white",
+            position: "top-center",
           }
         );
       });

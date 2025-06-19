@@ -68,6 +68,7 @@ export default function IndividualPlantPage() {
               </p>,
               {
                 icon: <DropletIcon />,
+                position: "top-center",
               }
             );
           });
@@ -77,6 +78,7 @@ export default function IndividualPlantPage() {
           startSentenceWithUppercase(error.response?.data.error ?? ""),
           {
             description: "This plant was not watered",
+            position: "top-center",
           }
         );
       });
