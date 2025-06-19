@@ -15,3 +15,8 @@ export function formatDistance(meters: number) {
 export function formatHp(hp: number) {
   return `${hp.toFixed(0)}`;
 }
+
+export function startSentenceWithUppercase(sentence: string) {
+  if (!sentence) return "";
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+}
