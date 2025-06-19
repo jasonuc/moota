@@ -1,3 +1,4 @@
+import { Plant } from "@/types/plant";
 import { SeedGroup } from "@/types/seed";
 import { ax } from "./index";
 
@@ -11,7 +12,7 @@ export const plantSeed = async (
   latitude: number,
   longitude: number
 ) => {
-  await ax.post(`/seeds/${seedId}`, {
+  await ax.post<{ plant: Plant }>(`/seeds/${seedId}`, {
     latitude: latitude,
     longitude: longitude,
   });
