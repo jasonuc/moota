@@ -86,6 +86,7 @@ func (app *application) routes() http.Handler {
 					r.Use(app.authMiddleware.ValidateUserAccess)
 
 					r.Get("/", app.seedHandler.HandleGetUserSeeds)
+					r.Get("/request", app.seedHandler.HandleCheckWhenUserCanRequestSeed)
 					r.Post("/request", app.seedHandler.HandleRequestForNewSeeds)
 				})
 

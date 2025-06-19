@@ -18,6 +18,7 @@ type SeedService interface {
 	GetSeed(context.Context, string, string) (*models.Seed, error)
 	GiveUserNewSeeds(context.Context, string, int) ([]*models.SeedGroup, error)
 	PlantSeed(context.Context, string, dto.PlantSeedReq) (*models.Plant, error)
+	CheckWhenUserCanRequestSeed(ctx context.Context, userID string) (*time.Time, error)
 	WithStore(*store.Store) SeedService
 }
 
@@ -173,6 +174,24 @@ func (s *seedService) PlantSeed(ctx context.Context, seedID string, dto dto.Plan
 	}
 
 	return plant, nil
+}
+
+func (s *seedService) CheckWhenUserCanRequestSeed(ctx context.Context, userID string) (*time.Time, error) {
+	lastFulfilledSeedRequest, err := s.store.Seed.GetLastFulfilledSeedRequestTimeByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if lastFulfilledSeedRequest.IsZero() {
+		return nil, nil
+	}
+
+	timeAvailable := lastFulfilledSeedRequest.Add(SeedRequestCooldownDuration)
+	if time.Since(lastFulfilledSeedRequest) < SeedRequestCooldownDuration {
+		return &timeAvailable, nil
+	}
+
+	return nil, nil
 }
 
 func (s *seedService) GiveUserNewSeeds(ctx context.Context, userID string, count int) ([]*models.SeedGroup, error) {

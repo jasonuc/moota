@@ -103,3 +103,19 @@ func (h *SeedHandler) HandleRequestForNewSeeds(w http.ResponseWriter, r *http.Re
 	//nolint:errcheck
 	writeJSON(w, http.StatusCreated, envelope{"seeds": seedGroups}, nil)
 }
+
+func (h *SeedHandler) HandleCheckWhenUserCanRequestSeed(w http.ResponseWriter, r *http.Request) {
+	userIDFromReqParam, err := readStringReqParam(r, "userID")
+	if err != nil {
+		badRequestResponse(w, err)
+		return
+	}
+
+	timeUntilUserCanReqSeeds, err := h.seedService.CheckWhenUserCanRequestSeed(r.Context(), userIDFromReqParam)
+	if err != nil {
+		serverErrorResponse(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, envelope{"timeAvailable": timeUntilUserCanReqSeeds, "availableNow": timeUntilUserCanReqSeeds == nil}, nil)
+}
