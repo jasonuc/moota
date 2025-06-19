@@ -18,13 +18,18 @@ export default function SeedsPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user?.id) {
-      return;
-    }
+    if (!user?.id) return;
 
     getUserSeeds(user.id)
       .then(setSeeds)
-      .catch((error) => console.error(error));
+      .catch((err: AxiosError<string>) =>
+        toast.error("Error occured on the server", {
+          description: `Seeds could not be fetched. ${startSentenceWithUppercase(
+            err.response?.data ?? ""
+          )}`,
+          descriptionClassName: "!text-white",
+        })
+      );
   }, [user?.id]);
 
   const decideSeedToPlant = async (count: number, seeds: Seed[]) => {
