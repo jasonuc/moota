@@ -1,7 +1,9 @@
 import { useAuth } from "@/hooks/use-auth";
+import { startSentenceWithUppercase } from "@/lib/utils";
 import { requestSeeds } from "@/services/api/seeds";
 import { DropdownMenuGroup } from "@radix-ui/react-dropdown-menu";
 import { AxiosError } from "axios";
+import { formatDate } from "date-fns";
 import {
   HandCoinsIcon,
   LogOutIcon,
@@ -9,6 +11,7 @@ import {
   UserIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import {
@@ -33,8 +36,14 @@ export default function UserButton() {
         (
           err: AxiosError<{ error: { message: string; timeAvailable: string } }>
         ) => {
-          console.error(
-            `error-message: ${err.response?.data.error.message}\ntime-available: ${err.response?.data.error.timeAvailable}`
+          toast.warning(
+            startSentenceWithUppercase(err.response?.data.error.message ?? ""),
+            {
+              description: `You can request seeds again on ${formatDate(
+                err.response?.data.error.timeAvailable ?? "",
+                "dd/MM/yy"
+              )}`,
+            }
           );
         }
       );

@@ -1,16 +1,21 @@
 import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { startSentenceWithUppercase } from "@/lib/utils";
 import { getUserSeeds, plantSeed } from "@/services/api/seeds";
 import { Seed, SeedGroup } from "@/types/seed";
 import { useGeolocation } from "@uidotdev/usehooks";
+import { AxiosError } from "axios";
 import { AudioLinesIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
 export default function SeedsPage() {
   const [seeds, setSeeds] = useState<SeedGroup[]>();
   const { user } = useAuth();
   const { latitude, longitude } = useGeolocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user?.id) {
@@ -25,11 +30,20 @@ export default function SeedsPage() {
   const decideSeedToPlant = async (count: number, seeds: Seed[]) => {
     const seedToPlant = seeds[Math.floor(Math.random() * count)];
 
-    plantSeed(seedToPlant.id, latitude!, longitude!).then(() =>
-      getUserSeeds(user!.id)
-        .then(setSeeds)
-        .catch((error) => console.error(error))
-    );
+    plantSeed(seedToPlant.id, latitude!, longitude!)
+      .then(() =>
+        getUserSeeds(user!.id).then(() => navigate("/plants/unactivated"))
+      )
+      .catch((error: AxiosError<{ error: string }>) => {
+        console.log(error.response?.data.error);
+        toast.error(
+          startSentenceWithUppercase(error.response?.data.error ?? ""),
+          {
+            description: "There is another plant in the area",
+            descriptionClassName: "!text-white",
+          }
+        );
+      });
   };
 
   return (

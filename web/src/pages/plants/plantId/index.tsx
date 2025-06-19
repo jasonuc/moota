@@ -3,13 +3,16 @@ import PlantMap from "@/components/plant-map";
 import PlantTempers from "@/components/plant-tempers";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { startSentenceWithUppercase } from "@/lib/utils";
 import { getPlant, killPlant, waterPlant } from "@/services/api/plants";
 import { Plant } from "@/types/plant";
 import { useGeolocation } from "@uidotdev/usehooks";
+import { AxiosError } from "axios";
 import { formatDate, isValid, parseJSON } from "date-fns";
 import { DropletIcon, MenuIcon, SkullIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import { toast } from "sonner";
 
 export default function IndividualPlantPage() {
   const params = useParams();
@@ -54,9 +57,29 @@ export default function IndividualPlantPage() {
   };
 
   const handleWaterPlant = () => {
-    waterPlant(plant!.id, latitude!, longitude!).then(() => {
-      getPlant(params.plantId!).then(setPlant).catch(console.error);
-    });
+    waterPlant(plant!.id, latitude!, longitude!)
+      .then(() => {
+        getPlant(params.plantId!)
+          .then(setPlant)
+          .then(() => {
+            toast.success(
+              <p>
+                Watered <em>{plant?.nickname}</em>
+              </p>,
+              {
+                icon: <DropletIcon />,
+              }
+            );
+          });
+      })
+      .catch((error: AxiosError<{ error: string }>) => {
+        toast.info(
+          startSentenceWithUppercase(error.response?.data.error ?? ""),
+          {
+            description: "This plant was not watered",
+          }
+        );
+      });
   };
 
   return (
