@@ -1,15 +1,17 @@
 import Header from "@/components/header";
+import KillPlantButton from "@/components/kill-plant-button";
+import MoreButton from "@/components/more-button";
 import PlantMap from "@/components/plant-map";
 import PlantTempers from "@/components/plant-tempers";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { startSentenceWithUppercase } from "@/lib/utils";
-import { getPlant, killPlant, waterPlant } from "@/services/api/plants";
+import { formatHp, startSentenceWithUppercase } from "@/lib/utils";
+import { getPlant, waterPlant } from "@/services/api/plants";
 import { Plant } from "@/types/plant";
 import { useGeolocation } from "@uidotdev/usehooks";
 import { AxiosError } from "axios";
 import { formatDate, isValid, parseJSON } from "date-fns";
-import { DropletIcon, MenuIcon, SkullIcon } from "lucide-react";
+import { DropletIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
@@ -17,7 +19,7 @@ import { toast } from "sonner";
 export default function IndividualPlantPage() {
   const params = useParams();
   const navigate = useNavigate();
-  const [plant, setPlant] = useState<Plant | null>(null);
+  const [plant, setPlant] = useState<Plant>();
   const { user } = useAuth();
   const { latitude, longitude } = useGeolocation();
 
@@ -51,16 +53,6 @@ export default function IndividualPlantPage() {
       return isValid(date) ? formatDate(date, "dd/MM/yy") : "Invalid date";
     } catch {
       return "Invalid date";
-    }
-  };
-
-  const handleKillPlant = () => {
-    //TODO: Make a better UX for this
-    const confirmed = window.confirm(
-      "Are you sure you want to kill this plant?"
-    );
-    if (confirmed) {
-      killPlant(plant!.id).then(() => navigate("/plants"));
     }
   };
 
@@ -122,7 +114,7 @@ export default function IndividualPlantPage() {
                   .toUpperCase()}${plant.soil.type.slice(1)} soil`}
               </p>
             )}
-            <p>H: {plant?.hp ?? 0}%</p>
+            <p>H: {formatHp(plant?.hp ?? 0)}%</p>
           </div>
         </div>
       </div>
@@ -133,12 +125,10 @@ export default function IndividualPlantPage() {
 
       <div className="flex flex-col grow justify-end">
         <div className="grid grid-cols-3 gap-x-5 gap-y-5">
-          <Button
-            className="md:min-h-12 col-span-1 flex items-center justify-center space-x-1.5 bg-red-400 hover:bg-red-500"
-            onClick={handleKillPlant}
-          >
-            Kill <SkullIcon />
-          </Button>
+          <KillPlantButton
+            id={plant?.id || ""}
+            nickname={plant?.nickname || ""}
+          />
 
           <Button
             className="md:min-h-12 col-span-2 md:col-span-1 flex items-center justify-center space-x-1.5"
@@ -147,12 +137,7 @@ export default function IndividualPlantPage() {
             Water <DropletIcon />
           </Button>
 
-          <Button
-            className="md:min-h-12 col-span-3 md:col-span-1 flex items-center justify-center space-x-1.5"
-            variant="neutral"
-          >
-            More <MenuIcon />
-          </Button>
+          <MoreButton {...plant!} />
         </div>
       </div>
     </div>

@@ -67,3 +67,13 @@ export const getUserUnactivatedPlantsCount = async (userId: string) =>
 
 export const activatePlant = async (plantId: string) =>
   (await ax.post<{ plant: Plant }>(`/plants/${plantId}/activate`)).data.plant;
+
+export const changePlantNickname = async (
+  plantId: string,
+  newNickname: string
+) =>
+  (
+    await ax.patch<{ plant: Plant }>(`plants/${plantId}`, {
+      newNickname: newNickname,
+    })
+  ).data;
