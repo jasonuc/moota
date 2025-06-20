@@ -49,9 +49,7 @@ export default function SeedsPage() {
     const seedToPlant = seeds[Math.floor(Math.random() * count)];
 
     plantSeed(seedToPlant.id, latitude!, longitude!)
-      .then(() =>
-        getUserSeeds(user!.id).then(() => navigate("/plants/unactivated"))
-      )
+      .then(() => getUserSeeds(user!.id).then(() => navigate("/plants")))
       .catch((error: AxiosError<{ error: string }>) => {
         toast.error(
           startSentenceWithUppercase(error.response?.data.error ?? ""),

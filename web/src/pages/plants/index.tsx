@@ -1,7 +1,6 @@
 import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
 import PlantsList from "@/components/plants-list";
-import UnactivatedPlantsIndicator from "@/components/unactivated-plants-indicator";
 import { useAuth } from "@/hooks/use-auth";
 import { getAllUserPlants } from "@/services/api/plants";
 import { PlantWithDistanceMFromUser } from "@/types/plant";
@@ -34,7 +33,6 @@ export default function AllUserPlantsPage() {
       <h1 className="text-3xl font-heading mb-2">
         My Plants ({plants?.length})
       </h1>
-      <UnactivatedPlantsIndicator />
 
       <PlantsList plants={plants} maxPlants={plants?.length} />
       <DynamicNavigation />

@@ -7,7 +7,6 @@ import RegisterPage from "./pages/auth/register";
 import HomePage from "./pages/home";
 import AllUserPlantsPage from "./pages/plants";
 import IndividualPlantPage from "./pages/plants/plantId";
-import UnactivatedPlantsPage from "./pages/plants/unactivated";
 import ProfilePage from "./pages/profile";
 import SeedsPage from "./pages/seeds";
 
@@ -54,14 +53,7 @@ export default function App() {
           }
           path="/plants"
         />
-        <Route
-          element={
-            <ProtectedRoute>
-              <UnactivatedPlantsPage />
-            </ProtectedRoute>
-          }
-          path="/plants/unactivated"
-        />
+
         <Route
           element={
             <ProtectedRoute>

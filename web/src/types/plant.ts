@@ -9,7 +9,6 @@ type Plant = {
   botanicalName: string;
   hp: number;
   dead: boolean;
-  activated: boolean;
   ownerID: string;
   tempers: Tempers;
   timePlanted: string;

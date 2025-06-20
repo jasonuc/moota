@@ -48,26 +48,6 @@ export const waterPlant = async (
     })
   ).data;
 
-export const getAllUserUnactivatedPlants = async (
-  userId: string,
-  lat: number,
-  lon: number
-) =>
-  (
-    await ax.get<{ plants: PlantWithDistanceMFromUser[] }>(
-      `/plants/u/${userId}`,
-      {
-        params: { lat: lat, lon: lon, includeInactive: true },
-      }
-    )
-  ).data.plants.filter((plant) => !plant.activated);
-
-export const getUserUnactivatedPlantsCount = async (userId: string) =>
-  (await getAllUserUnactivatedPlants(userId, 0, 0)).length;
-
-export const activatePlant = async (plantId: string) =>
-  (await ax.post<{ plant: Plant }>(`/plants/${plantId}/activate`)).data.plant;
-
 export const changePlantNickname = async (
   plantId: string,
   newNickname: string

@@ -1,7 +1,6 @@
 import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
 import PlantsList from "@/components/plants-list";
-import UnactivatedPlantsIndicator from "@/components/unactivated-plants-indicator";
 import { useAuth } from "@/hooks/use-auth";
 import { getUserNearbyPlants } from "@/services/api/plants";
 import { PlantWithDistanceMFromUser } from "@/types/plant";
@@ -30,7 +29,6 @@ export default function HomePage() {
       <Header />
 
       <h1 className="text-3xl font-heading mb-2">My Nearby Plants</h1>
-      <UnactivatedPlantsIndicator />
 
       <PlantsList plants={nearbyPlants} />
 
