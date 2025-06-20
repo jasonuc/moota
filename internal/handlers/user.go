@@ -45,6 +45,28 @@ func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
 }
 
+func (h *UserHandler) HandleGetUsernameByID(w http.ResponseWriter, r *http.Request) {
+	userID, err := readStringReqParam(r, "userID")
+	if err != nil || userID == "" {
+		badRequestResponse(w, fmt.Errorf("missing required param userID"))
+		return
+	}
+
+	user, err := h.userService.GetUser(r.Context(), userID)
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrUserNotFound):
+			notFoundResponse(w)
+		default:
+			serverErrorResponse(w, err)
+		}
+		return
+	}
+
+	//nolint:errcheck
+	writeJSON(w, http.StatusOK, envelope{"username": user.Username}, nil)
+}
+
 func (h *UserHandler) HandleGetUserProfile(w http.ResponseWriter, r *http.Request) {
 	targetUsername, err := readStringReqParam(r, "username")
 	if err != nil || targetUsername == "" {

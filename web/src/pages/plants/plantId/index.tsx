@@ -30,11 +30,7 @@ export default function IndividualPlantPage() {
       getPlant(params.plantId)
         .then((plant) => {
           if (plant.ownerID != user.id) {
-            navigate("/home");
-            toast.error("You are not allowed to access that page", {
-              description: "That plant belongs to another user",
-              descriptionClassName: "!text-white",
-            });
+            navigate(`/plants/${plant.id}/public`);
             return;
           }
           setPlant(plant);

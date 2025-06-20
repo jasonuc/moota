@@ -11,6 +11,7 @@ import ProfilePage from "./pages/profile";
 import SeedsPage from "./pages/seeds";
 import PlantGraveyard from "./pages/plants/graveyard";
 import SettingsPage from "./pages/settings";
+import PublicPlantPage from "./pages/plants/plantId/public";
 
 export default function App() {
   return (
@@ -79,6 +80,14 @@ export default function App() {
             </ProtectedRoute>
           }
           path="/plants/:plantId"
+        />
+        <Route
+          element={
+            <ProtectedRoute>
+              <PublicPlantPage />
+            </ProtectedRoute>
+          }
+          path="/plants/:plantId/public"
         />
       </Route>
     </Routes>

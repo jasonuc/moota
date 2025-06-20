@@ -1,9 +1,16 @@
 import { ax } from "./index";
-import { UserProfile } from "@/types/user";
+import { User, UserProfile } from "@/types/user";
 
 export const getUserProfile = async (username: string) =>
   (await ax.get<{ userProfile: UserProfile }>(`/users/${username}/profile`))
     .data.userProfile;
+
+export const getUser = async (userId: string) =>
+  (await ax.get<{ user: User }>(`/users/u/${userId}/`)).data.user;
+
+export const getUsernameFromUserId = async (userId: string) =>
+  (await ax.get<{ username: string }>(`/users/u/${userId}/username`)).data
+    .username;
 
 export const changeUsername = async (userId: string, newUsername: string) =>
   await ax.patch(`/auth/u/${userId}/change-username`, {
