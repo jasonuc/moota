@@ -1,6 +1,17 @@
 import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
 import NoSeeds from "@/components/no-seeds";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { startSentenceWithUppercase } from "@/lib/utils";
@@ -8,7 +19,7 @@ import { getUserSeeds, plantSeed } from "@/services/api/seeds";
 import { Seed, SeedGroup } from "@/types/seed";
 import { useGeolocation } from "@uidotdev/usehooks";
 import { AxiosError } from "axios";
-import { AudioLinesIcon } from "lucide-react";
+import { AudioLinesIcon, SproutIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -62,28 +73,57 @@ export default function SeedsPage() {
       {seeds?.length && (
         <div className="grid grid-cols-3 md:grid-cols-4 gap-5">
           {seeds?.map(({ botanicalName, count, seeds }) => (
-            <Button
-              asChild
-              className="relative h-36 group"
-              key={botanicalName}
-              onClick={() => decideSeedToPlant(count, seeds)}
-            >
-              <div className="size-full relative">
-                <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 left-0 rotate-45" />
-                <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 right-0 -rotate-45" />
-                <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 right-0 rotate-45" />
-                {!(count > 1) && (
-                  <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 left-0 -rotate-45" />
-                )}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  asChild
+                  className="relative h-36 group"
+                  key={botanicalName}
+                >
+                  <div className="size-full relative">
+                    <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 left-0 rotate-45" />
+                    <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 right-0 -rotate-45" />
+                    <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 right-0 rotate-45" />
+                    {!(count > 1) && (
+                      <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out top-0 left-0 -rotate-45" />
+                    )}
 
-                {count > 1 && (
-                  <small className="absolute left-1 -top-2 bg-background px-2 rounded-full">
-                    x{count}
-                  </small>
-                )}
-                <p className="italic text-wrap text-center">{botanicalName}</p>
-              </div>
-            </Button>
+                    {count > 1 && (
+                      <small className="absolute left-1 -top-2 bg-background px-2 rounded-full">
+                        x{count}
+                      </small>
+                    )}
+                    <p className="italic text-wrap text-center">
+                      {botanicalName}
+                    </p>
+                  </div>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Are you sure you want to plant here?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    I hereby agree to always visit this location so I am not a
+                    plant killer.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="hover:cursor-pointer">
+                    <XIcon />
+                    No
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => decideSeedToPlant(count, seeds)}
+                    className="hover:cursor-pointer md:min-h-12 col-span-1 flex items-center justify-center space-x-1.5"
+                  >
+                    <SproutIcon />
+                    Yes
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           ))}
         </div>
       )}

@@ -55,7 +55,7 @@ export default function KillPlantButton({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="hover:cursor-pointer">
-            Cancel
+            No
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleKillPlant}
