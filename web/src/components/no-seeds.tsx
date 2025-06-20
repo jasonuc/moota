@@ -55,7 +55,7 @@ export default function NoSeeds() {
           className="text-4xl font-mono font-stretch-ultra-expanded font-semibold"
         />
       )}
-      <div className="flex flex-col items-center gap-y-1.5">
+      <div className="flex flex-col items-center gap-y-1.5 text-center">
         <h3 className="text-xl font-heading">{"No seeds?"}</h3>
         {seedAvailability?.availableNow ? (
           <p>Go ahead and request some now. I wonder what you'll get!</p>

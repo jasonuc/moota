@@ -1,3 +1,4 @@
+import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
 import NoSeeds from "@/components/no-seeds";
 import { Button } from "@/components/ui/button";
@@ -88,6 +89,7 @@ export default function SeedsPage() {
       )}
 
       {!seeds?.length && <NoSeeds />}
+      <DynamicNavigation />
     </div>
   );
 }

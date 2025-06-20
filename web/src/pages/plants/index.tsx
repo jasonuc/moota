@@ -1,3 +1,4 @@
+import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
 import PlantsList from "@/components/plants-list";
 import UnactivatedPlantsIndicator from "@/components/unactivated-plants-indicator";
@@ -36,6 +37,7 @@ export default function AllUserPlantsPage() {
       <UnactivatedPlantsIndicator />
 
       <PlantsList plants={plants} maxPlants={plants?.length} />
+      <DynamicNavigation />
     </div>
   );
 }
