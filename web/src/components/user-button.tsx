@@ -84,7 +84,7 @@ export default function UserButton() {
             <GhostIcon />
             <span>Plants graveyard</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate("/settings")}>
             <SettingsIcon />
             <span>Settings</span>
           </DropdownMenuItem>
