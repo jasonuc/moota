@@ -19,7 +19,7 @@ export default function SettingsPage() {
 
       <h1 className="text-3xl font-heading mb-5">Settings</h1>
 
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion type="single" collapsible>
         <AccordionItem value="item-1">
           <AccordionTrigger>Change username</AccordionTrigger>
           <AccordionContent>

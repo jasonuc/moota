@@ -3,7 +3,7 @@ import { useAuth } from "./use-auth";
 import { UserProfile } from "@/types/user";
 import { getUserProfile } from "@/services/api/user";
 
-export default function useCurrentUserProfile() {
+export function useCurrentUserProfile() {
   const { user } = useAuth();
   const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile>();
 
