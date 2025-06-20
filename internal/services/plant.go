@@ -18,7 +18,6 @@ type PlantService interface {
 	CreatePlant(context.Context, *models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
 	GetAllUserDeceasedPlants(context.Context, string) ([]*models.Plant, error)
 	ChangePlantNickname(context.Context, string, string) (*models.Plant, error)
-	ActivatePlant(ctx context.Context, plantID string) (*models.Plant, error)
 	KillPlant(context.Context, string) error
 	WithStore(*store.Store) PlantService
 }
@@ -40,15 +39,11 @@ func (s *plantService) WithStore(store *store.Store) PlantService {
 }
 
 var (
-	ErrNotPossibleToCreatePlant                  = errors.New("not possible to create plant here")
-	ErrNotPossibleToActivatePlant                = errors.New("not possible to activate plant")
-	ErrNotPossibleToActivatePlantButSeedRefunded = errors.New("not possible to activate plant but seed refunded")
-	ErrOutsidePlantInteractionRadius             = errors.New("user is not within plant interaction radius")
-	ErrInvalidPlantAction                        = errors.New("invalid plant action")
-	ErrUnauthorisedPlantAction                   = errors.New("unauthorised plant action")
-	ErrPlantAlreadyActivated                     = errors.New("plant already activated")
-	ErrPlantAlreadyDead                          = errors.New("plant already dead")
-	ErrPlantNotActivated                         = errors.New("plant not activated")
+	ErrNotPossibleToCreatePlant      = errors.New("not possible to create plant here")
+	ErrOutsidePlantInteractionRadius = errors.New("user is not within plant interaction radius")
+	ErrInvalidPlantAction            = errors.New("invalid plant action")
+	ErrUnauthorisedPlantAction       = errors.New("unauthorised plant action")
+	ErrPlantAlreadyDead              = errors.New("plant already dead")
 )
 
 func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto *models.Coordinates, opts *store.GetPlantsOpts) ([]*models.PlantWithDistanceMFromUser, error) {
@@ -113,60 +108,6 @@ func (s *plantService) GetPlant(ctx context.Context, plantID string) (*models.Pl
 	return plant, nil
 }
 
-func (s *plantService) ActivatePlant(ctx context.Context, plantID string) (*models.Plant, error) {
-	transaction, err := s.store.Begin()
-	if err != nil {
-		return nil, store.ErrTransactionCouldNotStart
-	}
-	//nolint:errcheck
-	defer transaction.Rollback()
-	tx := s.store.WithTx(transaction)
-
-	plant, err := tx.Plant.Get(ctx, plantID, &store.GetPlantsOpts{})
-	if err != nil {
-		return nil, err
-	}
-
-	plantsWithinInteractionRadius, err := tx.Plant.GetBySoilIDAndProximity(ctx, plant.Soil.ID, plant.Centre(), models.PlantInteractionRadius)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(plantsWithinInteractionRadius) != 0 {
-		if plant.ID != plantsWithinInteractionRadius[0].ID {
-			newSeed := models.NewSeedWithMeta(plant.OwnerID, plant.SeedMeta)
-			if err := tx.Seed.Insert(ctx, newSeed); err != nil {
-				return nil, err
-			}
-
-			if err := tx.Plant.Delete(ctx, plant.ID); err != nil {
-				return nil, err
-			}
-
-			if err := transaction.Commit(); err != nil {
-				return nil, err
-			}
-
-			return nil, ErrNotPossibleToActivatePlantButSeedRefunded
-		}
-		return nil, ErrNotPossibleToActivatePlant
-	}
-
-	if plant.Activated {
-		return nil, ErrPlantAlreadyActivated
-	}
-
-	if err := tx.Plant.ActivatePlant(ctx, plant.ID); err != nil {
-		return nil, err
-	}
-
-	if err := transaction.Commit(); err != nil {
-		return nil, err
-	}
-
-	return s.store.Plant.Get(ctx, plant.ID, &store.GetPlantsOpts{})
-}
-
 func (s *plantService) CreatePlant(ctx context.Context, soil *models.Soil, seed *models.Seed, centre models.Coordinates) (*models.Plant, error) {
 	plantCircleMeta := models.NewCircleMeta(soil.Centre(), models.PlantInteractionRadius)
 	nearbyPlants, err := s.store.Plant.GetBySoilIDAndProximity(ctx, soil.ID, centre, models.PlantInteractionRadius+0.1)
@@ -207,10 +148,6 @@ func (s *plantService) ActionOnPlant(ctx context.Context, plantID string, dto dt
 
 	if plant.OwnerID != userID {
 		return nil, ErrUnauthorisedPlantAction
-	}
-
-	if !plant.Activated {
-		return nil, ErrPlantNotActivated
 	}
 
 	userCoords := models.Coordinates{Lon: *dto.Longitude, Lat: *dto.Latitude}

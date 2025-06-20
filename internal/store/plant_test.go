@@ -119,16 +119,6 @@ func TestPlantStore(t *testing.T) {
 			"expected first plant to be Palm Tree in Miami Beach")
 	})
 
-	t.Run("ActivatePlant", func(t *testing.T) {
-		plantID := "00000000-0000-4000-a000-000000000207"
-		err := store.ActivatePlant(context.Background(), plantID)
-		assert.NoError(t, err, "unexpected error")
-
-		plant, err := store.Get(context.Background(), plantID, &GetPlantsOpts{})
-		assert.NoError(t, err, "unexpected error")
-		assert.True(t, plant.Activated, "expected plant to be activated")
-	})
-
 	t.Run("Insert", func(t *testing.T) {
 		seed := models.NewSeed(ownerID)
 		soil := models.NewLargeSizedSoil(models.RandomSoilMeta(), models.Coordinates{Lat: 29.153291, Lon: -89.254120})

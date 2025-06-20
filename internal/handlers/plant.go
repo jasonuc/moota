@@ -44,10 +44,9 @@ func (h *PlantHandler) HandleGetAllUserPlants(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	includeInactive := readBoolQueryParam(r, "includeInactive")
 	IncludeDeceased := readBoolQueryParam(r, "includeDeceased")
 
-	plants, err := h.plantService.GetAllUserPlants(r.Context(), userID, userCoords, &store.GetPlantsOpts{IncludeDeceased: IncludeDeceased, IncludeInactive: includeInactive})
+	plants, err := h.plantService.GetAllUserPlants(r.Context(), userID, userCoords, &store.GetPlantsOpts{IncludeDeceased: IncludeDeceased})
 	if err != nil {
 		serverErrorResponse(w, err)
 		return
@@ -104,41 +103,11 @@ func (h *PlantHandler) HandleActionOnPlant(w http.ResponseWriter, r *http.Reques
 			notPermittedResponse(w)
 		case errors.Is(err, models.ErrPlantNotFound):
 			notFoundResponse(w)
-		case errors.Is(err, services.ErrPlantNotActivated):
-			badRequestResponse(w, err)
 		case errors.Is(err, services.ErrOutsidePlantInteractionRadius):
 			badRequestResponse(w, err)
 		case errors.Is(err, services.ErrInvalidPlantAction):
 			badRequestResponse(w, err)
 		case errors.Is(err, models.ErrPlantInCooldown):
-			badRequestResponse(w, err)
-		default:
-			serverErrorResponse(w, err)
-		}
-		return
-	}
-
-	//nolint:errcheck
-	writeJSON(w, http.StatusAccepted, envelope{"plant": plant}, nil)
-}
-
-func (h *PlantHandler) HandleActivatePlant(w http.ResponseWriter, r *http.Request) {
-	plantID, err := readStringReqParam(r, "plantID")
-	if err != nil {
-		badRequestResponse(w, err)
-		return
-	}
-
-	plant, err := h.plantService.ActivatePlant(r.Context(), plantID)
-	if err != nil {
-		switch {
-		case errors.Is(err, models.ErrPlantNotFound):
-			notFoundResponse(w)
-		case errors.Is(err, services.ErrPlantAlreadyActivated):
-			badRequestResponse(w, err)
-		case errors.Is(err, services.ErrNotPossibleToActivatePlant):
-			badRequestResponse(w, err)
-		case errors.Is(err, services.ErrNotPossibleToActivatePlantButSeedRefunded):
 			badRequestResponse(w, err)
 		default:
 			serverErrorResponse(w, err)

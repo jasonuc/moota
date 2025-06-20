@@ -26,11 +26,11 @@ INSERT INTO soils (id, soil_type, water_retention, nutrient_richness, radius_m, 
 -- Plants in loam soil (Central Park)
 -- Center plant
 INSERT INTO plants (
-  id, nickname, hp, dead, owner_id, time_planted, activated, centre, radius_m, 
+  id, nickname, hp, dead, owner_id, time_planted, centre, radius_m, 
   soil_id, optimal_soil, botanical_name, woe, frolic, dread, malice
 ) VALUES (
   '00000000-0000-4000-a000-000000000201', 'Oak Tree', 100.0, false, 
-  '00000000-0000-4000-a000-000000000001', NOW(), true, 
+  '00000000-0000-4000-a000-000000000001', NOW(),
   ST_GeogFromText('POINT(-73.965355 40.782865)'), 3.0, 
   '00000000-0000-4000-a000-000000000101', 'loam', 'Quercus alba', 
   3, 2, 4, 1
@@ -38,11 +38,11 @@ INSERT INTO plants (
 
 -- Plant 8m north of center (still within soil radius)
 INSERT INTO plants (
-  id, nickname, hp, dead, owner_id, time_planted, activated, centre, radius_m, 
+  id, nickname, hp, dead, owner_id, time_planted, centre, radius_m, 
   soil_id, optimal_soil, botanical_name, woe, frolic, dread, malice
 ) VALUES (
   '00000000-0000-4000-a000-000000000202', 'Pine', 95.0, false, 
-  '00000000-0000-4000-a000-000000000001', NOW(), true, 
+  '00000000-0000-4000-a000-000000000001', NOW(),
   ST_GeogFromText('POINT(-73.965355 40.782937)'), 3.0, 
   '00000000-0000-4000-a000-000000000101', 'loam', 'Pinus strobus', 
   2, 5, 1, 3
@@ -50,11 +50,11 @@ INSERT INTO plants (
 
 -- Plant 8m east of center (still within soil radius)
 INSERT INTO plants (
-  id, nickname, hp, dead, owner_id, time_planted, activated, centre, radius_m, 
+  id, nickname, hp, dead, owner_id, time_planted, centre, radius_m, 
   soil_id, optimal_soil, botanical_name, woe, frolic, dread, malice
 ) VALUES (
   '00000000-0000-4000-a000-000000000203', 'Maple', 90.0, false, 
-  '00000000-0000-4000-a000-000000000001', NOW(), true, 
+  '00000000-0000-4000-a000-000000000001', NOW(),
   ST_GeogFromText('POINT(-73.965265 40.782865)'), 3.0, 
   '00000000-0000-4000-a000-000000000101', 'silt', 'Acer rubrum', 
   1, 4, 3, 5
@@ -63,11 +63,11 @@ INSERT INTO plants (
 -- Plants in sandy soil (Miami Beach)
 -- Center plant
 INSERT INTO plants (
-  id, nickname, hp, dead, owner_id, time_planted, activated, centre, radius_m, 
+  id, nickname, hp, dead, owner_id, time_planted, centre, radius_m, 
   soil_id, optimal_soil, botanical_name, woe, frolic, dread, malice
 ) VALUES (
   '00000000-0000-4000-a000-000000000204', 'Palm Tree', 85.0, false, 
-  '00000000-0000-4000-a000-000000000001', NOW(), true, 
+  '00000000-0000-4000-a000-000000000001', NOW(),
   ST_GeogFromText('POINT(-80.134358 25.792236)'), 3.0, 
   '00000000-0000-4000-a000-000000000102', 'sandy', 'Cocos nucifera', 
   5, 3, 2, 1
@@ -75,11 +75,11 @@ INSERT INTO plants (
 
 -- Plant 7m south of center (still within soil radius)
 INSERT INTO plants (
-  id, nickname, hp, dead, owner_id, time_planted, activated, centre, radius_m, 
+  id, nickname, hp, dead, owner_id, time_planted, centre, radius_m, 
   soil_id, optimal_soil, botanical_name, woe, frolic, dread, malice
 ) VALUES (
   '00000000-0000-4000-a000-000000000205', 'Cactus', 75.0, false, 
-  '00000000-0000-4000-a000-000000000001', NOW(), true, 
+  '00000000-0000-4000-a000-000000000001', NOW(),
   ST_GeogFromText('POINT(-80.134358 25.792173)'), 3, 
   '00000000-0000-4000-a000-000000000102', 'sandy', 'Opuntia', 
   4, 1, 5, 2
@@ -87,24 +87,12 @@ INSERT INTO plants (
 
 -- Dead plant in clay soil
 INSERT INTO plants (
-  id, nickname, hp, dead, owner_id, time_planted, activated, centre, radius_m, 
+  id, nickname, hp, dead, owner_id, time_planted, centre, radius_m, 
   soil_id, optimal_soil, botanical_name, woe, frolic, dread, malice
 ) VALUES (
   '00000000-0000-4000-a000-000000000206', 'Wilted Flower', 0.0, true, 
-  '00000000-0000-4000-a000-000000000001', NOW() - INTERVAL '10 days', true, 
+  '00000000-0000-4000-a000-000000000001', NOW() - INTERVAL '10 days', 
   ST_GeogFromText('POINT(-111.928651 33.252440)'), 3.0, 
   '00000000-0000-4000-a000-000000000104', 'loam', 'Rosa rubiginosa', 
-  2, 1, 5, 3
-);
-
--- Unactivated plant in silt soil
-INSERT INTO plants (
-  id, nickname, hp, dead, owner_id, time_planted, activated, centre, radius_m, 
-  soil_id, optimal_soil, botanical_name, woe, frolic, dread, malice
-) VALUES (
-  '00000000-0000-4000-a000-000000000207', 'Wilted Flower', 0.0, false, 
-  '00000000-0000-4000-a000-000000000001', NOW() - INTERVAL '10 days', false, 
-  ST_GeogFromText('POINT(-111.928651 33.252440)'), 3.0, 
-  '00000000-0000-4000-a000-000000000103', 'loam', 'Rosa rubiginosa', 
   2, 1, 5, 3
 );

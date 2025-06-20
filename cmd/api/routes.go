@@ -76,7 +76,6 @@ func (app *application) routes() http.Handler {
 					r.Get("/", app.plantHandler.HandleGetPlant)
 					r.Patch("/", app.plantHandler.HandleChangePlantNickname)
 					r.Post("/action", app.plantHandler.HandleActionOnPlant)
-					r.Post("/activate", app.plantHandler.HandleActivatePlant)
 					r.Post("/kill", app.plantHandler.HandleKillPlant)
 				})
 			})

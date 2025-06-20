@@ -42,7 +42,6 @@ type Plant struct {
 	Nickname        string     `json:"nickname"`
 	Hp              float64    `json:"hp"`
 	Dead            bool       `json:"dead"`
-	Activated       bool       `json:"activated"`
 	OwnerID         string     `json:"ownerID"`
 	Soil            *Soil      `json:"soil,omitempty"`
 	Tempers         *Tempers   `json:"tempers,omitempty"`
@@ -91,7 +90,6 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 		Soil:      soil,
 		OwnerID:   seed.OwnerID,
 		Dead:      false,
-		Activated: false,
 		LevelMeta: NewLeveLMeta(1, xpBonus),
 		Tempers:   NewTempers(),
 		SeedMeta:  seed.SeedMeta,

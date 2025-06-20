@@ -13,7 +13,6 @@ type PlantStore interface {
 	GetCountByUsername(context.Context, string) (*models.PlantCount, error)
 	GetBySoilIDAndProximity(context.Context, string, models.Coordinates, float64) ([]*models.Plant, error)
 	GetByOwnerIDAndProximity(context.Context, string, models.Coordinates) ([]*models.Plant, error)
-	ActivatePlant(context.Context, string) error
 	Insert(context.Context, *models.Plant) error
 	Update(context.Context, *models.Plant) error
 	Delete(context.Context, string) error
@@ -25,13 +24,12 @@ type plantStore struct {
 
 type GetPlantsOpts struct {
 	IncludeDeceased bool
-	IncludeInactive bool
 }
 
 func (s *plantStore) GetCountByUsername(ctx context.Context, userID string) (*models.PlantCount, error) {
 	q := `SELECT p.dead, count(*) AS plant_count FROM plants p
 			JOIN users u ON p.owner_id = u.id
-			WHERE u.username = $1 AND p.activated = true
+			WHERE u.username = $1 
 			GROUP BY p.dead ORDER BY p.dead ASC;`
 
 	plantCount := new(models.PlantCount)
@@ -66,8 +64,8 @@ func (s *plantStore) GetCountByUsername(ctx context.Context, userID string) (*mo
 }
 
 func (s *plantStore) GetByOwnerIDAndProximity(ctx context.Context, ownerID string, point models.Coordinates) ([]*models.Plant, error) {
-	q := `SELECT id, nickname, hp, dead, owner_id, time_planted, last_watered_time, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, activated, time_of_death FROM plants
-			WHERE owner_id = $1 AND activated = true AND dead = false
+	q := `SELECT id, nickname, hp, dead, owner_id, time_planted, last_watered_time, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, time_of_death FROM plants
+			WHERE owner_id = $1 AND dead = false
 			ORDER BY ST_Distance(centre, ST_SetSRID(ST_MakePoint($2, $3), 4326)::GEOGRAPHY) ASC;`
 
 	rows, err := s.db.QueryContext(ctx, q, ownerID, point.Lon, point.Lat)
@@ -89,7 +87,7 @@ func (s *plantStore) GetByOwnerIDAndProximity(ctx context.Context, ownerID strin
 			&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
 			&plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime, &centreText,
 			&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.XP,
-			&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.Activated, &plant.TimeOfDeath,
+			&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.TimeOfDeath,
 		)
 		if err != nil {
 			return nil, err
@@ -113,8 +111,8 @@ func (s *plantStore) GetByOwnerIDAndProximity(ctx context.Context, ownerID strin
 }
 
 func (s *plantStore) GetBySoilIDAndProximity(ctx context.Context, soilID string, point models.Coordinates, distanceM float64) ([]*models.Plant, error) {
-	q := `SELECT id, nickname, hp, dead, owner_id, time_planted, last_watered_time, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, activated, time_of_death FROM plants
-			WHERE soil_id = $1 AND dead = false AND activated = true
+	q := `SELECT id, nickname, hp, dead, owner_id, time_planted, last_watered_time, last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, time_of_death FROM plants
+			WHERE soil_id = $1 AND dead = false 
 			AND ST_DWithin(centre, ST_SetSRID(ST_MakePoint($2, $3), 4326)::GEOGRAPHY, $4);`
 
 	rows, err := s.db.QueryContext(ctx, q, soilID, point.Lon, point.Lat, distanceM)
@@ -137,7 +135,7 @@ func (s *plantStore) GetBySoilIDAndProximity(ctx context.Context, soilID string,
 			&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
 			&plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime, &centreText,
 			&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.XP,
-			&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.Activated, &plant.TimeOfDeath,
+			&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.TimeOfDeath,
 		)
 		if err != nil {
 			return nil, err
@@ -163,14 +161,9 @@ func (s *plantStore) GetBySoilIDAndProximity(ctx context.Context, soilID string,
 func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string, opts *GetPlantsOpts) ([]*models.Plant, error) {
 	q := `SELECT id, nickname, hp, dead, owner_id, time_planted, last_watered_time, 
          last_action_time, ST_AsText(centre) as centre, radius_m, soil_id, 
-         optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, 
-         activated, time_of_death 
+         optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice, time_of_death 
 		FROM plants
 		WHERE owner_id = $1`
-
-	if !opts.IncludeInactive {
-		q += ` AND activated = true`
-	}
 
 	if !opts.IncludeDeceased {
 		q += ` AND dead = false`
@@ -196,7 +189,7 @@ func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string, opts *Get
 			&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
 			&plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime, &centreText,
 			&radiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.XP,
-			&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.Activated, &plant.TimeOfDeath,
+			&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.TimeOfDeath,
 		)
 		if err != nil {
 			return nil, err
@@ -222,10 +215,10 @@ func (s *plantStore) GetByOwnerID(ctx context.Context, ownerID string, opts *Get
 func (s *plantStore) Get(ctx context.Context, id string, opts *GetPlantsOpts) (*models.Plant, error) {
 	q := `SELECT 
 			p.id, p.nickname, p.hp, p.dead, p.owner_id, p.time_planted, p.last_watered_time, p.last_action_time, ST_AsText(p.centre), 
-			p.radius_m, p.soil_id, p.optimal_soil, p.botanical_name, p.level, p.xp, p.woe, p.frolic, p.dread, p.malice, p.activated, 
+			p.radius_m, p.soil_id, p.optimal_soil, p.botanical_name, p.level, p.xp, p.woe, p.frolic, p.dread, p.malice, 
 			ST_AsText(s.centre), s.radius_m, s.soil_type, s.water_retention, s.nutrient_richness, s.created_at, p.time_of_death
 			FROM plants p JOIN soils s ON p.soil_id = s.id
-			WHERE p.id = $1 AND (activated = true OR activated = $2) AND (dead = false OR dead = $3);`
+			WHERE p.id = $1 AND (dead = false OR dead = $2);`
 
 	var plantCentreText string
 	var plantRadiusM float64
@@ -236,11 +229,11 @@ func (s *plantStore) Get(ctx context.Context, id string, opts *GetPlantsOpts) (*
 	plant.Soil = new(models.Soil)
 	plant.Tempers = new(models.Tempers)
 
-	err := s.db.QueryRowContext(ctx, q, id, opts.IncludeInactive, opts.IncludeDeceased).Scan(
+	err := s.db.QueryRowContext(ctx, q, id, opts.IncludeDeceased).Scan(
 		&plant.ID, &plant.Nickname, &plant.Hp, &plant.Dead, &plant.OwnerID,
 		&plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime, &plantCentreText,
 		&plantRadiusM, &plant.Soil.ID, &plant.OptimalSoil, &plant.BotanicalName, &plant.Level, &plant.XP,
-		&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice, &plant.Activated,
+		&plant.Tempers.Woe, &plant.Tempers.Frolic, &plant.Tempers.Dread, &plant.Tempers.Malice,
 		&soilCentreText, &soilRadiusM, &plant.Soil.Type, &plant.Soil.WaterRetention, &plant.Soil.NutrientRichness, &plant.Soil.CreatedAt, &plant.TimeOfDeath,
 	)
 	if err != nil {
@@ -268,7 +261,7 @@ func (s *plantStore) Get(ctx context.Context, id string, opts *GetPlantsOpts) (*
 func (s *plantStore) Insert(ctx context.Context, plant *models.Plant) error {
 	q := `INSERT INTO plants (nickname, hp, owner_id, centre, radius_m, soil_id, optimal_soil, botanical_name, level, xp, woe, frolic, dread, malice)
 			VALUES ($1, $2, $3, ST_SetSRID(ST_MakePoint($4, $5), 4326), $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-			RETURNING id, dead, time_planted, last_watered_time, last_action_time, activated;`
+			RETURNING id, dead, time_planted, last_watered_time, last_action_time;`
 
 	err := s.db.QueryRowContext(ctx,
 		q,
@@ -278,7 +271,7 @@ func (s *plantStore) Insert(ctx context.Context, plant *models.Plant) error {
 		plant.Level, plant.XP,
 		plant.Tempers.Woe, plant.Tempers.Frolic, plant.Tempers.Dread, plant.Tempers.Malice,
 	).Scan(
-		&plant.ID, &plant.Dead, &plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime, &plant.Activated,
+		&plant.ID, &plant.Dead, &plant.TimePlanted, &plant.LastWateredTime, &plant.LastActionTime,
 	)
 
 	if err != nil {
@@ -313,25 +306,6 @@ func (s *plantStore) Update(ctx context.Context, plant *models.Plant) error {
 		return models.ErrPlantNotFound
 	}
 
-	return nil
-}
-
-func (s *plantStore) ActivatePlant(ctx context.Context, plantID string) error {
-	q := `UPDATE plants 
-          SET activated = true
-          WHERE id = $1 AND activated = false;`
-	res, err := s.db.ExecContext(ctx, q, plantID)
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if rowsAffected == 0 {
-		return models.ErrPlantNotFound
-	}
 	return nil
 }
 
