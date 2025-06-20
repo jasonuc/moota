@@ -117,5 +117,6 @@ func (h *SeedHandler) HandleCheckWhenUserCanRequestSeed(w http.ResponseWriter, r
 		return
 	}
 
+	//nolint:errcheck
 	writeJSON(w, http.StatusOK, envelope{"timeAvailable": timeUntilUserCanReqSeeds, "availableNow": timeUntilUserCanReqSeeds == nil}, nil)
 }
