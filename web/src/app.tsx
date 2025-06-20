@@ -1,6 +1,7 @@
 import LandingPage from "@/pages/landing/index";
 import { Route, Routes } from "react-router";
 import { ProtectedGeolocationAccuracyIndicatorRoute } from "./components/geolocation-accuracy-indicator";
+import ProtectedRoute from "./components/protected";
 import AuthLayout from "./layouts/auth";
 import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
@@ -42,18 +43,18 @@ export default function App() {
       <Route
         path="/settings"
         element={
-          <ProtectedGeolocationAccuracyIndicatorRoute>
+          <ProtectedRoute>
             <SettingsPage />
-          </ProtectedGeolocationAccuracyIndicatorRoute>
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/profile/:username"
         element={
-          <ProtectedGeolocationAccuracyIndicatorRoute>
+          <ProtectedRoute>
             <ProfilePage />
-          </ProtectedGeolocationAccuracyIndicatorRoute>
+          </ProtectedRoute>
         }
       />
 
@@ -96,9 +97,9 @@ export default function App() {
       <Route
         path="/plants/:plantId/public"
         element={
-          <ProtectedGeolocationAccuracyIndicatorRoute>
+          <ProtectedRoute>
             <PublicPlantPage />
-          </ProtectedGeolocationAccuracyIndicatorRoute>
+          </ProtectedRoute>
         }
       />
 
