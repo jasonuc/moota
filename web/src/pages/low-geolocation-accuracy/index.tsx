@@ -1,3 +1,4 @@
+import Header from "@/components/header";
 import { LogoWithText } from "@/components/logo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -73,9 +74,13 @@ export default function LowGeolocationAccuracyPage() {
 
   return (
     <div className="flex flex-col space-y-5 grow">
-      <Link to={isLoggedIn ? "/home" : "/"}>
-        <LogoWithText />
-      </Link>
+      {isLoggedIn ? (
+        <Header />
+      ) : (
+        <Link to="/">
+          <LogoWithText />
+        </Link>
+      )}
 
       <Card className="w-full max-w-md mx-auto shadow-lg">
         <CardHeader className="text-center pb-4">

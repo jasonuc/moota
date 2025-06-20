@@ -1,3 +1,4 @@
+import Header from "@/components/header";
 import { LogoWithText } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,11 +18,15 @@ export default function NotFoundPage() {
 
   return (
     <div className="flex flex-col space-y-5 grow">
-      <Link to={isLoggedIn ? "/home" : "/"}>
-        <LogoWithText />
-      </Link>
+      {isLoggedIn ? (
+        <Header />
+      ) : (
+        <Link to="/">
+          <LogoWithText />
+        </Link>
+      )}
 
-      <div className="w-full min-h-full flex flex-col items-center justify-center space-y-5 pb-10 grow">
+      <div className="flex flex-col items-center justify-center space-y-5 pb-10 grow">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-muted">
