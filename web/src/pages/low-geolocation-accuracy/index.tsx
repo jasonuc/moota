@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/hooks/use-auth";
 import {
   AlertTriangleIcon,
   HomeIcon,
@@ -24,6 +25,7 @@ import { Link, useNavigate } from "react-router";
 
 export default function LowGeolocationAccuracyPage() {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
   const [currentAccuracy, setCurrentAccuracy] = useState<number>();
   const [isRetrying, setIsRetrying] = useState(false);
 
@@ -71,7 +73,7 @@ export default function LowGeolocationAccuracyPage() {
 
   return (
     <div className="flex flex-col space-y-5 grow">
-      <Link to="/">
+      <Link to={isLoggedIn ? "/home" : "/"}>
         <LogoWithText />
       </Link>
 

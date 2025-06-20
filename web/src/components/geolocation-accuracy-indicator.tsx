@@ -1,11 +1,16 @@
 import { useGeolocation } from "@uidotdev/usehooks";
 import { useNavigate } from "react-router";
+import ProtectedRoute from "./protected";
 
 type GeolocationAccuracyIndicatorProps = {
   children: React.ReactNode;
 };
 
-export default function GeolocationAccuracyIndicator({
+type ProtectedGeolocationAccuracyIndicatorRouteProps = {
+  children: React.ReactNode;
+};
+
+export function GeolocationAccuracyIndicator({
   children,
 }: GeolocationAccuracyIndicatorProps) {
   const { accuracy } = useGeolocation();
@@ -20,3 +25,11 @@ export default function GeolocationAccuracyIndicator({
     return children;
   }
 }
+
+export const ProtectedGeolocationAccuracyIndicatorRoute = ({
+  children,
+}: ProtectedGeolocationAccuracyIndicatorRouteProps) => (
+  <ProtectedRoute>
+    <GeolocationAccuracyIndicator>{children}</GeolocationAccuracyIndicator>
+  </ProtectedRoute>
+);

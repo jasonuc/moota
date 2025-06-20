@@ -1,12 +1,12 @@
 import LandingPage from "@/pages/landing/index";
 import { Route, Routes } from "react-router";
-import GeolocationAccuracyIndicator from "./components/geolocation-accuracy-indicator";
-import ProtectedRoute from "./components/protected";
+import { ProtectedGeolocationAccuracyIndicatorRoute } from "./components/geolocation-accuracy-indicator";
 import AuthLayout from "./layouts/auth";
 import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
 import HomePage from "./pages/home";
 import LowGeolocationAccuracyPage from "./pages/low-geolocation-accuracy";
+import NotFoundPage from "./pages/not-found/not-found";
 import AllUserPlantsPage from "./pages/plants";
 import PlantGraveyard from "./pages/plants/graveyard";
 import IndividualPlantPage from "./pages/plants/plantId";
@@ -20,99 +20,89 @@ export default function App() {
     <Routes>
       <Route index element={<LandingPage />} />
 
+      <Route
+        path="/low-geolocation-accuracy"
+        element={<LowGeolocationAccuracyPage />}
+      />
+
       <Route element={<AuthLayout />}>
-        <Route element={<LoginPage />} path="/login" />
-        <Route element={<RegisterPage />} path="/register" />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Route>
 
-      <Route>
-        <Route
-          element={<LowGeolocationAccuracyPage />}
-          path="/low-geolocation-accuracy"
-        />
+      <Route
+        path="/home"
+        element={
+          <ProtectedGeolocationAccuracyIndicatorRoute>
+            <HomePage />
+          </ProtectedGeolocationAccuracyIndicatorRoute>
+        }
+      />
 
-        <Route
-          element={
-            <ProtectedRoute>
-              <GeolocationAccuracyIndicator>
-                <HomePage />
-              </GeolocationAccuracyIndicator>
-            </ProtectedRoute>
-          }
-          path="/home"
-        />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedGeolocationAccuracyIndicatorRoute>
+            <SettingsPage />
+          </ProtectedGeolocationAccuracyIndicatorRoute>
+        }
+      />
 
-        <Route
-          element={
-            <ProtectedRoute>
-              <GeolocationAccuracyIndicator>
-                <SettingsPage />
-              </GeolocationAccuracyIndicator>
-            </ProtectedRoute>
-          }
-          path="/settings"
-        />
-        <Route
-          element={
-            <ProtectedRoute>
-              <GeolocationAccuracyIndicator>
-                <ProfilePage />
-              </GeolocationAccuracyIndicator>
-            </ProtectedRoute>
-          }
-          path="/profile/:username"
-        />
-        <Route
-          element={
-            <ProtectedRoute>
-              <GeolocationAccuracyIndicator>
-                <SeedsPage />
-              </GeolocationAccuracyIndicator>
-            </ProtectedRoute>
-          }
-          path="/seeds"
-        />
-        <Route
-          element={
-            <ProtectedRoute>
-              <GeolocationAccuracyIndicator>
-                <AllUserPlantsPage />
-              </GeolocationAccuracyIndicator>
-            </ProtectedRoute>
-          }
-          path="/plants"
-        />
-        <Route
-          element={
-            <ProtectedRoute>
-              <GeolocationAccuracyIndicator>
-                <PlantGraveyard />
-              </GeolocationAccuracyIndicator>
-            </ProtectedRoute>
-          }
-          path="/plants/graveyard"
-        />
-        <Route
-          element={
-            <ProtectedRoute>
-              <GeolocationAccuracyIndicator>
-                <IndividualPlantPage />
-              </GeolocationAccuracyIndicator>
-            </ProtectedRoute>
-          }
-          path="/plants/:plantId"
-        />
-        <Route
-          element={
-            <ProtectedRoute>
-              <GeolocationAccuracyIndicator>
-                <PublicPlantPage />
-              </GeolocationAccuracyIndicator>
-            </ProtectedRoute>
-          }
-          path="/plants/:plantId/public"
-        />
-      </Route>
+      <Route
+        path="/profile/:username"
+        element={
+          <ProtectedGeolocationAccuracyIndicatorRoute>
+            <ProfilePage />
+          </ProtectedGeolocationAccuracyIndicatorRoute>
+        }
+      />
+
+      <Route
+        path="/seeds"
+        element={
+          <ProtectedGeolocationAccuracyIndicatorRoute>
+            <SeedsPage />
+          </ProtectedGeolocationAccuracyIndicatorRoute>
+        }
+      />
+
+      <Route
+        path="/plants"
+        element={
+          <ProtectedGeolocationAccuracyIndicatorRoute>
+            <AllUserPlantsPage />
+          </ProtectedGeolocationAccuracyIndicatorRoute>
+        }
+      />
+
+      <Route
+        path="/plants/graveyard"
+        element={
+          <ProtectedGeolocationAccuracyIndicatorRoute>
+            <PlantGraveyard />
+          </ProtectedGeolocationAccuracyIndicatorRoute>
+        }
+      />
+
+      <Route
+        path="/plants/:plantId"
+        element={
+          <ProtectedGeolocationAccuracyIndicatorRoute>
+            <IndividualPlantPage />
+          </ProtectedGeolocationAccuracyIndicatorRoute>
+        }
+      />
+
+      <Route
+        path="/plants/:plantId/public"
+        element={
+          <ProtectedGeolocationAccuracyIndicatorRoute>
+            <PublicPlantPage />
+          </ProtectedGeolocationAccuracyIndicatorRoute>
+        }
+      />
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
