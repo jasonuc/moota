@@ -1,3 +1,5 @@
+import { Plant } from "./plant";
+
 type User = {
   id: string;
   username: string;
@@ -15,6 +17,8 @@ type UserProfile = {
   level: number;
   plantCount: PlantCount;
   seedCount: SeedCount;
+  top3AlivePlants: Plant[];
+  deceasedPlants: Plant[];
 };
 
 type PlantCount = {

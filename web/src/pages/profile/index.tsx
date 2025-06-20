@@ -1,41 +1,47 @@
+import GraveyardOnProfile from "@/components/graveyard-on-profile";
 import Header from "@/components/header";
+import Top3Plants from "@/components/top-3-plants";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { getUserProfile } from "@/services/api/user";
 import { UserProfile } from "@/types/user";
 import { AxiosError } from "axios";
+import { HeartIcon, SkullIcon, SproutIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 
-// TODO: This page needs work maybe I add a detailed section of the user's stats
+const noTitleMessages = [
+  "has no title",
+  "is yet to learn the ways of the plant",
+  "is still finding their roots",
+  "hasn't bloomed yet",
+  "is a seedling in training",
+  "is cultivating their potential",
+  "needs more sunlight",
+  "is working on their green thumb",
+  "is branching out slowly",
+  "is photosynthesizing their skills",
+  "is still germinating",
+  "is pruning their abilities",
+  "hasn't found their soil yet",
+  "is a work in progress",
+  "is planting seeds of knowledge",
+  "is watering their dreams",
+  "is rooting for themselves",
+  "is growing at their own pace",
+  "is composting their mistakes",
+];
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile>();
   const { username } = useParams();
   const navigate = useNavigate();
 
-  const noTitleMessages = [
-    "has no title",
-    `is yet to learn the ways of the plant`,
-    `is still finding their roots`,
-    `hasn't bloomed yet`,
-    `is a seedling in training`,
-    `is cultivating their potential`,
-    `needs more sunlight`,
-    `is working on their green thumb`,
-    `is branching out slowly`,
-    `is photosynthesizing their skills`,
-    `is still germinating`,
-    `is pruning their abilities`,
-    `hasn't found their soil yet`,
-    `is a work in progress`,
-    `is planting seeds of knowledge`,
-    `is watering their dreams`,
-    `is rooting for themselves`,
-    `is growing at their own pace`,
-    `is composting their mistakes`,
-  ];
-
   useEffect(() => {
-    getUserProfile(username!)
+    if (!username) return;
+
+    getUserProfile(username)
       .then((data) => {
         setProfile(data);
       })
@@ -52,16 +58,19 @@ export default function ProfilePage() {
     <div className="flex flex-col space-y-5 grow">
       <Header />
 
-      <div className="flex flex-col space-y-5 w-full max-w-md mx-auto">
+      <div className="flex flex-col space-y-5 w-full max-w-md mx-auto px-4">
         <img
-          src={`https://api.dicebear.com/9.x/glass/svg`}
+          src={`https://api.dicebear.com/9.x/glass/svg?seed=${username}`}
           alt="profile"
-          className="w-full h-[15rem] object-cover rounded-md border-2 border-white"
+          className="w-full h-[15rem] object-cover rounded-lg border"
         />
 
-        <div>
+        <div className="space-y-2">
           <h1 className="text-2xl font-bold">{`@${username}`}</h1>
-          {!profile?.title && (
+
+          {profile?.title ? (
+            <p className="italic text-lg">{profile.title}</p>
+          ) : (
             <p className="italic">
               Untitled{" "}
               <span className="text-gray-600 not-italic">
@@ -74,49 +83,55 @@ export default function ProfilePage() {
               </span>
             </p>
           )}
-          <p className="italic">{profile?.title}</p>
-          <h3 className="text-xl font-semibold mt-1.5">
-            Level {profile?.level}
-          </h3>
-        </div>
 
-        <div className="flex justify-between items-center space-y-2">
-          <div className="flex flex-col items-center justify-between space-y-2">
-            <div className="relative flex items-center justify-center rounded-md size-12 border-2 border-white">
-              <img
-                src="https://api.dicebear.com/9.x/glass/svg"
-                alt="profile"
-                className="absolute object-cover -z-10"
-              />
-              <h2>🌿</h2>
-            </div>
-            <p>{profile?.plantCount.alive}</p>
-          </div>
-
-          <div className="flex flex-col items-center justify-between space-y-2">
-            <div className="relative flex items-center justify-center rounded-md size-12 border-2 border-white">
-              <img
-                src="https://api.dicebear.com/9.x/glass/svg"
-                alt="profile"
-                className="absolute object-cover -z-10"
-              />
-              <h2>🪦</h2>
-            </div>
-            <p>{profile?.plantCount.deceased}</p>
-          </div>
-
-          <div className="flex flex-col items-center justify-between space-y-2">
-            <div className="relative flex items-center justify-center rounded-md size-12 border-2 border-white">
-              <img
-                src="https://api.dicebear.com/9.x/glass/svg"
-                alt="profile"
-                className="absolute object-cover -z-10"
-              />
-              <h2>🫘</h2>
-            </div>
-            <p>{profile?.seedCount.unused}</p>
+          <div className="flex items-center gap-2">
+            <Badge className="text-sm px-3 py-1">
+              Level {profile?.level || 0}
+            </Badge>
           </div>
         </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <Card className="p-3.5">
+            <div className="flex flex-col items-center space-y-2">
+              <HeartIcon className="w-6 h-6 text-green-600" />
+              <div className="text-center">
+                <p className="text-xl font-bold">
+                  {profile?.plantCount.alive || 0}
+                </p>
+                <p className="text-sm text-gray-600">Alive</p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-3.5">
+            <div className="flex flex-col items-center space-y-2">
+              <SkullIcon className="w-6 h-6 text-gray-600" />
+              <div className="text-center">
+                <p className="text-xl font-bold">
+                  {profile?.plantCount.deceased || 0}
+                </p>
+                <p className="text-sm text-gray-600">Deceased</p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-3.5">
+            <div className="flex flex-col items-center space-y-2">
+              <SproutIcon className="w-6 h-6 text-amber-600" />
+              <div className="text-center">
+                <p className="text-xl font-bold">
+                  {profile?.seedCount.unused || 0}
+                </p>
+                <p className="text-sm text-gray-600">Seeds</p>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        <Top3Plants profile={profile} />
+
+        <GraveyardOnProfile profile={profile} />
       </div>
     </div>
   );

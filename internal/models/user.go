@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"sort"
 	"time"
 )
 
@@ -17,11 +18,13 @@ type User struct {
 }
 
 type UserProfile struct {
-	Username   string `json:"username"`
-	Title      string `json:"title"`
-	Level      int64  `json:"level"`
-	PlantCount `json:"plantCount"`
-	SeedCount  `json:"seedCount"`
+	Username        string   `json:"username"`
+	Title           string   `json:"title"`
+	Level           int64    `json:"level"`
+	Top3AlivePlants []*Plant `json:"top3AlivePlants"`
+	DeceasedPlants  []*Plant `json:"deceasedPlants"`
+	PlantCount      `json:"plantCount"`
+	SeedCount       `json:"seedCount"`
 }
 
 type PlantCount struct {
@@ -38,7 +41,7 @@ var (
 	ErrUserNotFound = errors.New("user not found")
 )
 
-func NewUserProfile(user *User, plantCount *PlantCount, seedCount *SeedCount) *UserProfile {
+func NewUserProfile(user *User, plantCount *PlantCount, seedCount *SeedCount, plants []*Plant) *UserProfile {
 	userProfile := new(UserProfile)
 
 	userProfile.Username = user.Username
@@ -47,6 +50,38 @@ func NewUserProfile(user *User, plantCount *PlantCount, seedCount *SeedCount) *U
 
 	userProfile.PlantCount = *plantCount
 	userProfile.SeedCount = *seedCount
+
+	userProfile.Top3AlivePlants = make([]*Plant, 0)
+	userProfile.DeceasedPlants = make([]*Plant, 0)
+
+	alivePlants := make([]*Plant, 0)
+	deceasedPlants := make([]*Plant, 0)
+
+	for _, plant := range plants {
+		plant.CircleMeta = CircleMeta{}
+
+		if plant.Dead {
+			deceasedPlants = append(deceasedPlants, plant)
+		} else {
+			alivePlants = append(alivePlants, plant)
+		}
+	}
+
+	sort.Slice(alivePlants, func(i, j int) bool {
+		return alivePlants[i].Hp > alivePlants[j].Hp
+	})
+
+	maxAlive := min(len(alivePlants), 3)
+	userProfile.Top3AlivePlants = alivePlants[:maxAlive]
+
+	sort.Slice(deceasedPlants, func(i, j int) bool {
+		if deceasedPlants[i].TimeOfDeath == nil || deceasedPlants[j].TimeOfDeath == nil {
+			return deceasedPlants[i].TimeOfDeath != nil
+		}
+		return deceasedPlants[i].TimeOfDeath.After(*deceasedPlants[j].TimeOfDeath)
+	})
+
+	userProfile.DeceasedPlants = deceasedPlants
 
 	return userProfile
 }

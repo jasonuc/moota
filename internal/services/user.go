@@ -56,11 +56,16 @@ func (s *userService) GetUserProfile(ctx context.Context, username string) (*mod
 		return nil, err
 	}
 
+	plants, err := tx.Plant.GetByOwnerID(ctx, user.ID, &store.GetPlantsOpts{IncludeDeceased: true})
+	if err != nil {
+		return nil, err
+	}
+
 	if err := transaction.Commit(); err != nil {
 		return nil, err
 	}
 
-	userProfile := models.NewUserProfile(user, plantCount, seedCount)
+	userProfile := models.NewUserProfile(user, plantCount, seedCount, plants)
 
 	return userProfile, nil
 }
