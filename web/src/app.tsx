@@ -1,17 +1,19 @@
 import LandingPage from "@/pages/landing/index";
 import { Route, Routes } from "react-router";
+import GeolocationAccuracyIndicator from "./components/geolocation-accuracy-indicator";
 import ProtectedRoute from "./components/protected";
 import AuthLayout from "./layouts/auth";
 import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
 import HomePage from "./pages/home";
+import LowGeolocationAccuracyPage from "./pages/low-geolocation-accuracy";
 import AllUserPlantsPage from "./pages/plants";
+import PlantGraveyard from "./pages/plants/graveyard";
 import IndividualPlantPage from "./pages/plants/plantId";
+import PublicPlantPage from "./pages/plants/plantId/public";
 import ProfilePage from "./pages/profile";
 import SeedsPage from "./pages/seeds";
-import PlantGraveyard from "./pages/plants/graveyard";
 import SettingsPage from "./pages/settings";
-import PublicPlantPage from "./pages/plants/plantId/public";
 
 export default function App() {
   return (
@@ -25,9 +27,16 @@ export default function App() {
 
       <Route>
         <Route
+          element={<LowGeolocationAccuracyPage />}
+          path="/low-geolocation-accuracy"
+        />
+
+        <Route
           element={
             <ProtectedRoute>
-              <HomePage />
+              <GeolocationAccuracyIndicator>
+                <HomePage />
+              </GeolocationAccuracyIndicator>
             </ProtectedRoute>
           }
           path="/home"
@@ -36,7 +45,9 @@ export default function App() {
         <Route
           element={
             <ProtectedRoute>
-              <SettingsPage />
+              <GeolocationAccuracyIndicator>
+                <SettingsPage />
+              </GeolocationAccuracyIndicator>
             </ProtectedRoute>
           }
           path="/settings"
@@ -44,7 +55,9 @@ export default function App() {
         <Route
           element={
             <ProtectedRoute>
-              <ProfilePage />
+              <GeolocationAccuracyIndicator>
+                <ProfilePage />
+              </GeolocationAccuracyIndicator>
             </ProtectedRoute>
           }
           path="/profile/:username"
@@ -52,7 +65,9 @@ export default function App() {
         <Route
           element={
             <ProtectedRoute>
-              <SeedsPage />
+              <GeolocationAccuracyIndicator>
+                <SeedsPage />
+              </GeolocationAccuracyIndicator>
             </ProtectedRoute>
           }
           path="/seeds"
@@ -60,7 +75,9 @@ export default function App() {
         <Route
           element={
             <ProtectedRoute>
-              <AllUserPlantsPage />
+              <GeolocationAccuracyIndicator>
+                <AllUserPlantsPage />
+              </GeolocationAccuracyIndicator>
             </ProtectedRoute>
           }
           path="/plants"
@@ -68,7 +85,9 @@ export default function App() {
         <Route
           element={
             <ProtectedRoute>
-              <PlantGraveyard />
+              <GeolocationAccuracyIndicator>
+                <PlantGraveyard />
+              </GeolocationAccuracyIndicator>
             </ProtectedRoute>
           }
           path="/plants/graveyard"
@@ -76,7 +95,9 @@ export default function App() {
         <Route
           element={
             <ProtectedRoute>
-              <IndividualPlantPage />
+              <GeolocationAccuracyIndicator>
+                <IndividualPlantPage />
+              </GeolocationAccuracyIndicator>
             </ProtectedRoute>
           }
           path="/plants/:plantId"
@@ -84,7 +105,9 @@ export default function App() {
         <Route
           element={
             <ProtectedRoute>
-              <PublicPlantPage />
+              <GeolocationAccuracyIndicator>
+                <PublicPlantPage />
+              </GeolocationAccuracyIndicator>
             </ProtectedRoute>
           }
           path="/plants/:plantId/public"

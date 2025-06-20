@@ -1,8 +1,8 @@
+import { useCurrentUserProfile } from "@/hooks/use-current-user-profile";
 import { Link } from "react-router";
 import { Logo } from "./logo";
 import SeedCount from "./seed-count";
 import UserButton from "./user-button";
-import { useCurrentUserProfile } from "@/hooks/use-current-user-profile";
 
 export default function Header() {
   const currentUserProfile = useCurrentUserProfile();

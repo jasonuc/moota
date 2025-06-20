@@ -28,8 +28,10 @@ export default function UserButton() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
+  if (!user) return null;
+
   const handleRequestSeeds = async () => {
-    requestSeeds(user!.id)
+    requestSeeds(user.id)
       .then(() => {
         navigate("/seeds");
       })
