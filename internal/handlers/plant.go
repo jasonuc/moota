@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/jasonuc/moota/internal/contextkeys"
 	"github.com/jasonuc/moota/internal/dto"
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/services"
@@ -57,6 +58,12 @@ func (h *PlantHandler) HandleGetAllUserPlants(w http.ResponseWriter, r *http.Req
 }
 
 func (h *PlantHandler) HandleGetPlant(w http.ResponseWriter, r *http.Request) {
+	userIDFromCtx, err := contextkeys.GetUserIDFromCtx(r.Context())
+	if err != nil {
+		badRequestResponse(w, err)
+		return
+	}
+
 	plantID, err := readStringReqParam(r, "plantID")
 	if err != nil {
 		badRequestResponse(w, err)
@@ -72,6 +79,10 @@ func (h *PlantHandler) HandleGetPlant(w http.ResponseWriter, r *http.Request) {
 			serverErrorResponse(w, err)
 		}
 		return
+	}
+
+	if plant.OwnerID != userIDFromCtx {
+		plant.C = models.Coordinates{}
 	}
 
 	//nolint:errcheck
