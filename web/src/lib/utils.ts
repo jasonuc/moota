@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { formatDistanceToNow } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -19,4 +20,18 @@ export function formatHp(hp: number) {
 export function startSentenceWithUppercase(sentence: string) {
   if (!sentence) return "";
   return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+}
+
+export function formatRelativeTime(date: string | Date | number) {
+  return formatDistanceToNow(date, { addSuffix: true });
+}
+
+export function formatCoordinates(lat: number, lon: number): string {
+  const latDirection = lat >= 0 ? "N" : "S";
+  const lonDirection = lon >= 0 ? "E" : "W";
+
+  const latAbs = Math.abs(lat).toFixed(3);
+  const lonAbs = Math.abs(lon).toFixed(3);
+
+  return `${latAbs}°${latDirection}, ${lonAbs}°${lonDirection}`;
 }

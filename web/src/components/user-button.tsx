@@ -5,6 +5,7 @@ import { DropdownMenuGroup } from "@radix-ui/react-dropdown-menu";
 import { AxiosError } from "axios";
 import { formatDate } from "date-fns";
 import {
+  GhostIcon,
   HandCoinsIcon,
   LogOutIcon,
   SettingsIcon,
@@ -78,6 +79,10 @@ export default function UserButton() {
           <DropdownMenuItem onClick={handleRequestSeeds}>
             <HandCoinsIcon />
             <span>Request seeds</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate("/plants/graveyard")}>
+            <GhostIcon />
+            <span>Plants graveyard</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <SettingsIcon />

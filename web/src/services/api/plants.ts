@@ -57,3 +57,7 @@ export const changePlantNickname = async (
       newNickname: newNickname,
     })
   ).data;
+
+export const getAllUserDeceasedPlants = async (userId: string) =>
+  (await ax.get<{ plants: Plant[] }>(`/plants/u/${userId}/graveyard`)).data
+    .plants;
