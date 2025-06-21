@@ -60,7 +60,7 @@ func main() {
 
 	authMiddlware := middlewares.NewAuthMiddleware(authService)
 
-	authHandler := handlers.NewAuthHandler(authService, cfg.auth.cookieDomain)
+	authHandler := handlers.NewAuthHandler(authService, cfg.auth.cookieDomain, cfg.auth.cookieSameSiteMode)
 	seedHandler := handlers.NewSeedHandler(seedService)
 	plantHandler := handlers.NewPlantService(plantService)
 	userHandler := handlers.NewUserHandler(userService)

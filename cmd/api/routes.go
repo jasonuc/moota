@@ -13,16 +13,13 @@ func (app *application) routes() http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{
-			"https://moota.localhost",
-			"http://localhost:5173",
-			"http://127.0.0.1:5173",
-		},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Content-Type"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: true,
-		MaxAge:           300,
+		AllowedOrigins:   app.cfg.cors.allowedOrigins,
+		AllowedMethods:   app.cfg.cors.allowedMethods,
+		AllowedHeaders:   app.cfg.cors.allowedHeaders,
+		ExposedHeaders:   app.cfg.cors.exposedHeaders,
+		AllowCredentials: app.cfg.cors.allowCredentials,
+		MaxAge:           app.cfg.cors.maxAge,
+		Debug:            app.cfg.env == "development",
 	}))
 
 	r.Use(middleware.Logger)

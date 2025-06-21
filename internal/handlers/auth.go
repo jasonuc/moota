@@ -11,16 +11,18 @@ import (
 )
 
 type AuthHandler struct {
-	authService  services.AuthService
-	validator    *validator.Validate
-	cookieDomain string
+	authService        services.AuthService
+	validator          *validator.Validate
+	cookieDomain       string
+	cookieSameSiteMode http.SameSite
 }
 
-func NewAuthHandler(authService services.AuthService, cookieDomain string) *AuthHandler {
+func NewAuthHandler(authService services.AuthService, cookieDomain string, cookieSameSiteMode int) *AuthHandler {
 	return &AuthHandler{
-		authService:  authService,
-		validator:    validator.New(),
-		cookieDomain: cookieDomain,
+		authService:        authService,
+		validator:          validator.New(),
+		cookieDomain:       cookieDomain,
+		cookieSameSiteMode: http.SameSite(cookieSameSiteMode),
 	}
 }
 
@@ -58,7 +60,7 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 		Secure:   true,
 		HttpOnly: true,
 		Domain:   h.cookieDomain,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: h.cookieSameSiteMode,
 	})
 
 	http.SetCookie(w, &http.Cookie{
@@ -68,7 +70,7 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 		Secure:   true,
 		HttpOnly: true,
 		Domain:   h.cookieDomain,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: h.cookieSameSiteMode,
 	})
 
 	//nolint:errcheck
@@ -105,7 +107,7 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 		Secure:   true,
 		Domain:   h.cookieDomain,
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: h.cookieSameSiteMode,
 	})
 
 	http.SetCookie(w, &http.Cookie{
@@ -115,7 +117,7 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 		Secure:   true,
 		Domain:   h.cookieDomain,
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: h.cookieSameSiteMode,
 	})
 
 	//nolint:errcheck
@@ -155,7 +157,7 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 		Secure:   true,
 		Domain:   h.cookieDomain,
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: h.cookieSameSiteMode,
 	})
 
 	http.SetCookie(w, &http.Cookie{
@@ -166,7 +168,7 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 		Domain:   h.cookieDomain,
 		Secure:   true,
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: h.cookieSameSiteMode,
 	})
 
 	//nolint:errcheck
@@ -285,7 +287,7 @@ func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 		Domain:   h.cookieDomain,
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: h.cookieSameSiteMode,
 	})
 
 	http.SetCookie(w, &http.Cookie{
@@ -296,7 +298,7 @@ func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 		Domain:   h.cookieDomain,
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: h.cookieSameSiteMode,
 	})
 
 	//nolint:errcheck
