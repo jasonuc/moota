@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	PlantInteractionRadius = 3.0
+	PlantInteractionRadius = 10
 	wateringPlantXpGain    = 30
 	wateringPlantHpGain    = 5
 	minWateringInterval    = 6 * time.Hour

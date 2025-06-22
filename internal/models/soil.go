@@ -58,9 +58,9 @@ type Soil struct {
 
 const (
 	SoilRadiusMZero   = 0.0
-	SoilRadiusMSmall  = 17.5  // Circle Area is ≈962.11 sq. meters
-	SoilRadiusMMedium = 22.0  // Circle Area is ≈1,520.53 sq. meters
-	SoilRadiusMLarge  = 30.90 // Circle Area is ≈3,000.00 sq. meters
+	SoilRadiusMSmall  = 25.5 // Circle Area is ≈2,042.82 sq. meters
+	SoilRadiusMMedium = 30.0 // Circle Area is ≈2,827.43 sq. meters
+	SoilRadiusMLarge  = 38.9 // Circle Area is ≈4,753.89 sq. meters
 )
 
 type RandomSoilRadiusParam struct{ MaxRadius float64 }
