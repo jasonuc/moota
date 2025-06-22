@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { formatDistance, formatHp } from "@/lib/utils";
+import { formatDistance, formatHp, getDicebearThumbsUrl } from "@/lib/utils";
 import type { PlantWithDistanceMFromUser } from "@/types/plant";
 import { Heart, LocateFixed } from "lucide-react";
 import { Link } from "react-router";
@@ -47,7 +47,7 @@ export default function Plant({
           </CardHeader>
 
           <img
-            src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${nickname}&backgroundColor=${"transparent"}&shapeRotation=-20`}
+            src={getDicebearThumbsUrl(id)}
             alt="avatar"
             draggable={false}
             className="size-20 pointer-events-none absolute -bottom-1/4 right-0 group-hover:-bottom-5 group-active:-bottom-5 transition-all duration-100 rounded-l-md"

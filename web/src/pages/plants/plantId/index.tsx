@@ -6,7 +6,11 @@ import PlantTempers from "@/components/plant-tempers";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
-import { formatHp, startSentenceWithUppercase } from "@/lib/utils";
+import {
+  formatHp,
+  getDicebearThumbsUrl,
+  startSentenceWithUppercase,
+} from "@/lib/utils";
 import { getPlant, waterPlant } from "@/services/api/plants";
 import { Plant } from "@/types/plant";
 import { AxiosError } from "axios";
@@ -90,7 +94,7 @@ export default function IndividualPlantPage() {
           width={200}
           height={200}
           draggable={false}
-          src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${plant?.id}&backgroundColor=transparent&shapeRotation=-20`}
+          src={getDicebearThumbsUrl(plant?.id)}
           alt={`Avatar for ${plant?.nickname}`}
         />
 

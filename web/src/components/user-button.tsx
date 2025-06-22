@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
-import { startSentenceWithUppercase } from "@/lib/utils";
+import { getDicebearGlassUrl, startSentenceWithUppercase } from "@/lib/utils";
 import { requestSeeds } from "@/services/api/seeds";
 import { DropdownMenuGroup } from "@radix-ui/react-dropdown-menu";
 import { AxiosError } from "axios";
@@ -59,7 +59,7 @@ export default function UserButton() {
           <Avatar>
             <AvatarImage
               className="size-[45px]"
-              src={`https://api.dicebear.com/9.x/glass/svg?seed=${user?.username}`}
+              src={getDicebearGlassUrl(user.username)}
               draggable={false}
             />
             <AvatarFallback>

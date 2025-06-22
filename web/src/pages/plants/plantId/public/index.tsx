@@ -1,7 +1,11 @@
 import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
 import { useAuth } from "@/hooks/use-auth";
-import { formatHp, startSentenceWithUppercase } from "@/lib/utils";
+import {
+  formatHp,
+  getDicebearThumbsUrl,
+  startSentenceWithUppercase,
+} from "@/lib/utils";
 import { getPlant } from "@/services/api/plants";
 import { getUsernameFromUserId } from "@/services/api/user";
 import { Plant } from "@/types/plant";
@@ -56,7 +60,7 @@ export default function PublicPlantPage() {
             width={200}
             height={200}
             draggable={false}
-            src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${plant?.id}&backgroundColor=transparent&shapeRotation=-20`}
+            src={getDicebearThumbsUrl(plant?.id)}
             alt={`Avatar for ${plant?.nickname}`}
           />
 

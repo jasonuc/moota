@@ -35,3 +35,17 @@ export function formatCoordinates(lat: number, lon: number): string {
 
   return `${latAbs}°${latDirection}, ${lonAbs}°${lonDirection}`;
 }
+
+export function getDicebearThumbsUrl(seed?: string): string {
+  if (!seed) {
+    return `https://api.dicebear.com/9.x/thumbs/svg?seed=${"empty-seed"}&backgroundColor=transparent`;
+  }
+  return `https://api.dicebear.com/9.x/thumbs/svg?seed=${seed}&backgroundColor=transparent&shapeRotation=-20`;
+}
+
+export function getDicebearGlassUrl(seed?: string): string {
+  if (!seed) {
+    return `https://api.dicebear.com/9.x/glass/svg?seed=${"empty-seed"}`;
+  }
+  return `https://api.dicebear.com/9.x/glass/svg?seed=${seed}`;
+}

@@ -3,6 +3,7 @@ import Header from "@/components/header";
 import Top3Plants from "@/components/top-3-plants";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { getDicebearGlassUrl } from "@/lib/utils";
 import { getUserProfile } from "@/services/api/user";
 import { UserProfile } from "@/types/user";
 import { AxiosError } from "axios";
@@ -60,7 +61,7 @@ export default function ProfilePage() {
 
       <div className="flex flex-col space-y-5 w-full max-w-md mx-auto px-4">
         <img
-          src={`https://api.dicebear.com/9.x/glass/svg?seed=${username}`}
+          src={getDicebearGlassUrl(username)}
           alt="profile"
           className="w-full h-[15rem] object-cover rounded-lg border"
         />
