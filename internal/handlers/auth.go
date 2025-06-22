@@ -59,6 +59,7 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 		Path:     "/",
 		Secure:   true,
 		HttpOnly: true,
+		MaxAge:   h.authService.GetAccessTokenTTL(),
 		Domain:   h.cookieDomain,
 		SameSite: h.cookieSameSiteMode,
 	})
@@ -69,6 +70,7 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 		Path:     "/",
 		Secure:   true,
 		HttpOnly: true,
+		MaxAge:   h.authService.GetRefreshTokenTTL(),
 		Domain:   h.cookieDomain,
 		SameSite: h.cookieSameSiteMode,
 	})
@@ -106,6 +108,7 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 		Path:     "/",
 		Secure:   true,
 		Domain:   h.cookieDomain,
+		MaxAge:   h.authService.GetAccessTokenTTL(),
 		HttpOnly: true,
 		SameSite: h.cookieSameSiteMode,
 	})
@@ -115,6 +118,7 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 		Value:    tokenPair.RefreshToken,
 		Path:     "/",
 		Secure:   true,
+		MaxAge:   h.authService.GetRefreshTokenTTL(),
 		Domain:   h.cookieDomain,
 		HttpOnly: true,
 		SameSite: h.cookieSameSiteMode,
