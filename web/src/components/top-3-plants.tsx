@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserProfile } from "@/types/user";
 import { HeartIcon } from "lucide-react";
 import { Badge } from "./ui/badge";
+import { Link } from "react-router";
 
 type Top3PlantsProps = {
   profile?: UserProfile;
@@ -21,20 +22,19 @@ export default function Top3Plants({ profile }: Top3PlantsProps) {
         profile?.top3AlivePlants.slice(0, 3).length > 0 ? (
           <div className="space-y-3">
             {profile.top3AlivePlants.map((plant, index) => (
-              <div
-                key={plant.id}
-                className="flex items-center justify-between p-3 border rounded-lg"
-              >
-                <div className="flex items-center gap-3">
-                  <Badge>#{index + 1}</Badge>
-                  <div>
-                    <p className="font-medium">{plant.nickname}</p>
-                    <p className="text-sm text-gray-600">
-                      HP: {plant.hp.toFixed(1)}
-                    </p>
+              <Link to={`/plants/${plant.id}/public`} key={plant.id}>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Badge>#{index + 1}</Badge>
+                    <div>
+                      <p className="font-medium">{plant.nickname}</p>
+                      <p className="text-sm text-gray-600">
+                        HP: {plant.hp.toFixed(1)}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         ) : (
