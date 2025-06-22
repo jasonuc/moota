@@ -6,11 +6,13 @@ import { Button } from "./ui/button";
 
 type PlantsListProps = {
   maxPlants?: number;
+  showDistanceM: boolean;
   plants: PlantWithDistanceMFromUser[] | undefined;
 };
 
 export default function PlantsList({
   plants = [],
+  showDistanceM,
   maxPlants = 4,
 }: PlantsListProps) {
   return (
@@ -18,7 +20,7 @@ export default function PlantsList({
       {plants.length ? (
         <div className="flex flex-col space-y-5 md:space-y-7">
           {plants.slice(0, maxPlants).map((p, key) => (
-            <Plant key={key} {...p} />
+            <Plant key={key} {...p} showDistanceM={showDistanceM} />
           ))}
         </div>
       ) : (

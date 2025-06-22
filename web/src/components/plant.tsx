@@ -11,7 +11,9 @@ import { Heart, LocateFixed } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "./ui/button";
 
-type PlantProps = PlantWithDistanceMFromUser;
+interface PlantProps extends PlantWithDistanceMFromUser {
+  showDistanceM: boolean;
+}
 
 export default function Plant({
   id,
@@ -19,6 +21,7 @@ export default function Plant({
   botanicalName,
   hp,
   distanceM,
+  showDistanceM,
 }: PlantProps) {
   return (
     <Link to={`/plants/${id}`}>
@@ -29,10 +32,12 @@ export default function Plant({
               <Heart size={15} />
               {formatHp(hp)}%
             </div>
-            <div className="flex items-center gap-x-1.5">
-              <LocateFixed size={15} />
-              {formatDistance(distanceM!)}
-            </div>
+            {showDistanceM && (
+              <div className="flex items-center gap-x-1.5">
+                <LocateFixed size={15} />
+                {formatDistance(distanceM!)}
+              </div>
+            )}
           </CardContent>
           <CardHeader className="w-full p-0 pb-3">
             <CardTitle className="text-lg font-bold">{nickname}</CardTitle>

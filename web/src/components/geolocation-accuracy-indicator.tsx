@@ -1,35 +1,27 @@
-import { useGeolocation } from "@uidotdev/usehooks";
+import { useGeolocation } from "@/hooks/use-geolocation";
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import ProtectedRoute from "./protected";
 
 type GeolocationAccuracyIndicatorProps = {
-  children: React.ReactNode;
-};
-
-type ProtectedGeolocationAccuracyIndicatorRouteProps = {
   children: React.ReactNode;
 };
 
 export function GeolocationAccuracyIndicator({
   children,
 }: GeolocationAccuracyIndicatorProps) {
-  const { accuracy } = useGeolocation();
+  const { withinAllowance } = useGeolocation();
   const navigation = useNavigate();
 
-  if (!accuracy) return null;
+  useEffect(() => {
+    if (!withinAllowance) {
+      navigation("/low-geolocation-accuracy");
+    }
+  }, [withinAllowance, navigation]);
 
-  if (accuracy > 5) {
-    navigation("/low-geolocation-accuracy");
+  if (withinAllowance === null) return null;
+  if (!withinAllowance) {
     return null;
   } else {
     return children;
   }
 }
-
-export const ProtectedGeolocationAccuracyIndicatorRoute = ({
-  children,
-}: ProtectedGeolocationAccuracyIndicatorRouteProps) => (
-  <ProtectedRoute>
-    <GeolocationAccuracyIndicator>{children}</GeolocationAccuracyIndicator>
-  </ProtectedRoute>
-);

@@ -1,6 +1,5 @@
 import LandingPage from "@/pages/landing/index";
 import { Route, Routes } from "react-router";
-import { ProtectedGeolocationAccuracyIndicatorRoute } from "./components/geolocation-accuracy-indicator";
 import ProtectedRoute from "./components/protected";
 import AuthLayout from "./layouts/auth";
 import LoginPage from "./pages/auth/login";
@@ -21,22 +20,17 @@ export default function App() {
     <Routes>
       <Route index element={<LandingPage />} />
 
-      <Route
-        path="/low-geolocation-accuracy"
-        element={<LowGeolocationAccuracyPage />}
-      />
-
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Route>
 
       <Route
-        path="/home"
+        path="/profile/:username"
         element={
-          <ProtectedGeolocationAccuracyIndicatorRoute>
-            <HomePage />
-          </ProtectedGeolocationAccuracyIndicatorRoute>
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
         }
       />
 
@@ -50,10 +44,15 @@ export default function App() {
       />
 
       <Route
-        path="/profile/:username"
+        path="/low-geolocation-accuracy"
+        element={<LowGeolocationAccuracyPage />}
+      />
+
+      <Route
+        path="/home"
         element={
           <ProtectedRoute>
-            <ProfilePage />
+            <HomePage />
           </ProtectedRoute>
         }
       />
@@ -61,36 +60,36 @@ export default function App() {
       <Route
         path="/seeds"
         element={
-          <ProtectedGeolocationAccuracyIndicatorRoute>
+          <ProtectedRoute>
             <SeedsPage />
-          </ProtectedGeolocationAccuracyIndicatorRoute>
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/plants"
         element={
-          <ProtectedGeolocationAccuracyIndicatorRoute>
+          <ProtectedRoute>
             <AllUserPlantsPage />
-          </ProtectedGeolocationAccuracyIndicatorRoute>
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/plants/graveyard"
         element={
-          <ProtectedGeolocationAccuracyIndicatorRoute>
+          <ProtectedRoute>
             <PlantGraveyard />
-          </ProtectedGeolocationAccuracyIndicatorRoute>
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/plants/:plantId"
         element={
-          <ProtectedGeolocationAccuracyIndicatorRoute>
+          <ProtectedRoute>
             <IndividualPlantPage />
-          </ProtectedGeolocationAccuracyIndicatorRoute>
+          </ProtectedRoute>
         }
       />
 

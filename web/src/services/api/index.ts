@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const ax = axios.create({
-  baseURL: "/api",
+  baseURL:
+    process.env.NODE_ENV == "production" ? "https://api.moota.app/api" : "/api",
   validateStatus: (status) => status < 300,
   withCredentials: true,
 });

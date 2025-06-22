@@ -5,10 +5,10 @@ import PlantMap from "@/components/plant-map";
 import PlantTempers from "@/components/plant-tempers";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useGeolocation } from "@/hooks/use-geolocation";
 import { formatHp, startSentenceWithUppercase } from "@/lib/utils";
 import { getPlant, waterPlant } from "@/services/api/plants";
 import { Plant } from "@/types/plant";
-import { useGeolocation } from "@uidotdev/usehooks";
 import { AxiosError } from "axios";
 import { formatDate, isValid, parseJSON } from "date-fns";
 import { DropletIcon } from "lucide-react";
@@ -21,7 +21,7 @@ export default function IndividualPlantPage() {
   const navigate = useNavigate();
   const [plant, setPlant] = useState<Plant>();
   const { user } = useAuth();
-  const { latitude, longitude } = useGeolocation();
+  const { latitude, longitude, withinAllowance } = useGeolocation();
 
   useEffect(() => {
     if (!user?.id) return;
@@ -129,6 +129,7 @@ export default function IndividualPlantPage() {
           <Button
             className="md:min-h-12 col-span-2 md:col-span-1 flex items-center justify-center space-x-1.5"
             onClick={handleWaterPlant}
+            disabled={!withinAllowance}
           >
             Water <DropletIcon />
           </Button>

@@ -2,14 +2,14 @@ import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
 import PlantsList from "@/components/plants-list";
 import { useAuth } from "@/hooks/use-auth";
+import { useGeolocation } from "@/hooks/use-geolocation";
 import { getUserNearbyPlants } from "@/services/api/plants";
 import { PlantWithDistanceMFromUser } from "@/types/plant";
-import { useGeolocation } from "@uidotdev/usehooks";
 import { useEffect, useState } from "react";
 
 export default function HomePage() {
   const { user } = useAuth();
-  const { latitude, longitude } = useGeolocation();
+  const { latitude, longitude, withinAllowance } = useGeolocation();
   const [nearbyPlants, setNearbyPlants] = useState<
     PlantWithDistanceMFromUser[] | undefined
   >();
@@ -30,7 +30,7 @@ export default function HomePage() {
 
       <h1 className="text-3xl font-heading mb-2">My Nearby Plants</h1>
 
-      <PlantsList plants={nearbyPlants} />
+      <PlantsList plants={nearbyPlants} showDistanceM={withinAllowance} />
 
       <div className="pt-20" />
 

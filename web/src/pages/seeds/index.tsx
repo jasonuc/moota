@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useGeolocation } from "@/hooks/use-geolocation";
 import { startSentenceWithUppercase } from "@/lib/utils";
 import { getUserSeeds, plantSeed } from "@/services/api/seeds";
 import { Seed, SeedGroup } from "@/types/seed";
-import { useGeolocation } from "@uidotdev/usehooks";
 import { AxiosError } from "axios";
 import { AudioLinesIcon, SproutIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -29,6 +29,8 @@ export default function SeedsPage() {
   const { user } = useAuth();
   const { latitude, longitude } = useGeolocation();
   const navigate = useNavigate();
+
+  const { withinAllowance } = useGeolocation();
 
   useEffect(() => {
     if (!user?.id) return;
@@ -71,13 +73,9 @@ export default function SeedsPage() {
       {seeds?.length && (
         <div className="grid grid-cols-3 md:grid-cols-4 gap-5">
           {seeds?.map(({ botanicalName, count, seeds }) => (
-            <AlertDialog>
+            <AlertDialog key={botanicalName}>
               <AlertDialogTrigger asChild>
-                <Button
-                  asChild
-                  className="relative h-36 group"
-                  key={botanicalName}
-                >
+                <Button asChild className="relative h-36 group">
                   <div className="size-full relative">
                     <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 left-0 rotate-45" />
                     <AudioLinesIcon className="absolute group-active:scale-75 transition-all duration-300 ease-in-out bottom-0 right-0 -rotate-45" />
@@ -110,15 +108,19 @@ export default function SeedsPage() {
                 <AlertDialogFooter>
                   <AlertDialogCancel className="hover:cursor-pointer">
                     <XIcon />
-                    No
+                    {withinAllowance
+                      ? "No"
+                      : "Inacurate location, cannot plant seed."}
                   </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => decideSeedToPlant(count, seeds)}
-                    className="hover:cursor-pointer md:min-h-12 col-span-1 flex items-center justify-center space-x-1.5"
-                  >
-                    <SproutIcon />
-                    Yes
-                  </AlertDialogAction>
+                  {withinAllowance && (
+                    <AlertDialogAction
+                      onClick={() => decideSeedToPlant(count, seeds)}
+                      className="hover:cursor-pointer md:min-h-12 col-span-1 flex items-center justify-center space-x-1.5"
+                    >
+                      <SproutIcon />
+                      Yes
+                    </AlertDialogAction>
+                  )}
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
