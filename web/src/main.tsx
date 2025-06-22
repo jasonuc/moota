@@ -6,18 +6,21 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import "./index.css";
 import GeolocationProvider from "./services/providers/geolocation-provider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <GeolocationProvider>
-          <div className="flex font-archivo p-5 md:p-10 min-h-screen w-full">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <GeolocationProvider>
             <App />
-          </div>
-          <Toaster />
-        </GeolocationProvider>
-      </AuthProvider>
+            <Toaster />
+          </GeolocationProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>
 );

@@ -14,95 +14,98 @@ import PublicPlantPage from "./pages/plants/plantId/public";
 import ProfilePage from "./pages/profile";
 import SeedsPage from "./pages/seeds";
 import SettingsPage from "./pages/settings";
+import BaseLayout from "./layouts/base";
 
 export default function App() {
   return (
     <Routes>
-      <Route index element={<LandingPage />} />
+      <Route element={<BaseLayout />}>
+        <Route index element={<LandingPage />} />
 
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Route>
+
+        <Route
+          path="/profile/:username"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/low-geolocation-accuracy"
+          element={<LowGeolocationAccuracyPage />}
+        />
+
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/seeds"
+          element={
+            <ProtectedRoute>
+              <SeedsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/plants"
+          element={
+            <ProtectedRoute>
+              <AllUserPlantsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/plants/graveyard"
+          element={
+            <ProtectedRoute>
+              <PlantGraveyard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/plants/:plantId"
+          element={
+            <ProtectedRoute>
+              <IndividualPlantPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/plants/:plantId/public"
+          element={
+            <ProtectedRoute>
+              <PublicPlantPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
-
-      <Route
-        path="/profile/:username"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <SettingsPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/low-geolocation-accuracy"
-        element={<LowGeolocationAccuracyPage />}
-      />
-
-      <Route
-        path="/home"
-        element={
-          <ProtectedRoute>
-            <HomePage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/seeds"
-        element={
-          <ProtectedRoute>
-            <SeedsPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/plants"
-        element={
-          <ProtectedRoute>
-            <AllUserPlantsPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/plants/graveyard"
-        element={
-          <ProtectedRoute>
-            <PlantGraveyard />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/plants/:plantId"
-        element={
-          <ProtectedRoute>
-            <IndividualPlantPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/plants/:plantId/public"
-        element={
-          <ProtectedRoute>
-            <PublicPlantPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
