@@ -68,7 +68,9 @@ export default function SeedsPage() {
     <div className="flex flex-col space-y-5 pb-10 w-full">
       <Header />
 
-      <h1 className="text-3xl font-heading mb-5">My Seeds</h1>
+      <h1 className="text-3xl font-heading mb-5">
+        My Seeds {seeds?.length && `(${seeds.length})`}
+      </h1>
 
       {seeds?.length && (
         <div className="grid grid-cols-3 md:grid-cols-4 gap-5">
