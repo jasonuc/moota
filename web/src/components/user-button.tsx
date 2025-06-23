@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/use-auth";
 import { getDicebearGlassUrl, startSentenceWithUppercase } from "@/lib/utils";
-import { requestSeeds } from "@/services/api/seeds";
+import { useRequestSeeds } from "@/services/mutations/seeds";
 import { DropdownMenuGroup } from "@radix-ui/react-dropdown-menu";
 import { AxiosError } from "axios";
 import { formatDate } from "date-fns";
@@ -27,11 +27,13 @@ import {
 export default function UserButton() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const requestSeedsMtn = useRequestSeeds();
 
   if (!user) return null;
 
   const handleRequestSeeds = async () => {
-    requestSeeds(user.id)
+    requestSeedsMtn
+      .mutateAsync(user.id)
       .then(() => {
         navigate("/seeds");
       })

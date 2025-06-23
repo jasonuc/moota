@@ -1,42 +1,29 @@
 import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
-import { useAuth } from "@/hooks/use-auth";
 import {
   formatHp,
   getDicebearThumbsUrl,
   startSentenceWithUppercase,
 } from "@/lib/utils";
-import { getPlant } from "@/services/api/plants";
-import { getUsernameFromUserId } from "@/services/api/user";
-import { Plant } from "@/types/plant";
+import { useGetPlant } from "@/services/queries/plants";
+import { useGetUsernameFromUserId } from "@/services/queries/user";
 import { AxiosError } from "axios";
 import { formatDate, isValid, parseJSON } from "date-fns";
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { useEffect } from "react";
+import { Link, useParams } from "react-router";
 import { toast } from "sonner";
 
 export default function PublicPlantPage() {
   const params = useParams();
-  const navigate = useNavigate();
-  const [plant, setPlant] = useState<Plant>();
-  const [ownerUsername, setOwnerUsername] = useState<string>();
-  const { user } = useAuth();
+  const { data: plant, error: useGetPlantErr } = useGetPlant(params.id);
+  const { data: ownerUsername } = useGetUsernameFromUserId(plant?.id);
 
   useEffect(() => {
-    if (!user?.id) return;
-
-    if (params.plantId) {
-      getPlant(params.plantId)
-        .then(setPlant)
-        .catch((err: AxiosError<string>) => {
-          toast.error(err.response?.data);
-        });
+    if (useGetPlantErr) {
+      const err = useGetPlantErr as AxiosError<string>;
+      toast.error(err.response?.data);
     }
-
-    if (plant?.ownerID) {
-      getUsernameFromUserId(plant.ownerID).then(setOwnerUsername);
-    }
-  }, [params.plantId, navigate, user?.id, plant?.ownerID]);
+  }, [useGetPlantErr]);
 
   const formatPlantDate = (dateString: string | undefined) => {
     if (!dateString) return "Unknown";

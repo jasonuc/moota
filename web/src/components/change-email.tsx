@@ -6,18 +6,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { changeEmailFormSchema } from "@/schemas/settings";
-import { changeEmail } from "@/services/api/user";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/use-auth";
+import { changeEmailFormSchema } from "@/schemas/settings";
+import { useChangeEmail } from "@/services/mutations/user";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { toast } from "sonner";
 
 export default function ChangeEmail() {
   const { user } = useAuth();
+  const changeEmailMtn = useChangeEmail();
   const form = useForm<z.infer<typeof changeEmailFormSchema>>({
     resolver: zodResolver(changeEmailFormSchema),
     defaultValues: {
@@ -26,7 +27,8 @@ export default function ChangeEmail() {
   });
 
   function onSubmit(values: z.infer<typeof changeEmailFormSchema>) {
-    changeEmail(user!.id, values.newEmail)
+    changeEmailMtn
+      .mutateAsync({ userId: user!.id, newEmail: values.newEmail })
       .then(() => {
         toast("Email changed successfully");
       })

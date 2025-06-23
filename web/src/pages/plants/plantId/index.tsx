@@ -11,39 +11,36 @@ import {
   getDicebearThumbsUrl,
   startSentenceWithUppercase,
 } from "@/lib/utils";
-import { getPlant, waterPlant } from "@/services/api/plants";
-import { Plant } from "@/types/plant";
+import { useWaterPlant } from "@/services/mutations/plants";
+import { useGetPlant } from "@/services/queries/plants";
 import { AxiosError } from "axios";
 import { formatDate, isValid, parseJSON } from "date-fns";
 import { DropletIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 
 export default function IndividualPlantPage() {
   const params = useParams();
   const navigate = useNavigate();
-  const [plant, setPlant] = useState<Plant>();
+  const { data: plant, error: useGetPlantErr } = useGetPlant(params.plantId);
   const { user } = useAuth();
   const { latitude, longitude, withinAllowance } = useGeolocation();
+  const waterPlantMtn = useWaterPlant();
 
   useEffect(() => {
-    if (!user?.id) return;
-
-    if (params.plantId) {
-      getPlant(params.plantId)
-        .then((plant) => {
-          if (plant.ownerID != user.id) {
-            navigate(`/plants/${plant.id}/public`);
-            return;
-          }
-          setPlant(plant);
-        })
-        .catch((err: AxiosError<string>) => {
-          toast.error(err.response?.data);
-        });
+    if (useGetPlantErr) {
+      const err = useGetPlantErr as AxiosError<string>;
+      toast.error(err.response?.data);
     }
-  }, [params.plantId, navigate, user?.id]);
+  }, [useGetPlantErr]);
+
+  if (plant?.ownerID && user?.id) {
+    if (plant.ownerID != user.id) {
+      navigate(`/plants/${plant.id}/public`);
+      return;
+    }
+  }
 
   const formatPlantDate = (dateString: string | undefined) => {
     if (!dateString) return "Unknown";
@@ -57,22 +54,23 @@ export default function IndividualPlantPage() {
   };
 
   const handleWaterPlant = () => {
-    waterPlant(plant!.id, latitude!, longitude!)
-      .then(() => {
-        getPlant(params.plantId!)
-          .then(setPlant)
-          .then(() => {
-            toast.success(
-              <p>
-                Watered <em>{plant?.nickname}</em>
-              </p>,
-              {
-                icon: <DropletIcon />,
-                position: "top-center",
-              }
-            );
-          });
+    waterPlantMtn
+      .mutateAsync({
+        plantId: plant!.id,
+        latitude: latitude!,
+        longitude: longitude!,
       })
+      .then(() =>
+        toast.success(
+          <p>
+            Watered <em>{plant?.nickname}</em>
+          </p>,
+          {
+            icon: <DropletIcon />,
+            position: "top-center",
+          }
+        )
+      )
       .catch((error: AxiosError<{ error: string }>) => {
         toast.info(
           startSentenceWithUppercase(error.response?.data.error ?? ""),

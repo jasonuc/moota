@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { startSentenceWithUppercase } from "@/lib/utils";
-import { getUserSeeds, plantSeed } from "@/services/api/seeds";
+import { usePlantSeed } from "@/services/mutations/seeds";
 import { useGetUserSeeds } from "@/services/queries/seeds";
 import { Seed } from "@/types/seed";
 import { AxiosError } from "axios";
@@ -32,6 +32,7 @@ export default function SeedsPage() {
 
   const { withinAllowance } = useGeolocation();
   const { data: seeds, error: useGetUserSeedsErr } = useGetUserSeeds(user?.id);
+  const plantSeedMtn = usePlantSeed();
 
   useEffect(() => {
     if (useGetUserSeedsErr) {
@@ -48,8 +49,13 @@ export default function SeedsPage() {
   const decideSeedToPlant = async (count: number, seeds: Seed[]) => {
     const seedToPlant = seeds[Math.floor(Math.random() * count)];
 
-    plantSeed(seedToPlant.id, latitude!, longitude!)
-      .then(() => getUserSeeds(user!.id).then(() => navigate("/plants")))
+    plantSeedMtn
+      .mutateAsync({
+        seedId: seedToPlant.id,
+        lat: latitude!,
+        lon: longitude!,
+      })
+      .then(() => navigate("/plants"))
       .catch((error: AxiosError<{ error: string }>) => {
         toast.error(
           startSentenceWithUppercase(error.response?.data.error ?? ""),

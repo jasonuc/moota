@@ -1,13 +1,9 @@
 import { useAuth } from "@/hooks/use-auth";
 import { startSentenceWithUppercase } from "@/lib/utils";
-import {
-  checkWhenUserCanRequestSeeds,
-  requestSeeds,
-} from "@/services/api/seeds";
-import { SeedAvailability } from "@/types/seed";
+import { useRequestSeeds } from "@/services/mutations/seeds";
+import { useCheckWhenUserCanRequestSeeds } from "@/services/queries/seeds";
 import { AxiosError } from "axios";
 import { formatDate } from "date-fns";
-import { useEffect, useState } from "react";
 import Countdown from "react-countdown";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -16,11 +12,13 @@ import { Button } from "./ui/button";
 
 export default function NoSeeds() {
   const { user } = useAuth();
-  const [seedAvailability, setSeedAvailability] = useState<SeedAvailability>();
   const navigate = useNavigate();
+  const requestSeedsMtn = useRequestSeeds();
+  const { data: seedAvailability } = useCheckWhenUserCanRequestSeeds(user?.id);
 
   const handleRequestSeeds = async () => {
-    requestSeeds(user!.id)
+    requestSeedsMtn
+      .mutateAsync(user!.id)
       .then(() => {
         navigate("/seeds");
       })
@@ -40,12 +38,6 @@ export default function NoSeeds() {
         }
       );
   };
-
-  useEffect(() => {
-    if (!user?.id) return;
-
-    checkWhenUserCanRequestSeeds(user.id).then(setSeedAvailability);
-  }, [user]);
 
   return (
     <div className="flex flex-col grow items-center justify-center gap-y-5 py-40">

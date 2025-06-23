@@ -2,27 +2,23 @@ import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
 import Headstone from "@/components/headstone";
 import { useAuth } from "@/hooks/use-auth";
-import { getAllUserDeceasedPlants } from "@/services/api/plants";
-import { Plant } from "@/types/plant";
-import { useEffect, useState } from "react";
+import { useGetAllUserDeceasedPlants } from "@/services/queries/plants";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 export default function PlantGraveyard() {
   const { user } = useAuth();
-  const [plants, setPlants] = useState<Plant[]>();
+  const { data: plants, error: useGetAllUserDeceasedPlantsErr } =
+    useGetAllUserDeceasedPlants(user?.id);
 
   useEffect(() => {
-    if (!user?.id) return;
-
-    getAllUserDeceasedPlants(user.id)
-      .then(setPlants)
-      .catch(() => {
-        toast.error("Error occured on the server", {
-          description: `Try again later.`,
-          descriptionClassName: "!text-white",
-        });
+    if (useGetAllUserDeceasedPlantsErr) {
+      toast.error("Error occured on the server", {
+        description: `Try again later.`,
+        descriptionClassName: "!text-white",
       });
-  }, [user]);
+    }
+  }, [useGetAllUserDeceasedPlantsErr]);
 
   return (
     <div className="flex flex-col space-y-5 pb-10 grow">

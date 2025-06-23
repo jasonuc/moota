@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { changePlantNickname } from "@/services/api/plants";
+import { useChangePlantNickname } from "@/services/mutations/plants";
 
 type ChangePlantNicknameProps = {
   plantId: string;
@@ -22,10 +22,15 @@ export default function ChangePlantNickname({
   currentNickname,
   setIsDialogOpen,
 }: ChangePlantNicknameProps) {
+  const changePlantNicknameMtn = useChangePlantNickname();
+
   const handleSaveChangeClick = async (formData: FormData) => {
     const newNickname = formData.get("nickname");
     if (!newNickname) return;
-    changePlantNickname(plantId, newNickname.toString());
+    changePlantNicknameMtn.mutate({
+      plantId,
+      newNickname: newNickname.toString(),
+    });
     setIsDialogOpen(false);
   };
 

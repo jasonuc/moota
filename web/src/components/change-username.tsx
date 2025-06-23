@@ -9,7 +9,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile";
 import { changeUsernameFormSchema } from "@/schemas/settings";
-import { changeUsername } from "@/services/api/user";
+import { useChangeUsername } from "@/services/mutations/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ import { Input } from "./ui/input";
 
 export default function ChangeUsername() {
   const { user } = useAuth();
+  const changeUsernameMtn = useChangeUsername();
   const currentUserProfile = useCurrentUserProfile();
 
   const form = useForm<z.infer<typeof changeUsernameFormSchema>>({
@@ -29,7 +30,12 @@ export default function ChangeUsername() {
   });
 
   function onSubmit(values: z.infer<typeof changeUsernameFormSchema>) {
-    changeUsername(user!.id, values.newUsername)
+    changeUsernameMtn
+      .mutateAsync({
+        userId: user!.id,
+        currentUsername: currentUserProfile!.username,
+        newUsername: values.newUsername,
+      })
       .then(() => {
         toast("Username changed successfully!");
       })

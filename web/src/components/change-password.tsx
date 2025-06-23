@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/form";
 import { useAuth } from "@/hooks/use-auth";
 import { changePasswordFormSchema } from "@/schemas/settings";
-import { changePassword } from "@/services/api/user";
+import { useChangePassword } from "@/services/mutations/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -18,6 +18,7 @@ import { Input } from "./ui/input";
 
 export default function ChangePassword() {
   const { user } = useAuth();
+  const changePasswordMtn = useChangePassword();
   const form = useForm<z.infer<typeof changePasswordFormSchema>>({
     resolver: zodResolver(changePasswordFormSchema),
     defaultValues: {
@@ -38,7 +39,12 @@ export default function ChangePassword() {
       );
       return;
     }
-    changePassword(user!.id, values.oldPassword, values.newPassword)
+    changePasswordMtn
+      .mutateAsync({
+        userId: user!.id,
+        oldPassword: values.oldPassword,
+        newPassword: values.newPassword,
+      })
       .then(() => {
         toast("Password changed successfully!");
       })

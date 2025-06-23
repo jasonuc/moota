@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { killPlant } from "@/services/api/plants";
+import { useKillPlant } from "@/services/mutations/plants";
 import { GhostIcon, SkullIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -25,9 +25,10 @@ export default function KillPlantButton({
   nickname,
 }: KillPlantButtonProps) {
   const navigate = useNavigate();
+  const killPlantMtn = useKillPlant();
 
   const handleKillPlant = () => {
-    killPlant(id).then(() => navigate("/plants"));
+    killPlantMtn.mutateAsync(id).then(() => navigate("/plants"));
     toast(
       <>
         RIP <i className="font-base">{nickname}</i>

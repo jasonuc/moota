@@ -13,8 +13,8 @@ export const plantSeed = async (
   longitude: number
 ) => {
   await ax.post<{ plant: Plant }>(`/seeds/${seedId}`, {
-    latitude: latitude,
-    longitude: longitude,
+    latitude,
+    longitude,
   });
 };
 
