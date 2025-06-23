@@ -6,9 +6,11 @@ import PlantTempers from "@/components/plant-tempers";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
+import { PLANT_INTERACTION_RADIUS } from "@/lib/constants";
 import {
   formatHp,
   getDicebearThumbsUrl,
+  haversineDistance,
   startSentenceWithUppercase,
 } from "@/lib/utils";
 import { useWaterPlant } from "@/services/mutations/plants";
@@ -138,13 +140,20 @@ export default function IndividualPlantPage() {
             nickname={plant?.nickname || ""}
           />
 
-          <Button
-            className="md:min-h-12 col-span-2 md:col-span-1 flex items-center justify-center space-x-1.5"
-            onClick={handleWaterPlant}
-            disabled={!withinAllowance}
-          >
-            Water <DropletIcon />
-          </Button>
+          {userLat && userLon && plant?.centre.Lat && plant?.centre.Lon && (
+            <Button
+              className="md:min-h-12 col-span-2 md:col-span-1 flex items-center justify-center space-x-1.5"
+              onClick={handleWaterPlant}
+              disabled={
+                haversineDistance(
+                  { Lat: plant.centre.Lat, Lon: plant.centre.Lon },
+                  { Lat: userLat, Lon: userLon }
+                ) > PLANT_INTERACTION_RADIUS
+              }
+            >
+              Water <DropletIcon />
+            </Button>
+          )}
 
           <MoreButton {...plant!} />
         </div>

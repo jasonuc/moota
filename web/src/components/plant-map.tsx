@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PLANT_INTERACTION_RADIUS } from "@/lib/constants";
 import { cn, formatDistance, haversineDistance } from "@/lib/utils";
 import { Coordinates } from "@/types/coordinates";
 import { Flower2Icon, LocateFixedIcon, PersonStandingIcon } from "lucide-react";
@@ -24,7 +25,7 @@ export default function PlantMap({
   const userY = userCoords ? ((90 - userCoords.Lat) / 180) * mapHeight : 0;
 
   const distance = userCoords ? haversineDistance(plantCoords, userCoords) : 0;
-  const isAtPlant = distance <= 10;
+  const isAtPlant = distance <= PLANT_INTERACTION_RADIUS;
 
   return (
     <Card className="h-56 relative p-0 w-full mt-10 md:mt-5 overflow-hidden">
