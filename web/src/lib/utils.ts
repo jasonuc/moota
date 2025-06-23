@@ -1,6 +1,9 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { formatDistanceToNow } from "date-fns";
+import { Coordinates } from "@/types/coordinates";
+
+const EARTH_RADIUS_M = 6.378e6;
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -48,4 +51,23 @@ export function getDicebearGlassUrl(seed?: string): string {
     return `https://api.dicebear.com/9.x/glass/svg?seed=${"empty-seed"}`;
   }
   return `https://api.dicebear.com/9.x/glass/svg?seed=${seed}`;
+}
+
+export function haversineDistance(
+  coord1: Coordinates,
+  coord2: Coordinates
+): number {
+  const R = EARTH_RADIUS_M;
+  const dLat = (coord2.Lat - coord1.Lat) * (Math.PI / 180);
+  const dLon = (coord2.Lon - coord1.Lon) * (Math.PI / 180);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(coord1.Lat * (Math.PI / 180)) *
+      Math.cos(coord2.Lat * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
 }

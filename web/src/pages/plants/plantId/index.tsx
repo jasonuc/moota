@@ -25,7 +25,11 @@ export default function IndividualPlantPage() {
   const navigate = useNavigate();
   const { data: plant, error: useGetPlantErr } = useGetPlant(params.plantId);
   const { user } = useAuth();
-  const { latitude, longitude, withinAllowance } = useGeolocation();
+  const {
+    latitude: userLat,
+    longitude: userLon,
+    withinAllowance,
+  } = useGeolocation();
   const waterPlantMtn = useWaterPlant();
 
   useEffect(() => {
@@ -57,8 +61,8 @@ export default function IndividualPlantPage() {
     waterPlantMtn
       .mutateAsync({
         plantId: plant!.id,
-        latitude: latitude!,
-        longitude: longitude!,
+        latitude: userLat!,
+        longitude: userLon!,
       })
       .then(() =>
         toast.success(
@@ -119,7 +123,13 @@ export default function IndividualPlantPage() {
 
       <PlantTempers {...plant?.tempers} />
 
-      <PlantMap />
+      {userLat && userLon && plant?.centre.Lat && plant?.centre.Lon && (
+        <PlantMap
+          userCoords={{ Lat: userLat, Lon: userLon }}
+          plantCoords={{ Lat: plant.centre.Lat, Lon: plant.centre.Lon }}
+          showUser={withinAllowance}
+        />
+      )}
 
       <div className="flex flex-col grow justify-end">
         <div className="grid grid-cols-3 gap-x-5 gap-y-5">

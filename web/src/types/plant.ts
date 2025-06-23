@@ -1,4 +1,3 @@
-import { CircleMeta } from "./circle";
 import { Coordinates } from "./coordinates";
 import { LevelMeta } from "./level";
 import { Soil } from "./soil";
@@ -17,8 +16,7 @@ type Plant = {
   lastActionTime: string;
   centre: Coordinates;
   soil: Soil;
-} & CircleMeta &
-  LevelMeta;
+} & LevelMeta;
 
 type Tempers = {
   woe: number;
