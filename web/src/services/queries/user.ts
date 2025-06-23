@@ -3,21 +3,21 @@ import { getUser, getUsernameFromUserId, getUserProfile } from "../api/user";
 
 export const useGetUserProfile = (username?: string) =>
   useQuery({
-    queryKey: ["profile", username],
+    queryKey: ["profile", { username }],
     queryFn: () => getUserProfile(username!),
     enabled: !!username,
   });
 
 export const useGetUser = (userId?: string) =>
   useQuery({
-    queryKey: ["user", { id: userId }],
+    queryKey: ["user", { userId }],
     queryFn: () => getUser(userId!),
     enabled: !!userId,
   });
 
 export const useGetUsernameFromUserId = (userId?: string) =>
   useQuery({
-    queryKey: ["user-username", { id: userId }],
+    queryKey: ["user-username", { userId }],
     queryFn: () => getUsernameFromUserId(userId!),
     enabled: !!userId,
   });
