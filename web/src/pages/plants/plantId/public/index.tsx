@@ -15,8 +15,8 @@ import { toast } from "sonner";
 
 export default function PublicPlantPage() {
   const params = useParams();
-  const { data: plant, error: useGetPlantErr } = useGetPlant(params.id);
-  const { data: ownerUsername } = useGetUsernameFromUserId(plant?.id);
+  const { data: plant, error: useGetPlantErr } = useGetPlant(params.plantId);
+  const { data: ownerUsername } = useGetUsernameFromUserId(plant?.ownerID);
 
   useEffect(() => {
     if (useGetPlantErr) {
