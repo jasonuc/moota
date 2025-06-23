@@ -5,7 +5,6 @@ import AuthLayout from "./layouts/auth";
 import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
 import HomePage from "./pages/home";
-import LowGeolocationAccuracyPage from "./pages/low-geolocation-accuracy";
 import NotFoundPage from "./pages/not-found/not-found";
 import AllUserPlantsPage from "./pages/plants";
 import PlantGraveyard from "./pages/plants/graveyard";
@@ -15,6 +14,7 @@ import ProfilePage from "./pages/profile";
 import SeedsPage from "./pages/seeds";
 import SettingsPage from "./pages/settings";
 import BaseLayout from "./layouts/base";
+import GeolocationDisallowedPage from "./pages/geolocation-dissallowed";
 
 export default function App() {
   return (
@@ -26,6 +26,11 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Route>
+
+        <Route
+          path="/geolocation-dissallowed"
+          element={<GeolocationDisallowedPage />}
+        />
 
         <Route
           path="/profile/:username"
@@ -43,11 +48,6 @@ export default function App() {
               <SettingsPage />
             </ProtectedRoute>
           }
-        />
-
-        <Route
-          path="/low-geolocation-accuracy"
-          element={<LowGeolocationAccuracyPage />}
         />
 
         <Route
