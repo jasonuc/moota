@@ -11,13 +11,6 @@ services:
     volumes:
       - moota-data:/var/lib/postgresql/data
     restart: unless-stopped
-    networks:
-      - moota-network
-
-networks:
-  moota-network:
-    driver: bridge
 
 volumes:
   moota-data:
-    driver: local
