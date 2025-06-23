@@ -10,7 +10,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useKillPlant } from "@/services/mutations/plants";
-import { GhostIcon, SkullIcon } from "lucide-react";
+import { GhostIcon, SkullIcon, XIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
@@ -55,7 +55,8 @@ export default function KillPlantButton({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="hover:cursor-pointer">
+          <AlertDialogCancel className="hover:cursor-pointer md:min-h-12 col-span-1 flex items-center justify-center space-x-1.5">
+            <XIcon />
             No
           </AlertDialogCancel>
           <AlertDialogAction

@@ -112,7 +112,7 @@ export default function SeedsPage() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="hover:cursor-pointer">
+                  <AlertDialogCancel className="hover:cursor-pointer md:min-h-12">
                     <XIcon />
                     {withinAllowance
                       ? "No"
