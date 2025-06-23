@@ -8,7 +8,7 @@ import { useGetUserNearbyPlants } from "@/services/queries/plants";
 export default function HomePage() {
   const { user } = useAuth();
   const { latitude, longitude, withinAllowance } = useGeolocation();
-  const { data: nearbyPlants } = useGetUserNearbyPlants(
+  const { data: nearbyPlants, isPlaceholderData } = useGetUserNearbyPlants(
     user?.id,
     latitude,
     longitude
@@ -20,7 +20,11 @@ export default function HomePage() {
 
       <h1 className="text-3xl font-heading mb-2">My Nearby Plants</h1>
 
-      <PlantsList plants={nearbyPlants} showDistanceM={withinAllowance} />
+      <PlantsList
+        plants={nearbyPlants}
+        showDistanceM={withinAllowance}
+        muteDistanceM={isPlaceholderData}
+      />
 
       <div className="pt-20" />
 

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   getAllUserDeceasedPlants,
   getAllUserPlants,
@@ -15,6 +15,7 @@ export const useGetUserNearbyPlants = (
     queryKey: ["plants", { userId, lat, lon, deceased: false }],
     queryFn: () => getUserNearbyPlants(userId!, lat!, lon!),
     enabled: () => !(!userId || !lat || !lon),
+    placeholderData: keepPreviousData,
   });
 
 export const useGetAllUserPlants = (
@@ -26,6 +27,7 @@ export const useGetAllUserPlants = (
     queryKey: ["plants", { userId, lat, lon, deceased: false }],
     queryFn: () => getAllUserPlants(userId!, lat!, lon!),
     enabled: () => !(!userId || !lat || !lon),
+    placeholderData: keepPreviousData,
   });
 
 export const useGetPlant = (plantId?: string) =>

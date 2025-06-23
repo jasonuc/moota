@@ -10,11 +10,11 @@ import { toast } from "sonner";
 export default function AllUserPlantsPage() {
   const { user } = useAuth();
   const { latitude, longitude, withinAllowance } = useGeolocation();
-  const { data: plants, error: useGetAllUserPlantsErr } = useGetAllUserPlants(
-    user?.id,
-    latitude,
-    longitude
-  );
+  const {
+    data: plants,
+    error: useGetAllUserPlantsErr,
+    isPlaceholderData,
+  } = useGetAllUserPlants(user?.id, latitude, longitude);
 
   useEffect(() => {
     if (useGetAllUserPlantsErr) {
@@ -37,6 +37,7 @@ export default function AllUserPlantsPage() {
         plants={plants}
         maxPlants={plants?.length}
         showDistanceM={withinAllowance}
+        muteDistanceM={isPlaceholderData}
       />
       <DynamicNavigation />
     </div>

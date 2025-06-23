@@ -5,7 +5,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { formatDistance, formatHp, getDicebearThumbsUrl } from "@/lib/utils";
+import {
+  cn,
+  formatDistance,
+  formatHp,
+  getDicebearThumbsUrl,
+} from "@/lib/utils";
 import type { PlantWithDistanceMFromUser } from "@/types/plant";
 import { Heart, LocateFixed } from "lucide-react";
 import { Link } from "react-router";
@@ -13,6 +18,7 @@ import { Button } from "./ui/button";
 
 interface PlantProps extends PlantWithDistanceMFromUser {
   showDistanceM: boolean;
+  muteDistanceM: boolean;
 }
 
 export default function Plant({
@@ -21,6 +27,7 @@ export default function Plant({
   botanicalName,
   hp,
   distanceM,
+  muteDistanceM = false,
   showDistanceM,
 }: PlantProps) {
   return (
@@ -35,7 +42,13 @@ export default function Plant({
             {showDistanceM && (
               <div className="flex items-center gap-x-1.5">
                 <LocateFixed size={15} />
-                {formatDistance(distanceM!)}
+                <span
+                  className={cn({
+                    "text-black/50": muteDistanceM,
+                  })}
+                >
+                  {formatDistance(distanceM!)}
+                </span>
               </div>
             )}
           </CardContent>
