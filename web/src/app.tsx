@@ -1,9 +1,11 @@
 import LandingPage from "@/pages/landing/index";
 import { Route, Routes } from "react-router";
-import ProtectedRoute from "./components/protected";
 import AuthLayout from "./layouts/auth";
+import BaseLayout from "./layouts/base";
+import ProtectedLayout from "./layouts/protected";
 import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
+import GeolocationDisallowedPage from "./pages/geolocation-dissallowed";
 import HomePage from "./pages/home";
 import NotFoundPage from "./pages/not-found/not-found";
 import AllUserPlantsPage from "./pages/plants";
@@ -13,8 +15,6 @@ import PublicPlantPage from "./pages/plants/plantId/public";
 import ProfilePage from "./pages/profile";
 import SeedsPage from "./pages/seeds";
 import SettingsPage from "./pages/settings";
-import BaseLayout from "./layouts/base";
-import GeolocationDisallowedPage from "./pages/geolocation-dissallowed";
 
 export default function App() {
   return (
@@ -27,81 +27,20 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
         </Route>
 
+        <Route element={<ProtectedLayout />}>
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/seeds" element={<SeedsPage />} />
+          <Route path="/plants" element={<AllUserPlantsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route path="/plants/graveyard" element={<PlantGraveyard />} />
+          <Route path="/plants/:plantId" element={<IndividualPlantPage />} />
+          <Route path="/plants/:plantId/public" element={<PublicPlantPage />} />
+        </Route>
+
         <Route
           path="/geolocation-dissallowed"
           element={<GeolocationDisallowedPage />}
-        />
-
-        <Route
-          path="/profile/:username"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <SettingsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/seeds"
-          element={
-            <ProtectedRoute>
-              <SeedsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/plants"
-          element={
-            <ProtectedRoute>
-              <AllUserPlantsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/plants/graveyard"
-          element={
-            <ProtectedRoute>
-              <PlantGraveyard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/plants/:plantId"
-          element={
-            <ProtectedRoute>
-              <IndividualPlantPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/plants/:plantId/public"
-          element={
-            <ProtectedRoute>
-              <PublicPlantPage />
-            </ProtectedRoute>
-          }
         />
 
         <Route path="*" element={<NotFoundPage />} />
