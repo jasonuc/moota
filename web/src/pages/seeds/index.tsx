@@ -17,35 +17,33 @@ import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { startSentenceWithUppercase } from "@/lib/utils";
 import { getUserSeeds, plantSeed } from "@/services/api/seeds";
-import { Seed, SeedGroup } from "@/types/seed";
+import { useGetUserSeeds } from "@/services/queries/seeds";
+import { Seed } from "@/types/seed";
 import { AxiosError } from "axios";
 import { AudioLinesIcon, SproutIcon, XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
 export default function SeedsPage() {
-  const [seeds, setSeeds] = useState<SeedGroup[]>();
   const { user } = useAuth();
   const { latitude, longitude } = useGeolocation();
   const navigate = useNavigate();
 
   const { withinAllowance } = useGeolocation();
+  const { data: seeds, error: useGetUserSeedsErr } = useGetUserSeeds(user?.id);
 
   useEffect(() => {
-    if (!user?.id) return;
-
-    getUserSeeds(user.id)
-      .then(setSeeds)
-      .catch((err: AxiosError<string>) =>
-        toast.error("Error occured on the server", {
-          description: `Seeds could not be fetched. ${startSentenceWithUppercase(
-            err.response?.data ?? ""
-          )}`,
-          descriptionClassName: "!text-white",
-        })
-      );
-  }, [user?.id]);
+    if (useGetUserSeedsErr) {
+      const err = useGetUserSeedsErr as AxiosError<string>;
+      toast.error("Error occured on the server", {
+        description: `Seeds could not be fetched. ${startSentenceWithUppercase(
+          err.response?.data ?? ""
+        )}`,
+        descriptionClassName: "!text-white",
+      });
+    }
+  });
 
   const decideSeedToPlant = async (count: number, seeds: Seed[]) => {
     const seedToPlant = seeds[Math.floor(Math.random() * count)];

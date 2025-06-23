@@ -1,15 +1,9 @@
-import { useEffect, useState } from "react";
+import { useGetUserProfile } from "@/services/queries/user";
 import { useAuth } from "./use-auth";
-import { UserProfile } from "@/types/user";
-import { getUserProfile } from "@/services/api/user";
 
 export function useCurrentUserProfile() {
   const { user } = useAuth();
-  const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile>();
-
-  useEffect(() => {
-    getUserProfile(user!.username).then(setCurrentUserProfile);
-  }, [user]);
+  const { data: currentUserProfile } = useGetUserProfile(user?.username);
 
   return currentUserProfile;
 }

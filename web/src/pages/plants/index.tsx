@@ -3,28 +3,27 @@ import Header from "@/components/header";
 import PlantsList from "@/components/plants-list";
 import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
-import { getAllUserPlants } from "@/services/api/plants";
-import { PlantWithDistanceMFromUser } from "@/types/plant";
-import { useEffect, useState } from "react";
+import { useGetAllUserPlants } from "@/services/queries/plants";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 export default function AllUserPlantsPage() {
   const { user } = useAuth();
   const { latitude, longitude, withinAllowance } = useGeolocation();
-  const [plants, setPlants] = useState<PlantWithDistanceMFromUser[]>();
+  const { data: plants, error: useGetAllUserPlantsErr } = useGetAllUserPlants(
+    user?.id,
+    latitude,
+    longitude
+  );
 
   useEffect(() => {
-    if (!user?.id || !latitude || !longitude) return;
-
-    getAllUserPlants(user.id, latitude, longitude)
-      .then(setPlants)
-      .catch(() => {
-        toast.error("Error occured on the server", {
-          description: `Try again later.`,
-          descriptionClassName: "!text-white",
-        });
+    if (useGetAllUserPlantsErr) {
+      toast.error("Error occured on the server", {
+        description: `Try again later.`,
+        descriptionClassName: "!text-white",
       });
-  }, [user, latitude, longitude]);
+    }
+  }, [useGetAllUserPlantsErr]);
 
   return (
     <div className="flex flex-col space-y-5 pb-10 grow">

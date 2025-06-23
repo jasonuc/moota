@@ -4,11 +4,10 @@ import Top3Plants from "@/components/top-3-plants";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getDicebearGlassUrl } from "@/lib/utils";
-import { getUserProfile } from "@/services/api/user";
-import { UserProfile } from "@/types/user";
+import { useGetUserProfile } from "@/services/queries/user";
 import { AxiosError } from "axios";
 import { HeartIcon, SkullIcon, SproutIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 
@@ -35,25 +34,21 @@ const noTitleMessages = [
 ];
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<UserProfile>();
   const { username } = useParams();
   const navigate = useNavigate();
+  const { data: profile, error: useGetUserProfileErr } =
+    useGetUserProfile(username);
 
   useEffect(() => {
-    if (!username) return;
-
-    getUserProfile(username)
-      .then((data) => {
-        setProfile(data);
-      })
-      .catch((err: AxiosError<{ error: string }>) => {
-        navigate("/home");
-        toast.error("User does not exist", {
-          description: err.response?.data.error,
-          descriptionClassName: "!text-white",
-        });
+    if (useGetUserProfileErr) {
+      navigate("/home");
+      const err = useGetUserProfileErr as AxiosError<{ error: string }>;
+      toast.error("User does not exist", {
+        description: err.response?.data.error,
+        descriptionClassName: "!text-white",
       });
-  }, [username, navigate]);
+    }
+  }, [useGetUserProfileErr, navigate]);
 
   return (
     <div className="flex flex-col space-y-5 grow">

@@ -7,6 +7,7 @@ import { BrowserRouter } from "react-router";
 import "./index.css";
 import GeolocationProvider from "./services/providers/geolocation-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ createRoot(document.getElementById("root")!).render(
             <Toaster />
           </GeolocationProvider>
         </AuthProvider>
+        <ReactQueryDevtools />
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>

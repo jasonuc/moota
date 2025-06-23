@@ -3,26 +3,16 @@ import Header from "@/components/header";
 import PlantsList from "@/components/plants-list";
 import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
-import { getUserNearbyPlants } from "@/services/api/plants";
-import { PlantWithDistanceMFromUser } from "@/types/plant";
-import { useEffect, useState } from "react";
+import { useGetUserNearbyPlants } from "@/services/queries/plants";
 
 export default function HomePage() {
   const { user } = useAuth();
   const { latitude, longitude, withinAllowance } = useGeolocation();
-  const [nearbyPlants, setNearbyPlants] = useState<
-    PlantWithDistanceMFromUser[] | undefined
-  >();
-
-  useEffect(() => {
-    if (!user?.id || !latitude || !longitude) {
-      return;
-    }
-
-    getUserNearbyPlants(user.id, latitude, longitude)
-      .then(setNearbyPlants)
-      .catch(console.error);
-  }, [user?.id, latitude, longitude]);
+  const { data: nearbyPlants } = useGetUserNearbyPlants(
+    user?.id,
+    latitude,
+    longitude
+  );
 
   return (
     <div className="flex flex-col space-y-5 grow">
