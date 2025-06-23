@@ -1,12 +1,12 @@
 import { GeolocationContext } from "@/contexts/geolocation-context";
+import { GEOLOCATION_DISTANCE_ACCURACY_ALLOWANCE } from "@/lib/constants";
 import { useGeolocation } from "@uidotdev/usehooks";
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 
 type GeolocationProviderProps = {
   children: React.ReactNode;
 };
-
-const DISTANCE_ACCURACY_ALLOWANCE = 10;
 
 export default function GeolocationProvider({
   children,
@@ -18,9 +18,29 @@ export default function GeolocationProvider({
   });
   const [withinAllowance, setWithinAllowance] = useState<boolean>(false);
 
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if (geolocation.error) {
+      if (geolocation.error.code === geolocation.error.PERMISSION_DENIED) {
+        const nonGeolocationDepentendPaths = [
+          "/",
+          "/settings",
+          "/plants/graveyard",
+        ];
+        if (!nonGeolocationDepentendPaths.includes(pathname)) {
+          navigate("/geolocation-dissallowed");
+        }
+      }
+    }
+  }, [geolocation.error, pathname, navigate]);
+
   useEffect(() => {
     if (geolocation.accuracy !== null) {
-      setWithinAllowance(geolocation.accuracy <= DISTANCE_ACCURACY_ALLOWANCE);
+      setWithinAllowance(
+        geolocation.accuracy <= GEOLOCATION_DISTANCE_ACCURACY_ALLOWANCE
+      );
     }
   }, [geolocation.accuracy]);
 
