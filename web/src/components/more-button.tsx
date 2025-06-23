@@ -1,5 +1,5 @@
 import { Plant } from "@/types/plant";
-import { MenuIcon } from "lucide-react";
+import { EditIcon, MenuIcon, ShareIcon } from "lucide-react";
 import { useState } from "react";
 import ChangePlantNickname from "./change-plant-nickname";
 import { Button } from "./ui/button";
@@ -10,10 +10,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { toast } from "sonner";
 
 type MoreButtonProps = Plant;
 
-export default function MoreButton({ id, nickname }: MoreButtonProps) {
+export default function PlantPageMoreButton({ id, nickname }: MoreButtonProps) {
   const [dialogMenu, setDialogMenu] = useState("none");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -47,7 +48,18 @@ export default function MoreButton({ id, nickname }: MoreButtonProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem onSelect={() => openDialog("changePlantNickname")}>
+            <EditIcon className="size-2" />
             Change plant nickname
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              navigator.clipboard
+                .writeText(window.location.href + "/public")
+                .then(() => toast.success("Copied link to plant card!"));
+            }}
+          >
+            <ShareIcon className="size-2" />
+            Share plant
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

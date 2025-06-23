@@ -9,7 +9,7 @@ export default function DynamicNavigation() {
 
   return (
     <div
-      className={cn("fixed left-0 bottom-0 w-full p-5 ", {
+      className={cn("fixed left-0 bottom-0 w-full p-5", {
         "flex gap-x-5 md:p-10": pathname === "/home",
         "flex justify-end p-5": pathname !== "/",
       })}

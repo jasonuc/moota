@@ -1,5 +1,6 @@
 import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
+import { Button } from "@/components/ui/button";
 import {
   formatHp,
   getDicebearThumbsUrl,
@@ -9,6 +10,7 @@ import { useGetPlant } from "@/services/queries/plants";
 import { useGetUsernameFromUserId } from "@/services/queries/user";
 import { AxiosError } from "axios";
 import { formatDate, isValid, parseJSON } from "date-fns";
+import { ShareIcon } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useParams } from "react-router";
 import { toast } from "sonner";
@@ -123,7 +125,19 @@ export default function PublicPlantPage() {
         </div>
       </div>
 
-      <DynamicNavigation />
+      <div className="fixed left-0 bottom-0 w-full p-5 flex justify-start">
+        <Button
+          className="rounded-full size-12 z-50"
+          onClick={() => {
+            navigator.clipboard
+              .writeText(window.location.href)
+              .then(() => toast.success("Copied link to plant card!"));
+          }}
+        >
+          <ShareIcon />
+        </Button>
+        <DynamicNavigation />
+      </div>
     </div>
   );
 }
