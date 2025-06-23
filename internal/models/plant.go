@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	PlantInteractionRadius = 10
+	PlantInteractionRadius = 10 // TODO: This value is still experimental
 	wateringPlantXpGain    = 30
 	wateringPlantHpGain    = 5
 	minWateringInterval    = 6 * time.Hour
