@@ -18,7 +18,7 @@ export default function GeolocationProvider({
     maximumAge: 0,
     timeout: 1000,
   });
-  const [withinAllowance, setWithinAllowance] = useState<boolean>(false);
+  const [withinAllowance, setWithinAllowance] = useState(false);
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -49,11 +49,13 @@ export default function GeolocationProvider({
   useEffect(() => {
     if (geolocation.accuracy === null && geolocation.error !== null) {
       if (geolocation.error.code === geolocation.error.POSITION_UNAVAILABLE) {
+        toast.dismiss();
         toast("Location unavailable", {
           description:
-            "Application will remain available but various functionalities would be disabled until location is available again.",
+            "Application will remain available but various features will be disabled until location is available again.",
           icon: <LucideAlertTriangle />,
-          duration: 10000,
+          duration: 2500,
+          dismissible: true,
         });
       }
     }
