@@ -40,7 +40,7 @@ make dbu
 
 cd web
 pnpm install
-cp .env.sample .env.local
+cp .env.sample .env
 
 make dev
 ```
