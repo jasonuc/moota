@@ -1,7 +1,7 @@
 import { PlantWithDistanceMFromUser } from "@/types/plant";
 import { Link } from "react-router";
 import LearnMoreButton from "./learn-more-button";
-import Plant from "./plant";
+import PlantListItem from "./plant-list-item";
 import { Button } from "./ui/button";
 
 type PlantsListProps = {
@@ -22,7 +22,7 @@ export default function PlantsList({
       {plants.length ? (
         <div className="flex flex-col space-y-5 md:space-y-7">
           {plants.slice(0, maxPlants).map((p, key) => (
-            <Plant
+            <PlantListItem
               key={key}
               {...p}
               showDistanceM={showDistanceM}

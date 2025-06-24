@@ -1,15 +1,18 @@
 import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { useIsDicebearOnline } from "@/hooks/use-dicebear-online";
 import {
+  cn,
   formatHp,
+  formatPlantDate,
   getDicebearThumbsUrl,
   startSentenceWithUppercase,
 } from "@/lib/utils";
 import { useGetPlant } from "@/services/queries/plants";
 import { useGetUsernameFromUserId } from "@/services/queries/user";
 import { AxiosError } from "axios";
-import { formatDate, isValid, parseJSON } from "date-fns";
 import { ShareIcon } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useParams } from "react-router";
@@ -19,6 +22,7 @@ export default function PublicPlantPage() {
   const params = useParams();
   const { data: plant, error: useGetPlantErr } = useGetPlant(params.plantId);
   const { data: ownerUsername } = useGetUsernameFromUserId(plant?.ownerID);
+  const dicebearOnline = useIsDicebearOnline();
 
   useEffect(() => {
     if (useGetPlantErr) {
@@ -27,31 +31,26 @@ export default function PublicPlantPage() {
     }
   }, [useGetPlantErr]);
 
-  const formatPlantDate = (dateString: string | undefined) => {
-    if (!dateString) return "Unknown";
-
-    try {
-      const date = parseJSON(dateString);
-      return isValid(date) ? formatDate(date, "dd/MM/yy") : "Invalid date";
-    } catch {
-      return "Invalid date";
-    }
-  };
-
   return (
     <div className="flex flex-col space-y-5 grow">
       <Header />
 
-      <div className="w-full md:max-w-md md:mx-auto">
-        <div className="bg-white/20 backdrop-blur-3xl border-2 border-white/80 rounded-lg shadow-lg p-6">
-          <img
-            className="mx-auto mb-6"
-            width={200}
-            height={200}
-            draggable={false}
-            src={getDicebearThumbsUrl(plant?.id)}
-            alt={`Avatar for ${plant?.nickname}`}
-          />
+      <div
+        className={cn("w-full md:max-w-md md:mx-auto", {
+          "h-[80%] md:h-full flex items-center justify-center": !dicebearOnline,
+        })}
+      >
+        <div className="bg-white/20 backdrop-blur-3xl border-2 border-white/80 rounded-lg shadow-lg px-6 py-10">
+          {dicebearOnline && (
+            <img
+              className="mx-auto mb-6"
+              width={200}
+              height={200}
+              draggable={false}
+              src={getDicebearThumbsUrl(plant?.id)}
+              alt={`Avatar for ${plant?.nickname}`}
+            />
+          )}
 
           <div className="text-center space-y-2 mb-6">
             <h1 className="text-3xl font-heading">{plant?.nickname}</h1>
@@ -68,11 +67,11 @@ export default function PublicPlantPage() {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="text-center">
               <p className="text-sm font-semibold">Level</p>
-              <p className="text-2xl font-bold">{plant?.level ?? 0}</p>
+              <p className="text-2xl font-bold">{plant?.level}</p>
             </div>
             <div className="text-center">
               <p className="text-sm font-semibold">XP</p>
-              <p className="text-2xl font-bold">{plant?.xp ?? 0}</p>
+              <p className="text-2xl font-bold">{plant?.xp}</p>
             </div>
             <div className="text-center">
               <p className="text-sm font-semibold">Health</p>
@@ -80,9 +79,7 @@ export default function PublicPlantPage() {
             </div>
             <div className="text-center">
               <p className="text-sm font-semibold">Planted</p>
-              <p className="text-2xl">
-                {formatPlantDate(plant?.timePlanted || "")}
-              </p>
+              <p className="text-2xl">{formatPlantDate(plant?.timePlanted)}</p>
             </div>
           </div>
 
@@ -105,16 +102,10 @@ export default function PublicPlantPage() {
               ].map(({ label, value }) => (
                 <div key={label}>
                   <p className="text-sm italic capitalize mb-2">{label}</p>
-                  <div className="bg-gray-200 rounded-full h-4 overflow-hidden">
-                    <div
-                      className="h-full bg-green-500 rounded-full"
-                      style={{
-                        width: `${
-                          typeof value === "number" ? (value / 5) * 100 : 0
-                        }%`,
-                      }}
-                    />
-                  </div>
+                  <Progress
+                    className="h-5 rounded-md md:rounded-base"
+                    value={typeof value === "number" ? (value / 5) * 100 : 0}
+                  />
                   <p className="text-xs text-right mt-1">
                     {typeof value === "number" ? value : 0}/5
                   </p>

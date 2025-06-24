@@ -12,16 +12,17 @@ import {
   getDicebearThumbsUrl,
 } from "@/lib/utils";
 import type { PlantWithDistanceMFromUser } from "@/types/plant";
-import { Heart, LocateFixed } from "lucide-react";
+import { HeartIcon, LocateFixedIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "./ui/button";
+import { useIsDicebearOnline } from "@/hooks/use-dicebear-online";
 
 interface PlantProps extends PlantWithDistanceMFromUser {
   showDistanceM: boolean;
   muteDistanceM: boolean;
 }
 
-export default function Plant({
+export default function PlantListItem({
   id,
   nickname,
   botanicalName,
@@ -30,18 +31,20 @@ export default function Plant({
   muteDistanceM = false,
   showDistanceM,
 }: PlantProps) {
+  const dicebearOnline = useIsDicebearOnline();
+
   return (
     <Link to={`/plants/${id}`}>
       <Button asChild className="relative overflow-hidden group h-fit">
         <Card className="gap-y-1.5 bg-background flex w-full">
           <CardContent className="flex justify-end w-full gap-x-2 p-0 pt-1.5">
             <div className="flex items-center gap-x-1.5">
-              <Heart size={15} />
+              <HeartIcon size={15} />
               {formatHp(hp)}%
             </div>
             {showDistanceM && (
               <div className="flex items-center gap-x-1.5">
-                <LocateFixed size={15} />
+                <LocateFixedIcon size={15} />
                 <span
                   className={cn({
                     "text-black/50": muteDistanceM,
@@ -59,12 +62,14 @@ export default function Plant({
             </CardDescription>
           </CardHeader>
 
-          <img
-            src={getDicebearThumbsUrl(id)}
-            alt="avatar"
-            draggable={false}
-            className="size-20 pointer-events-none absolute -bottom-1/4 right-0 group-hover:-bottom-5 group-active:-bottom-5 transition-all duration-100 rounded-l-md"
-          />
+          {dicebearOnline && (
+            <img
+              src={getDicebearThumbsUrl(id)}
+              alt="avatar"
+              draggable={false}
+              className="size-20 pointer-events-none absolute -bottom-1/4 right-0 group-hover:-bottom-5 group-active:-bottom-5 transition-all duration-100 rounded-l-md"
+            />
+          )}
         </Card>
       </Button>
     </Link>

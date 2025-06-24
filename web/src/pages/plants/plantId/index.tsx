@@ -5,10 +5,13 @@ import PlantMap from "@/components/plant-map";
 import PlantTempers from "@/components/plant-tempers";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useIsDicebearOnline } from "@/hooks/use-dicebear-online";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { PLANT_INTERACTION_RADIUS } from "@/lib/constants";
 import {
+  cn,
   formatHp,
+  formatPlantDate,
   getDicebearThumbsUrl,
   haversineDistance,
   startSentenceWithUppercase,
@@ -16,7 +19,6 @@ import {
 import { useWaterPlant } from "@/services/mutations/plants";
 import { useGetPlant } from "@/services/queries/plants";
 import { AxiosError } from "axios";
-import { formatDate, isValid, parseJSON } from "date-fns";
 import { DropletIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
@@ -33,6 +35,7 @@ export default function IndividualPlantPage() {
     withinAllowance,
   } = useGeolocation();
   const waterPlantMtn = useWaterPlant();
+  const dicebearOnline = useIsDicebearOnline();
 
   useEffect(() => {
     if (useGetPlantErr) {
@@ -47,17 +50,6 @@ export default function IndividualPlantPage() {
       return;
     }
   }
-
-  const formatPlantDate = (dateString: string | undefined) => {
-    if (!dateString) return "Unknown";
-
-    try {
-      const date = parseJSON(dateString);
-      return isValid(date) ? formatDate(date, "dd/MM/yy") : "Invalid date";
-    } catch {
-      return "Invalid date";
-    }
-  };
 
   const handleWaterPlant = () => {
     waterPlantMtn
@@ -91,16 +83,21 @@ export default function IndividualPlantPage() {
   return (
     <div className="flex flex-col space-y-5 grow">
       <Header />
-
-      <div className="grid md:flex grid-cols-2 md:justify-center md:items-center gap-x-10">
-        <img
-          className="mx-auto md:mx-0"
-          width={200}
-          height={200}
-          draggable={false}
-          src={getDicebearThumbsUrl(plant?.id)}
-          alt={`Avatar for ${plant?.nickname}`}
-        />
+      <div
+        className={cn("grid md:flex md:justify-center md:items-center", {
+          "grid-cols-2 gap-x-10": dicebearOnline,
+        })}
+      >
+        {dicebearOnline && (
+          <img
+            className="mx-auto md:mx-0"
+            width={200}
+            height={200}
+            draggable={false}
+            src={getDicebearThumbsUrl(plant?.id)}
+            alt={`Avatar for ${plant?.nickname}`}
+          />
+        )}
 
         <div className="flex flex-col items-center justify-center gap-y-2">
           <h1 className="text-2xl font-heading">{plant?.nickname}</h1>
@@ -122,17 +119,16 @@ export default function IndividualPlantPage() {
           </div>
         </div>
       </div>
-
       <PlantTempers {...plant?.tempers} />
 
-      {userLat && userLon && plant?.centre.Lat && plant?.centre.Lon && (
-        <PlantMap
-          userCoords={{ Lat: userLat, Lon: userLon }}
-          plantCoords={{ Lat: plant.centre.Lat, Lon: plant.centre.Lon }}
-          showUser={withinAllowance}
-        />
-      )}
-
+      <PlantMap
+        userCoords={{ Lat: userLat ?? 0, Lon: userLon ?? 0 }}
+        plantCoords={{
+          Lat: plant?.centre.Lat ?? 0,
+          Lon: plant?.centre.Lon ?? 0,
+        }}
+        showUser={withinAllowance}
+      />
       <div className="flex flex-col grow justify-end">
         <div className="grid grid-cols-3 gap-x-5 gap-y-5">
           <KillPlantButton
@@ -140,20 +136,18 @@ export default function IndividualPlantPage() {
             nickname={plant?.nickname || ""}
           />
 
-          {userLat && userLon && plant?.centre.Lat && plant?.centre.Lon && (
-            <Button
-              className="md:min-h-12 col-span-2 md:col-span-1 flex items-center justify-center space-x-1.5"
-              onClick={handleWaterPlant}
-              disabled={
-                haversineDistance(
-                  { Lat: plant.centre.Lat, Lon: plant.centre.Lon },
-                  { Lat: userLat, Lon: userLon }
-                ) > PLANT_INTERACTION_RADIUS
-              }
-            >
-              Water <DropletIcon />
-            </Button>
-          )}
+          <Button
+            className="md:min-h-12 col-span-2 md:col-span-1 flex items-center justify-center space-x-1.5"
+            onClick={handleWaterPlant}
+            disabled={
+              haversineDistance(
+                { Lat: plant?.centre.Lat ?? 0, Lon: plant?.centre.Lon ?? 0 },
+                { Lat: userLat ?? 0, Lon: userLon ?? 0 }
+              ) > PLANT_INTERACTION_RADIUS
+            }
+          >
+            Water <DropletIcon />
+          </Button>
 
           <MoreButton {...plant!} />
         </div>

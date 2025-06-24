@@ -1,6 +1,6 @@
 import { Coordinates } from "@/types/coordinates";
 import { clsx, type ClassValue } from "clsx";
-import { formatDistanceToNow } from "date-fns";
+import { formatDate, formatDistanceToNow, isValid, parseJSON } from "date-fns";
 import { twMerge } from "tailwind-merge";
 import { EARTH_RADIUS_M } from "./constants";
 
@@ -22,6 +22,17 @@ export function formatHp(hp: number) {
 export function startSentenceWithUppercase(sentence: string) {
   if (!sentence) return "";
   return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+}
+
+export function formatPlantDate(dateString: string | undefined) {
+  if (!dateString) return "Unknown";
+
+  try {
+    const date = parseJSON(dateString);
+    return isValid(date) ? formatDate(date, "dd/MM/yy") : "Invalid date";
+  } catch {
+    return "Invalid date";
+  }
 }
 
 export function formatRelativeTime(date: string | Date | number) {
