@@ -1,6 +1,6 @@
 package dto
 
-type GetAllUserPlantsReq struct {
+type GetUserPlantsReq struct {
 	Coordinates
 }
 

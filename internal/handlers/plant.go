@@ -25,7 +25,7 @@ func NewPlantService(plantService services.PlantService) *PlantHandler {
 	}
 }
 
-func (h *PlantHandler) HandleGetAllUserPlants(w http.ResponseWriter, r *http.Request) {
+func (h *PlantHandler) HandleGetUserPlants(w http.ResponseWriter, r *http.Request) {
 	lon, err := utils.ReadFloatQueryParam(r, "lon")
 	if err != nil {
 		utils.BadRequestResponse(w, err)
@@ -48,7 +48,7 @@ func (h *PlantHandler) HandleGetAllUserPlants(w http.ResponseWriter, r *http.Req
 
 	IncludeDeceased := utils.ReadBoolQueryParam(r, "includeDeceased")
 
-	plants, err := h.plantService.GetAllUserPlants(r.Context(), userID, userCoords, &store.GetPlantsOpts{IncludeDeceased: IncludeDeceased})
+	plants, err := h.plantService.GetUserPlants(r.Context(), userID, userCoords, &store.GetPlantsOpts{IncludeDeceased: IncludeDeceased})
 	if err != nil {
 		utils.ServerErrorResponse(w, err)
 		return
@@ -131,14 +131,14 @@ func (h *PlantHandler) HandleActionOnPlant(w http.ResponseWriter, r *http.Reques
 	utils.WriteJSON(w, http.StatusAccepted, utils.Envelope{"plant": plant}, nil)
 }
 
-func (h *PlantHandler) HandleGetAllUserDeceasedPlants(w http.ResponseWriter, r *http.Request) {
+func (h *PlantHandler) HandleGetUserDeceasedPlants(w http.ResponseWriter, r *http.Request) {
 	userID, err := utils.ReadStringReqParam(r, "userID")
 	if err != nil {
 		utils.BadRequestResponse(w, err)
 		return
 	}
 
-	deceasedPlants, err := h.plantService.GetAllUserDeceasedPlants(r.Context(), userID)
+	deceasedPlants, err := h.plantService.GetUserDeceasedPlants(r.Context(), userID)
 	if err != nil {
 		utils.ServerErrorResponse(w, err)
 		return

@@ -12,11 +12,11 @@ import (
 )
 
 type PlantService interface {
-	GetAllUserPlants(context.Context, string, *models.Coordinates, *store.GetPlantsOpts) ([]*models.PlantWithDistanceMFromUser, error)
+	GetUserPlants(context.Context, string, *models.Coordinates, *store.GetPlantsOpts) ([]*models.PlantWithDistanceMFromUser, error)
 	ActionOnPlant(context.Context, string, dto.ActionOnPlantReq) (*models.Plant, error)
 	GetPlant(context.Context, string) (*models.Plant, error)
 	CreatePlant(context.Context, *models.Soil, *models.Seed, models.Coordinates) (*models.Plant, error)
-	GetAllUserDeceasedPlants(context.Context, string) ([]*models.Plant, error)
+	GetUserDeceasedPlants(context.Context, string) ([]*models.Plant, error)
 	ChangePlantNickname(context.Context, string, string) (*models.Plant, error)
 	KillPlant(context.Context, string) error
 	WithStore(*store.Store) PlantService
@@ -46,7 +46,7 @@ var (
 	ErrPlantAlreadyDead              = errors.New("plant already dead")
 )
 
-func (s *plantService) GetAllUserPlants(ctx context.Context, userID string, dto *models.Coordinates, opts *store.GetPlantsOpts) ([]*models.PlantWithDistanceMFromUser, error) {
+func (s *plantService) GetUserPlants(ctx context.Context, userID string, dto *models.Coordinates, opts *store.GetPlantsOpts) ([]*models.PlantWithDistanceMFromUser, error) {
 	coords := models.Coordinates{Lat: dto.Lat, Lon: dto.Lon}
 
 	transaction, err := s.store.Begin()
@@ -168,14 +168,14 @@ func (s *plantService) ActionOnPlant(ctx context.Context, plantID string, dto dt
 	return s.GetPlant(ctx, plantID)
 }
 
-func (s *plantService) GetAllUserDeceasedPlants(ctx context.Context, userID string) ([]*models.Plant, error) {
-	allUserPlants, err := s.store.Plant.GetByOwnerID(ctx, userID, &store.GetPlantsOpts{IncludeDeceased: true})
+func (s *plantService) GetUserDeceasedPlants(ctx context.Context, userID string) ([]*models.Plant, error) {
+	userPlants, err := s.store.Plant.GetByOwnerID(ctx, userID, &store.GetPlantsOpts{IncludeDeceased: true})
 	if err != nil {
 		return nil, err
 	}
 
 	deceasedPlants := make([]*models.Plant, 0)
-	for _, plant := range allUserPlants {
+	for _, plant := range userPlants {
 		if plant.Dead {
 			deceasedPlants = append(deceasedPlants, plant)
 		}

@@ -8,7 +8,7 @@ import RegisterPage from "./pages/auth/register";
 import GeolocationDisallowedPage from "./pages/geolocation-dissallowed";
 import HomePage from "./pages/home";
 import NotFoundPage from "./pages/not-found/not-found";
-import AllUserPlantsPage from "./pages/plants";
+import UserPlantsPage from "./pages/plants";
 import PlantGraveyard from "./pages/plants/graveyard";
 import IndividualPlantPage from "./pages/plants/plantId";
 import PublicPlantPage from "./pages/plants/plantId/public";
@@ -30,7 +30,7 @@ export default function App() {
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<HomePage />} />
           <Route path="/seeds" element={<SeedsPage />} />
-          <Route path="/plants" element={<AllUserPlantsPage />} />
+          <Route path="/plants" element={<UserPlantsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/profile/:username" element={<ProfilePage />} />
           <Route path="/plants/graveyard" element={<PlantGraveyard />} />

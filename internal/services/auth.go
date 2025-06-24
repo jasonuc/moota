@@ -315,7 +315,7 @@ func (s *authService) ChangeUserPassword(ctx context.Context, userID string, dto
 	// this current approach to change password would revoke all the user's refresh tokens which in effect signs them out when the refresh token expires
 	// the current approach does have a problem though. It is going to weight until the user needs to refresh their access token before they'd be logged out so...
 	// TODO: improve maybe return a new token pair
-	if err := tx.RefreshToken.RevokeAllByUserID(ctx, userID); err != nil {
+	if err := tx.RefreshToken.RevokeManyByUserID(ctx, userID); err != nil {
 		return nil, err
 	}
 

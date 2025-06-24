@@ -14,7 +14,7 @@ import (
 )
 
 type SeedService interface {
-	GetAllUserSeeds(context.Context, string) ([]*models.SeedGroup, error)
+	GetUserSeeds(context.Context, string) ([]*models.SeedGroup, error)
 	GetSeed(context.Context, string, string) (*models.Seed, error)
 	GiveUserNewSeeds(context.Context, string, int) ([]*models.SeedGroup, error)
 	PlantSeed(context.Context, string, dto.PlantSeedReq) (*models.Plant, error)
@@ -61,7 +61,7 @@ func (s *seedService) WithStore(store *store.Store) SeedService {
 	return &copy
 }
 
-func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*models.SeedGroup, error) {
+func (s *seedService) GetUserSeeds(ctx context.Context, userID string) ([]*models.SeedGroup, error) {
 	userIDFromCtx, err := contextkeys.GetUserIDFromCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (s *seedService) GetAllUserSeeds(ctx context.Context, userID string) ([]*mo
 		return nil, ErrInvalidPermissionsForSeed
 	}
 
-	seeds, err := s.store.Seed.GetAllByOwnerID(ctx, userID)
+	seeds, err := s.store.Seed.GetByOwnerID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -234,7 +234,7 @@ func (s *seedService) GiveUserNewSeeds(ctx context.Context, userID string, count
 		return nil, err
 	}
 
-	return s.GetAllUserSeeds(ctx, userID)
+	return s.GetUserSeeds(ctx, userID)
 }
 
 func recordFailedSeedRequest(ctx context.Context, transaction *store.Transaction, txStore *store.Store, userID string, count int) error {

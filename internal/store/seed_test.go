@@ -59,9 +59,9 @@ func TestSeedStore(t *testing.T) {
 
 	store := &seedStore{db: db}
 
-	t.Run("GetAllByOwnerID", func(t *testing.T) {
+	t.Run("GetByOwnerID", func(t *testing.T) {
 		ownerID := "00000000-0000-4000-a000-000000000001"
-		seeds, err := store.GetAllByOwnerID(context.Background(), ownerID)
+		seeds, err := store.GetByOwnerID(context.Background(), ownerID)
 		assert.NoError(t, err)
 		assert.Len(t, seeds, 3, "expected 3 seeds")
 

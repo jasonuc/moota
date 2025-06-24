@@ -11,7 +11,7 @@ import (
 
 type SeedStore interface {
 	Get(context.Context, string) (*models.Seed, error)
-	GetAllByOwnerID(context.Context, string) ([]*models.Seed, error)
+	GetByOwnerID(context.Context, string) ([]*models.Seed, error)
 	GetCountByUsername(context.Context, string) (*models.SeedCount, error)
 	GetLastFulfilledSeedRequestTimeByUserID(context.Context, string) (time.Time, error)
 	Insert(context.Context, *models.Seed) error
@@ -62,7 +62,7 @@ func (s *seedStore) GetCountByUsername(ctx context.Context, username string) (*m
 	return seedCount, nil
 }
 
-func (s *seedStore) GetAllByOwnerID(ctx context.Context, ownerID string) ([]*models.Seed, error) {
+func (s *seedStore) GetByOwnerID(ctx context.Context, ownerID string) ([]*models.Seed, error) {
 	q := `SELECT id, owner_id, hp, planted, optimal_soil, botanical_name, created_at FROM seeds
 			WHERE owner_id = $1 AND planted = false;`
 

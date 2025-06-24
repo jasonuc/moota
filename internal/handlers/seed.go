@@ -67,7 +67,7 @@ func (h *SeedHandler) HandleGetUserSeeds(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	seedGroups, err := h.seedService.GetAllUserSeeds(r.Context(), userIDFromReqParam)
+	seedGroups, err := h.seedService.GetUserSeeds(r.Context(), userIDFromReqParam)
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrInvalidPermissionsForSeed):

@@ -3,27 +3,27 @@ import Header from "@/components/header";
 import PlantsList from "@/components/plants-list";
 import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
-import { useGetAllUserPlants } from "@/services/queries/plants";
+import { useGetUserPlants } from "@/services/queries/plants";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-export default function AllUserPlantsPage() {
+export default function UserPlantsPage() {
   const { user } = useAuth();
   const { latitude, longitude, withinAllowance } = useGeolocation();
   const {
     data: plants,
-    error: useGetAllUserPlantsErr,
+    error: useGetUserPlantsErr,
     isPlaceholderData,
-  } = useGetAllUserPlants(user?.id, latitude, longitude);
+  } = useGetUserPlants(user?.id, latitude, longitude);
 
   useEffect(() => {
-    if (useGetAllUserPlantsErr) {
+    if (useGetUserPlantsErr) {
       toast.error("Error occured on the server", {
         description: `Try again later.`,
         descriptionClassName: "!text-white",
       });
     }
-  }, [useGetAllUserPlantsErr]);
+  }, [useGetUserPlantsErr]);
 
   return (
     <div className="flex flex-col space-y-5 pb-10 grow">

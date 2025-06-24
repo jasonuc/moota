@@ -15,11 +15,7 @@ export const getUserNearbyPlants = async (
     )
   ).data.plants.slice(0, 4);
 
-export const getAllUserPlants = async (
-  userId: string,
-  lat: number,
-  lon: number
-) =>
+export const getUserPlants = async (userId: string, lat: number, lon: number) =>
   (
     await ax.get<{ plants: PlantWithDistanceMFromUser[] }>(
       `/plants/u/${userId}`,
@@ -58,6 +54,6 @@ export const changePlantNickname = async (
     })
   ).data;
 
-export const getAllUserDeceasedPlants = async (userId: string) =>
+export const getUserDeceasedPlants = async (userId: string) =>
   (await ax.get<{ plants: Plant[] }>(`/plants/u/${userId}/graveyard`)).data
     .plants;

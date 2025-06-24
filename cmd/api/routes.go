@@ -68,8 +68,8 @@ func (app *application) routes() http.Handler {
 				r.Route("/u/{userID}", func(r chi.Router) {
 					r.Use(app.authMiddleware.ValidateUserAccess)
 
-					r.Get("/", app.plantHandler.HandleGetAllUserPlants)
-					r.Get("/graveyard", app.plantHandler.HandleGetAllUserDeceasedPlants)
+					r.Get("/", app.plantHandler.HandleGetUserPlants)
+					r.Get("/graveyard", app.plantHandler.HandleGetUserDeceasedPlants)
 				})
 
 				r.Route("/{plantID}", func(r chi.Router) {
