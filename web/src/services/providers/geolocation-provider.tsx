@@ -1,8 +1,10 @@
 import { GeolocationContext } from "@/contexts/geolocation-context";
 import { GEOLOCATION_DISTANCE_ACCURACY_ALLOWANCE } from "@/lib/constants";
 import { useGeolocation } from "@uidotdev/usehooks";
+import { LucideAlertTriangle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 type GeolocationProviderProps = {
   children: React.ReactNode;
@@ -43,6 +45,19 @@ export default function GeolocationProvider({
       );
     }
   }, [geolocation.accuracy]);
+
+  useEffect(() => {
+    if (geolocation.accuracy === null && geolocation.error !== null) {
+      if (geolocation.error.code === geolocation.error.POSITION_UNAVAILABLE) {
+        toast("Location unavailable", {
+          description:
+            "Application will remain available but various functionalities would be disabled until location is available again.",
+          icon: <LucideAlertTriangle />,
+          duration: 10000,
+        });
+      }
+    }
+  }, [geolocation.accuracy, geolocation.error]);
 
   return (
     <GeolocationContext.Provider value={{ ...geolocation, withinAllowance }}>
