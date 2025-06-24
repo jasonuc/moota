@@ -2,7 +2,6 @@ import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { useIsDicebearOnline } from "@/hooks/use-dicebear-online";
 import {
   cn,
   formatHp,
@@ -14,7 +13,7 @@ import { useGetPlant } from "@/services/queries/plants";
 import { useGetUsernameFromUserId } from "@/services/queries/user";
 import { AxiosError } from "axios";
 import { ShareIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { toast } from "sonner";
 
@@ -22,7 +21,7 @@ export default function PublicPlantPage() {
   const params = useParams();
   const { data: plant, error: useGetPlantErr } = useGetPlant(params.plantId);
   const { data: ownerUsername } = useGetUsernameFromUserId(plant?.ownerID);
-  const dicebearOnline = useIsDicebearOnline();
+  const [isImageVisible, setIsImageVisible] = useState(true);
 
   useEffect(() => {
     if (useGetPlantErr) {
@@ -37,20 +36,22 @@ export default function PublicPlantPage() {
 
       <div
         className={cn("w-full md:max-w-md md:mx-auto", {
-          "h-[80%] md:h-full flex items-center justify-center": !dicebearOnline,
+          "h-[80%] md:h-full flex items-center justify-center": !isImageVisible,
         })}
       >
         <div className="bg-white/20 backdrop-blur-3xl border-2 border-white/80 rounded-lg shadow-lg px-6 py-10">
-          {dicebearOnline && (
-            <img
-              className="mx-auto mb-6"
-              width={200}
-              height={200}
-              draggable={false}
-              src={getDicebearThumbsUrl(plant?.id)}
-              alt={`Avatar for ${plant?.nickname}`}
-            />
-          )}
+          <img
+            className="mx-auto mb-6"
+            width={200}
+            height={200}
+            draggable={false}
+            src={getDicebearThumbsUrl(plant?.id)}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              setIsImageVisible(false);
+            }}
+            alt={`Avatar for ${plant?.nickname}`}
+          />
 
           <div className="text-center space-y-2 mb-6">
             <h1 className="text-3xl font-heading">{plant?.nickname}</h1>

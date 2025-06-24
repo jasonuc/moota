@@ -5,7 +5,6 @@ import PlantMap from "@/components/plant-map";
 import PlantTempers from "@/components/plant-tempers";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { useIsDicebearOnline } from "@/hooks/use-dicebear-online";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { PLANT_INTERACTION_RADIUS } from "@/lib/constants";
 import {
@@ -20,7 +19,7 @@ import { useWaterPlant } from "@/services/mutations/plants";
 import { useGetPlant } from "@/services/queries/plants";
 import { AxiosError } from "axios";
 import { DropletIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 
@@ -35,7 +34,7 @@ export default function IndividualPlantPage() {
     withinAllowance,
   } = useGeolocation();
   const waterPlantMtn = useWaterPlant();
-  const dicebearOnline = useIsDicebearOnline();
+  const [isImageVisible, setIsImageVisible] = useState(true);
 
   useEffect(() => {
     if (useGetPlantErr) {
@@ -85,23 +84,28 @@ export default function IndividualPlantPage() {
       <Header />
 
       <div
-        className={cn("grid md:flex md:justify-center md:items-center", {
-          "grid-cols-2 gap-x-10": dicebearOnline,
+        className={cn({
+          "grid md:flex md:justify-center md:items-center": isImageVisible,
+          "grid items-center justify-center": !isImageVisible,
         })}
       >
-        {dicebearOnline && (
-          <img
-            className="mx-auto md:mx-0"
-            width={200}
-            height={200}
-            draggable={false}
-            src={getDicebearThumbsUrl(plant?.id)}
-            alt={`Avatar for ${plant?.nickname}`}
-          />
-        )}
+        <img
+          className="mx-auto md:mx-0"
+          width={200}
+          height={200}
+          draggable={false}
+          src={getDicebearThumbsUrl(plant?.id)}
+          alt={`Avatar for ${plant?.nickname}`}
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+            setIsImageVisible(false);
+          }}
+        />
 
         <div className="flex flex-col items-center justify-center gap-y-2">
-          <h1 className="text-2xl font-heading">{plant?.nickname}</h1>
+          <h1 className="text-2xl font-heading text-center">
+            {plant?.nickname}
+          </h1>
           <small className="italic">{plant?.botanicalName}</small>
           <div className="font-semibold flex gap-x-1.5">
             <p>lv. {plant?.level ?? 0}</p>

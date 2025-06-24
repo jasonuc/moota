@@ -15,7 +15,6 @@ import type { PlantWithDistanceMFromUser } from "@/types/plant";
 import { HeartIcon, LocateFixedIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "./ui/button";
-import { useIsDicebearOnline } from "@/hooks/use-dicebear-online";
 
 interface PlantProps extends PlantWithDistanceMFromUser {
   showDistanceM: boolean;
@@ -31,8 +30,6 @@ export default function PlantListItem({
   muteDistanceM = false,
   showDistanceM,
 }: PlantProps) {
-  const dicebearOnline = useIsDicebearOnline();
-
   return (
     <Link to={`/plants/${id}`}>
       <Button asChild className="relative overflow-hidden group h-fit">
@@ -62,14 +59,15 @@ export default function PlantListItem({
             </CardDescription>
           </CardHeader>
 
-          {dicebearOnline && (
-            <img
-              src={getDicebearThumbsUrl(id)}
-              alt="avatar"
-              draggable={false}
-              className="size-20 pointer-events-none absolute -bottom-1/4 right-0 group-hover:-bottom-5 group-active:-bottom-5 transition-all duration-100 rounded-l-md"
-            />
-          )}
+          <img
+            src={getDicebearThumbsUrl(id)}
+            alt="avatar"
+            draggable={false}
+            className="size-20 pointer-events-none absolute -bottom-1/4 right-0 group-hover:-bottom-5 group-active:-bottom-5 transition-all duration-100 rounded-l-md"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
         </Card>
       </Button>
     </Link>
