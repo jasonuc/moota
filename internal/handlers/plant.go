@@ -10,6 +10,7 @@ import (
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/services"
 	"github.com/jasonuc/moota/internal/store"
+	"github.com/jasonuc/moota/internal/utils"
 )
 
 type PlantHandler struct {
@@ -25,48 +26,48 @@ func NewPlantService(plantService services.PlantService) *PlantHandler {
 }
 
 func (h *PlantHandler) HandleGetAllUserPlants(w http.ResponseWriter, r *http.Request) {
-	lon, err := readFloatQueryParam(r, "lon")
+	lon, err := utils.ReadFloatQueryParam(r, "lon")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
-	lat, err := readFloatQueryParam(r, "lat")
+	lat, err := utils.ReadFloatQueryParam(r, "lat")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	userCoords := &models.Coordinates{Lat: lat, Lon: lon}
 
-	userID, err := readStringReqParam(r, "userID")
+	userID, err := utils.ReadStringReqParam(r, "userID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
-	IncludeDeceased := readBoolQueryParam(r, "includeDeceased")
+	IncludeDeceased := utils.ReadBoolQueryParam(r, "includeDeceased")
 
 	plants, err := h.plantService.GetAllUserPlants(r.Context(), userID, userCoords, &store.GetPlantsOpts{IncludeDeceased: IncludeDeceased})
 	if err != nil {
-		serverErrorResponse(w, err)
+		utils.ServerErrorResponse(w, err)
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"plants": plants}, nil)
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"plants": plants}, nil)
 }
 
 func (h *PlantHandler) HandleGetPlant(w http.ResponseWriter, r *http.Request) {
 	userIDFromCtx, err := contextkeys.GetUserIDFromCtx(r.Context())
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
-	plantID, err := readStringReqParam(r, "plantID")
+	plantID, err := utils.ReadStringReqParam(r, "plantID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
@@ -74,9 +75,9 @@ func (h *PlantHandler) HandleGetPlant(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrPlantNotFound):
-			notFoundResponse(w)
+			utils.NotFoundResponse(w)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
@@ -86,24 +87,24 @@ func (h *PlantHandler) HandleGetPlant(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"plant": plant}, nil)
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"plant": plant}, nil)
 }
 
 func (h *PlantHandler) HandleActionOnPlant(w http.ResponseWriter, r *http.Request) {
-	plantID, err := readStringReqParam(r, "plantID")
+	plantID, err := utils.ReadStringReqParam(r, "plantID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	var payload dto.ActionOnPlantReq
-	if err := readJSON(w, r, &payload); err != nil {
-		badRequestResponse(w, err)
+	if err := utils.ReadJSON(w, r, &payload); err != nil {
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		failedValidationResponse(w, err)
+		utils.FailedValidationResponse(w, err)
 		return
 	}
 
@@ -111,82 +112,82 @@ func (h *PlantHandler) HandleActionOnPlant(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrUnauthorisedPlantAction):
-			notPermittedResponse(w)
+			utils.NotPermittedResponse(w)
 		case errors.Is(err, models.ErrPlantNotFound):
-			notFoundResponse(w)
+			utils.NotFoundResponse(w)
 		case errors.Is(err, services.ErrOutsidePlantInteractionRadius):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		case errors.Is(err, services.ErrInvalidPlantAction):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		case errors.Is(err, models.ErrPlantInCooldown):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusAccepted, envelope{"plant": plant}, nil)
+	utils.WriteJSON(w, http.StatusAccepted, utils.Envelope{"plant": plant}, nil)
 }
 
 func (h *PlantHandler) HandleGetAllUserDeceasedPlants(w http.ResponseWriter, r *http.Request) {
-	userID, err := readStringReqParam(r, "userID")
+	userID, err := utils.ReadStringReqParam(r, "userID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	deceasedPlants, err := h.plantService.GetAllUserDeceasedPlants(r.Context(), userID)
 	if err != nil {
-		serverErrorResponse(w, err)
+		utils.ServerErrorResponse(w, err)
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"plants": deceasedPlants}, nil)
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"plants": deceasedPlants}, nil)
 }
 
 func (h *PlantHandler) HandleKillPlant(w http.ResponseWriter, r *http.Request) {
-	plantID, err := readStringReqParam(r, "plantID")
+	plantID, err := utils.ReadStringReqParam(r, "plantID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	if err := h.plantService.KillPlant(r.Context(), plantID); err != nil {
 		switch {
 		case errors.Is(err, models.ErrPlantNotFound):
-			notFoundResponse(w)
+			utils.NotFoundResponse(w)
 		case errors.Is(err, services.ErrPlantAlreadyDead):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		case errors.Is(err, services.ErrUnauthorisedPlantAction):
-			notPermittedResponse(w)
+			utils.NotPermittedResponse(w)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusAccepted, nil, nil)
+	utils.WriteJSON(w, http.StatusAccepted, nil, nil)
 }
 
 func (h *PlantHandler) HandleChangePlantNickname(w http.ResponseWriter, r *http.Request) {
-	plantID, err := readStringReqParam(r, "plantID")
+	plantID, err := utils.ReadStringReqParam(r, "plantID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	var payload dto.ChangePlantNicknameReq
-	if err := readJSON(w, r, &payload); err != nil {
-		badRequestResponse(w, err)
+	if err := utils.ReadJSON(w, r, &payload); err != nil {
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		failedValidationResponse(w, err)
+		utils.FailedValidationResponse(w, err)
 		return
 	}
 
@@ -194,15 +195,15 @@ func (h *PlantHandler) HandleChangePlantNickname(w http.ResponseWriter, r *http.
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrPlantNotFound):
-			notFoundResponse(w)
+			utils.NotFoundResponse(w)
 		case errors.Is(err, services.ErrUnauthorisedPlantAction):
-			notPermittedResponse(w)
+			utils.NotPermittedResponse(w)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusAccepted, envelope{"plant": plant}, nil)
+	utils.WriteJSON(w, http.StatusAccepted, utils.Envelope{"plant": plant}, nil)
 }

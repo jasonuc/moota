@@ -1,4 +1,4 @@
-package handlers
+package utils
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func readStringReqParam(r *http.Request, key string) (string, error) {
+func ReadStringReqParam(r *http.Request, key string) (string, error) {
 	value := chi.URLParam(r, key)
 	if value == "" {
 		return "", fmt.Errorf("missing required param")
@@ -21,15 +21,15 @@ func readStringReqParam(r *http.Request, key string) (string, error) {
 	return value, nil
 }
 
-// func readStringQueryParam(r *http.Request, key string) (string, error) {
-// 	value := r.URL.Query().Get(key)
-// 	if value == "" {
-// 		return "", fmt.Errorf("missing required query param: %s", key)
-// 	}
-// 	return value, nil
-// }
+func ReadStringQueryParam(r *http.Request, key string) (string, error) {
+	value := r.URL.Query().Get(key)
+	if value == "" {
+		return "", fmt.Errorf("missing required query param: %s", key)
+	}
+	return value, nil
+}
 
-func readFloatQueryParam(r *http.Request, key string) (float64, error) {
+func ReadFloatQueryParam(r *http.Request, key string) (float64, error) {
 	value := r.URL.Query().Get(key)
 	if value == "" {
 		return 0, fmt.Errorf("missing required query param: %s", key)
@@ -43,7 +43,7 @@ func readFloatQueryParam(r *http.Request, key string) (float64, error) {
 	return floatVal, nil
 }
 
-func readBoolQueryParam(r *http.Request, key string) bool {
+func ReadBoolQueryParam(r *http.Request, key string) bool {
 	value := r.URL.Query().Get(key)
 	if value == "" {
 		return false
@@ -57,9 +57,9 @@ func readBoolQueryParam(r *http.Request, key string) bool {
 	return boolValue
 }
 
-type envelope map[string]any
+type Envelope map[string]any
 
-func readJSON(w http.ResponseWriter, r *http.Request, v any) error {
+func ReadJSON(w http.ResponseWriter, r *http.Request, v any) error {
 	r.Body = http.MaxBytesReader(w, r.Body, http.DefaultMaxHeaderBytes)
 
 	dec := json.NewDecoder(r.Body)
@@ -95,7 +95,7 @@ func readJSON(w http.ResponseWriter, r *http.Request, v any) error {
 	return nil
 }
 
-func writeJSON(w http.ResponseWriter, status int, data envelope, header http.Header) error {
+func WriteJSON(w http.ResponseWriter, status int, data Envelope, header http.Header) error {
 	js, err := json.Marshal(data)
 	if err != nil {
 		return err

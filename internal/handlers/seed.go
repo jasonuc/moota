@@ -8,6 +8,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/jasonuc/moota/internal/dto"
 	"github.com/jasonuc/moota/internal/services"
+	"github.com/jasonuc/moota/internal/utils"
 )
 
 type SeedHandler struct {
@@ -24,19 +25,19 @@ func NewSeedHandler(seedService services.SeedService) *SeedHandler {
 
 func (h *SeedHandler) HandlePlantSeed(w http.ResponseWriter, r *http.Request) {
 	var payload dto.PlantSeedReq
-	if err := readJSON(w, r, &payload); err != nil {
-		badRequestResponse(w, err)
+	if err := utils.ReadJSON(w, r, &payload); err != nil {
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		failedValidationResponse(w, err)
+		utils.FailedValidationResponse(w, err)
 		return
 	}
 
-	seedID, err := readStringReqParam(r, "seedID")
+	seedID, err := utils.ReadStringReqParam(r, "seedID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
@@ -44,25 +45,25 @@ func (h *SeedHandler) HandlePlantSeed(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrNotPossibleToCreatePlant):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		case errors.Is(err, services.ErrNotPossibleToPlantSeed):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		case errors.Is(err, services.ErrNotPossibleToPlantSeed):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusCreated, envelope{"plant": plant}, nil)
+	utils.WriteJSON(w, http.StatusCreated, utils.Envelope{"plant": plant}, nil)
 }
 
 func (h *SeedHandler) HandleGetUserSeeds(w http.ResponseWriter, r *http.Request) {
-	userIDFromReqParam, err := readStringReqParam(r, "userID")
+	userIDFromReqParam, err := utils.ReadStringReqParam(r, "userID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
@@ -70,21 +71,21 @@ func (h *SeedHandler) HandleGetUserSeeds(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrInvalidPermissionsForSeed):
-			notPermittedResponse(w)
+			utils.NotPermittedResponse(w)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"seeds": seedGroups}, nil)
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"seeds": seedGroups}, nil)
 }
 
 func (h *SeedHandler) HandleRequestForNewSeeds(w http.ResponseWriter, r *http.Request) {
-	userIDFromReqParam, err := readStringReqParam(r, "userID")
+	userIDFromReqParam, err := utils.ReadStringReqParam(r, "userID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
@@ -93,30 +94,30 @@ func (h *SeedHandler) HandleRequestForNewSeeds(w http.ResponseWriter, r *http.Re
 		var errSeedRequestInCooldown *services.ErrSeedRequestInCooldown
 		switch {
 		case errors.As(err, &errSeedRequestInCooldown):
-			errorResponse(w, http.StatusForbidden, errSeedRequestInCooldown)
+			utils.ErrorResponse(w, http.StatusForbidden, errSeedRequestInCooldown)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusCreated, envelope{"seeds": seedGroups}, nil)
+	utils.WriteJSON(w, http.StatusCreated, utils.Envelope{"seeds": seedGroups}, nil)
 }
 
 func (h *SeedHandler) HandleCheckWhenUserCanRequestSeed(w http.ResponseWriter, r *http.Request) {
-	userIDFromReqParam, err := readStringReqParam(r, "userID")
+	userIDFromReqParam, err := utils.ReadStringReqParam(r, "userID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	timeUntilUserCanReqSeeds, err := h.seedService.CheckWhenUserCanRequestSeed(r.Context(), userIDFromReqParam)
 	if err != nil {
-		serverErrorResponse(w, err)
+		utils.ServerErrorResponse(w, err)
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"timeAvailable": timeUntilUserCanReqSeeds, "availableNow": timeUntilUserCanReqSeeds == nil}, nil)
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"timeAvailable": timeUntilUserCanReqSeeds, "availableNow": timeUntilUserCanReqSeeds == nil}, nil)
 }

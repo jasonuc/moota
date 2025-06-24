@@ -3,9 +3,9 @@ package middlewares
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jasonuc/moota/internal/contextkeys"
 	"github.com/jasonuc/moota/internal/services"
+	"github.com/jasonuc/moota/internal/utils"
 )
 
 type AuthMiddleware interface {
@@ -28,18 +28,18 @@ func (m *authMiddleware) Authorise(next http.Handler) http.Handler {
 		accessToken, err := r.Cookie("access_token")
 
 		if err != nil {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			utils.UnauthorizedResponse(w)
 			return
 		}
 
 		if accessToken.Value == "" {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			utils.UnauthorizedResponse(w)
 			return
 		}
 
 		userID, err := m.authService.VerifyAccessToken(r.Context(), accessToken.Value)
 		if err != nil {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			utils.UnauthorizedResponse(w)
 			return
 		}
 
@@ -56,9 +56,13 @@ func (m *authMiddleware) ValidateUserAccess(next http.Handler) http.Handler {
 			return
 		}
 
-		userIDParam := chi.URLParam(r, "userID")
+		userIDParam, err := utils.ReadStringReqParam(r, "userID")
+		if err != nil {
+			utils.BadRequestResponse(w, err)
+			return
+		}
 		if userIDFromCtx != userIDParam {
-			http.Error(w, "cannot access another user's data", http.StatusForbidden)
+			utils.NotPermittedResponse(w)
 			return
 		}
 

@@ -9,6 +9,7 @@ import (
 	"github.com/jasonuc/moota/internal/contextkeys"
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/services"
+	"github.com/jasonuc/moota/internal/utils"
 )
 
 type UserHandler struct {
@@ -24,9 +25,9 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 }
 
 func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
-	userID, err := readStringReqParam(r, "userID")
+	userID, err := utils.ReadStringReqParam(r, "userID")
 	if err != nil || userID == "" {
-		badRequestResponse(w, fmt.Errorf("missing required param userID"))
+		utils.BadRequestResponse(w, fmt.Errorf("missing required param userID"))
 		return
 	}
 
@@ -34,21 +35,21 @@ func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrUserNotFound):
-			notFoundResponse(w)
+			utils.NotFoundResponse(w)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"user": user}, nil)
 }
 
 func (h *UserHandler) HandleGetUsernameByID(w http.ResponseWriter, r *http.Request) {
-	userID, err := readStringReqParam(r, "userID")
+	userID, err := utils.ReadStringReqParam(r, "userID")
 	if err != nil || userID == "" {
-		badRequestResponse(w, fmt.Errorf("missing required param userID"))
+		utils.BadRequestResponse(w, fmt.Errorf("missing required param userID"))
 		return
 	}
 
@@ -56,21 +57,21 @@ func (h *UserHandler) HandleGetUsernameByID(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrUserNotFound):
-			notFoundResponse(w)
+			utils.NotFoundResponse(w)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"username": user.Username}, nil)
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"username": user.Username}, nil)
 }
 
 func (h *UserHandler) HandleGetUserProfile(w http.ResponseWriter, r *http.Request) {
-	targetUsername, err := readStringReqParam(r, "username")
+	targetUsername, err := utils.ReadStringReqParam(r, "username")
 	if err != nil || targetUsername == "" {
-		badRequestResponse(w, fmt.Errorf("missing required param username"))
+		utils.BadRequestResponse(w, fmt.Errorf("missing required param username"))
 		return
 	}
 
@@ -78,15 +79,15 @@ func (h *UserHandler) HandleGetUserProfile(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrUserNotFound):
-			notFoundResponse(w)
+			utils.NotFoundResponse(w)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"userProfile": userProfile}, nil)
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"userProfile": userProfile}, nil)
 }
 
 func (h *UserHandler) HandleWhoAmI(w http.ResponseWriter, r *http.Request) {
@@ -100,13 +101,13 @@ func (h *UserHandler) HandleWhoAmI(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrUserNotFound):
-			notFoundResponse(w)
+			utils.NotFoundResponse(w)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"user": user}, nil)
 }

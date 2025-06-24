@@ -8,6 +8,7 @@ import (
 	"github.com/jasonuc/moota/internal/dto"
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/services"
+	"github.com/jasonuc/moota/internal/utils"
 )
 
 type AuthHandler struct {
@@ -28,13 +29,13 @@ func NewAuthHandler(authService services.AuthService, cookieDomain string, cooki
 
 func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Request) {
 	var payload dto.UserRegisterReq
-	if err := readJSON(w, r, &payload); err != nil {
-		badRequestResponse(w, err)
+	if err := utils.ReadJSON(w, r, &payload); err != nil {
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		failedValidationResponse(w, err)
+		utils.FailedValidationResponse(w, err)
 		return
 	}
 
@@ -42,13 +43,13 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrUserAlreadyExists):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		case errors.Is(err, services.ErrInvalidEmail):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		case errors.Is(err, services.ErrInvalidUsername):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
@@ -76,18 +77,18 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 	})
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusCreated, envelope{"user": user}, nil)
+	utils.WriteJSON(w, http.StatusCreated, utils.Envelope{"user": user}, nil)
 }
 
 func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request) {
 	var payload dto.UserLoginReq
-	if err := readJSON(w, r, &payload); err != nil {
-		badRequestResponse(w, err)
+	if err := utils.ReadJSON(w, r, &payload); err != nil {
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		failedValidationResponse(w, err)
+		utils.FailedValidationResponse(w, err)
 		return
 	}
 
@@ -95,9 +96,9 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrInvalidCredentials):
-			invalidCredentialsResponse(w)
+			utils.InvalidCredentialsResponse(w)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
@@ -125,7 +126,7 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 	})
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, nil, nil)
+	utils.WriteJSON(w, http.StatusOK, nil, nil)
 }
 
 func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request) {
@@ -144,11 +145,11 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrInvalidRefreshToken):
-			invalidCredentialsResponse(w)
+			utils.InvalidCredentialsResponse(w)
 		case errors.Is(err, services.ErrTokenExpiredOrRevoked):
-			invalidCredentialsResponse(w)
+			utils.InvalidCredentialsResponse(w)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
@@ -176,24 +177,24 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 	})
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, nil, nil)
+	utils.WriteJSON(w, http.StatusOK, nil, nil)
 }
 
 func (h *AuthHandler) HandleChangeUsername(w http.ResponseWriter, r *http.Request) {
 	var payload dto.ChangeUsernameReq
-	if err := readJSON(w, r, &payload); err != nil {
-		badRequestResponse(w, err)
+	if err := utils.ReadJSON(w, r, &payload); err != nil {
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		failedValidationResponse(w, err)
+		utils.FailedValidationResponse(w, err)
 		return
 	}
 
-	userID, err := readStringReqParam(r, "userID")
+	userID, err := utils.ReadStringReqParam(r, "userID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
@@ -201,32 +202,32 @@ func (h *AuthHandler) HandleChangeUsername(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		switch {
 		case errors.Is(err, services.ErrInvalidUsername):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		case errors.Is(err, models.ErrUserNotFound):
-			notFoundResponse(w)
+			utils.NotFoundResponse(w)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
+	utils.WriteJSON(w, http.StatusAccepted, utils.Envelope{"user": user}, nil)
 }
 
 func (h *AuthHandler) HandleChangePassword(w http.ResponseWriter, r *http.Request) {
 	var payload dto.ChangePasswordReq
-	if err := readJSON(w, r, &payload); err != nil {
-		badRequestResponse(w, err)
+	if err := utils.ReadJSON(w, r, &payload); err != nil {
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		failedValidationResponse(w, err)
+		utils.FailedValidationResponse(w, err)
 		return
 	}
 
-	userID, err := readStringReqParam(r, "userID")
+	userID, err := utils.ReadStringReqParam(r, "userID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
@@ -234,34 +235,34 @@ func (h *AuthHandler) HandleChangePassword(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrUserNotFound):
-			notFoundResponse(w)
+			utils.NotFoundResponse(w)
 		case errors.Is(err, services.ErrInvalidCredentials):
-			invalidCredentialsResponse(w)
+			utils.InvalidCredentialsResponse(w)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
+	utils.WriteJSON(w, http.StatusAccepted, utils.Envelope{"user": user}, nil)
 }
 
 func (h *AuthHandler) HandleChangeEmail(w http.ResponseWriter, r *http.Request) {
 	var payload dto.ChangeEmailReq
-	if err := readJSON(w, r, &payload); err != nil {
-		badRequestResponse(w, err)
+	if err := utils.ReadJSON(w, r, &payload); err != nil {
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
 	if err := h.validator.Struct(payload); err != nil {
-		failedValidationResponse(w, err)
+		utils.FailedValidationResponse(w, err)
 		return
 	}
 
-	userID, err := readStringReqParam(r, "userID")
+	userID, err := utils.ReadStringReqParam(r, "userID")
 	if err != nil {
-		badRequestResponse(w, err)
+		utils.BadRequestResponse(w, err)
 		return
 	}
 
@@ -269,17 +270,17 @@ func (h *AuthHandler) HandleChangeEmail(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrUserNotFound):
-			notFoundResponse(w)
+			utils.NotFoundResponse(w)
 		case errors.Is(err, services.ErrInvalidEmail):
-			badRequestResponse(w, err)
+			utils.BadRequestResponse(w, err)
 		default:
-			serverErrorResponse(w, err)
+			utils.ServerErrorResponse(w, err)
 		}
 		return
 	}
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
+	utils.WriteJSON(w, http.StatusAccepted, utils.Envelope{"user": user}, nil)
 }
 
 func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
@@ -306,5 +307,5 @@ func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	})
 
 	//nolint:errcheck
-	writeJSON(w, http.StatusOK, nil, nil)
+	utils.WriteJSON(w, http.StatusOK, nil, nil)
 }
