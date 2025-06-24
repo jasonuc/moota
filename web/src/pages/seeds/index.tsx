@@ -36,10 +36,10 @@ export default function SeedsPage() {
 
   useEffect(() => {
     if (useGetUserSeedsErr) {
-      const err = useGetUserSeedsErr as AxiosError<string>;
+      const err = useGetUserSeedsErr as AxiosError<{ error: string }>;
       toast.error("Error occured on the server", {
         description: `Seeds could not be fetched. ${startSentenceWithUppercase(
-          err.response?.data ?? ""
+          err.response?.data.error ?? ""
         )}`,
         descriptionClassName: "!text-white",
       });

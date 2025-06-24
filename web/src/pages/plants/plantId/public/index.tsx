@@ -22,8 +22,8 @@ export default function PublicPlantPage() {
 
   useEffect(() => {
     if (useGetPlantErr) {
-      const err = useGetPlantErr as AxiosError<string>;
-      toast.error(err.response?.data);
+      const err = useGetPlantErr as AxiosError<{ error: string }>;
+      toast.error(err.response?.data.error);
     }
   }, [useGetPlantErr]);
 
