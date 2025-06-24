@@ -83,6 +83,7 @@ export default function IndividualPlantPage() {
   return (
     <div className="flex flex-col space-y-5 grow">
       <Header />
+
       <div
         className={cn("grid md:flex md:justify-center md:items-center", {
           "grid-cols-2 gap-x-10": dicebearOnline,
@@ -129,6 +130,7 @@ export default function IndividualPlantPage() {
         }}
         showUser={withinAllowance}
       />
+
       <div className="flex flex-col grow justify-end">
         <div className="grid grid-cols-3 gap-x-5 gap-y-5">
           <KillPlantButton

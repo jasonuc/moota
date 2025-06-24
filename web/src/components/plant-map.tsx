@@ -28,7 +28,7 @@ export default function PlantMap({
   const isAtPlant = distance <= PLANT_INTERACTION_RADIUS;
 
   return (
-    <Card className="h-56 relative p-0 w-full mt-10 md:mt-5 overflow-hidden">
+    <Card className="grow max-h-80 h-56 min-h-56 relative p-0 w-full mt-10 md:mt-5 overflow-hidden">
       <CardHeader className="z-50 absolute inset-0 p-0">
         <CardTitle
           className={cn(
