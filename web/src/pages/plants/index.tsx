@@ -30,7 +30,7 @@ export default function UserPlantsPage() {
       <Header />
 
       <h1 className="text-3xl font-heading mb-2">
-        My Plants {plants?.length && `(${plants?.length})`}
+        My Plants {(plants?.length ?? -1) > 0 && `(${plants?.length})`}
       </h1>
 
       <PlantsList
