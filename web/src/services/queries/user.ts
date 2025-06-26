@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUser, getUsernameFromUserId, getUserProfile } from "../api/user";
+import { getUsernameFromUserId, getUserProfile } from "../api/user";
 
 export const useGetUserProfile = (username?: string) =>
   useQuery({
@@ -8,11 +8,10 @@ export const useGetUserProfile = (username?: string) =>
     enabled: !!username,
   });
 
-export const useGetUser = (userId?: string) =>
+export const useGetCurrentUserProfile = (username?: string) =>
   useQuery({
-    queryKey: ["user", { userId }],
-    queryFn: () => getUser(userId!),
-    enabled: !!userId,
+    queryKey: ["current-user-profile", { username }],
+    queryFn: () => getUserProfile(username!),
   });
 
 export const useGetUsernameFromUserId = (userId?: string) =>
@@ -21,3 +20,10 @@ export const useGetUsernameFromUserId = (userId?: string) =>
     queryFn: () => getUsernameFromUserId(userId!),
     enabled: !!userId,
   });
+
+// export const useGetUser = (userId?: string) =>
+//   useQuery({
+//     queryKey: ["user", { userId }],
+//     queryFn: () => getUser(userId!),
+//     enabled: !!userId,
+//   });
