@@ -29,6 +29,11 @@ export default function ChangePassword() {
   });
 
   function onSubmit(values: z.infer<typeof changePasswordFormSchema>) {
+    if (!user) {
+      toast("Error occured while trying to change password");
+      return;
+    }
+
     if (values.newPassword !== values.confirmNewPassword) {
       form.setError(
         "confirmNewPassword",
@@ -41,7 +46,7 @@ export default function ChangePassword() {
     }
     changePasswordMtn
       .mutateAsync({
-        userId: user!.id,
+        userId: user.id,
         oldPassword: values.oldPassword,
         newPassword: values.newPassword,
       })

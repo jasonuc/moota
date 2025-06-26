@@ -30,10 +30,14 @@ export default function ChangeUsername() {
   });
 
   function onSubmit(values: z.infer<typeof changeUsernameFormSchema>) {
+    if (!currentUserProfile || !user) {
+      toast("Error occured while trying to change username");
+      return;
+    }
     changeUsernameMtn
       .mutateAsync({
-        userId: user!.id,
-        currentUsername: currentUserProfile!.username,
+        userId: user.id,
+        currentUsername: currentUserProfile.username,
         newUsername: values.newUsername,
       })
       .then(() => {

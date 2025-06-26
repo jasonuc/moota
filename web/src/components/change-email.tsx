@@ -27,8 +27,12 @@ export default function ChangeEmail() {
   });
 
   function onSubmit(values: z.infer<typeof changeEmailFormSchema>) {
+    if (!user) {
+      toast("Error occured while trying to change email");
+      return;
+    }
     changeEmailMtn
-      .mutateAsync({ userId: user!.id, newEmail: values.newEmail })
+      .mutateAsync({ userId: user.id, newEmail: values.newEmail })
       .then(() => {
         toast("Email changed successfully");
       })
