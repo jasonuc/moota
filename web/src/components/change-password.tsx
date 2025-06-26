@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { changePasswordFormSchema } from "@/schemas/settings";
 import { useChangePassword } from "@/services/mutations/user";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -53,7 +54,13 @@ export default function ChangePassword() {
       .then(() => {
         toast("Password changed successfully!");
       })
-      .catch(() => {
+      .catch((err: AxiosError<{ error: string }>) => {
+        form.setError("oldPassword", {
+          message:
+            typeof err.response?.data.error === "string"
+              ? err.response?.data.error
+              : "Invalid Password",
+        });
         toast("Error occured while trying to change password");
       });
     form.reset();

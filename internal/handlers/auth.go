@@ -42,7 +42,7 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 	user, tokenPair, err := h.authService.Register(r.Context(), payload)
 	if err != nil {
 		switch {
-		case errors.Is(err, services.ErrUserAlreadyExists):
+		case errors.Is(err, services.ErrUsernameTooLong) || errors.Is(err, services.ErrUsernameMustContainOnlyLetters) || errors.Is(err, services.ErrUsernameTaken):
 			utils.BadRequestResponse(w, err)
 		case errors.Is(err, services.ErrInvalidEmail):
 			utils.BadRequestResponse(w, err)
@@ -54,27 +54,8 @@ func (h *AuthHandler) HandleRegisterRequest(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "access_token",
-		Value:    tokenPair.AccessToken,
-		Path:     "/",
-		Secure:   true,
-		HttpOnly: true,
-		MaxAge:   h.authService.GetAccessTokenTTL(),
-		Domain:   h.cookieDomain,
-		SameSite: h.cookieSameSiteMode,
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    tokenPair.RefreshToken,
-		Path:     "/",
-		Secure:   true,
-		HttpOnly: true,
-		MaxAge:   h.authService.GetRefreshTokenTTL(),
-		Domain:   h.cookieDomain,
-		SameSite: h.cookieSameSiteMode,
-	})
+	h.addCookie(w, "access_token", tokenPair.AccessToken, h.authService.GetAccessTokenTTL())
+	h.addCookie(w, "refresh_token", tokenPair.RefreshToken, h.authService.GetRefreshTokenTTL())
 
 	//nolint:errcheck
 	utils.WriteJSON(w, http.StatusCreated, utils.Envelope{"user": user}, nil)
@@ -103,27 +84,8 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "access_token",
-		Value:    tokenPair.AccessToken,
-		Path:     "/",
-		Secure:   true,
-		Domain:   h.cookieDomain,
-		MaxAge:   h.authService.GetAccessTokenTTL(),
-		HttpOnly: true,
-		SameSite: h.cookieSameSiteMode,
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    tokenPair.RefreshToken,
-		Path:     "/",
-		Secure:   true,
-		MaxAge:   h.authService.GetRefreshTokenTTL(),
-		Domain:   h.cookieDomain,
-		HttpOnly: true,
-		SameSite: h.cookieSameSiteMode,
-	})
+	h.addCookie(w, "access_token", tokenPair.AccessToken, h.authService.GetAccessTokenTTL())
+	h.addCookie(w, "refresh_token", tokenPair.RefreshToken, h.authService.GetRefreshTokenTTL())
 
 	//nolint:errcheck
 	utils.WriteJSON(w, http.StatusOK, nil, nil)
@@ -154,27 +116,8 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "access_token",
-		Value:    tokenPair.AccessToken,
-		MaxAge:   h.authService.GetAccessTokenTTL(),
-		Path:     "/",
-		Secure:   true,
-		Domain:   h.cookieDomain,
-		HttpOnly: true,
-		SameSite: h.cookieSameSiteMode,
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    tokenPair.RefreshToken,
-		MaxAge:   h.authService.GetRefreshTokenTTL(),
-		Path:     "/",
-		Domain:   h.cookieDomain,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: h.cookieSameSiteMode,
-	})
+	h.addCookie(w, "access_token", tokenPair.AccessToken, h.authService.GetAccessTokenTTL())
+	h.addCookie(w, "refresh_token", tokenPair.RefreshToken, h.authService.GetRefreshTokenTTL())
 
 	//nolint:errcheck
 	utils.WriteJSON(w, http.StatusOK, nil, nil)
@@ -201,6 +144,10 @@ func (h *AuthHandler) HandleChangeUsername(w http.ResponseWriter, r *http.Reques
 	user, err := h.authService.ChangeUserUsername(r.Context(), userID, payload)
 	if err != nil {
 		switch {
+		case errors.Is(err, services.ErrUsernameTooLong) || errors.Is(err, services.ErrUsernameMustContainOnlyLetters) || errors.Is(err, services.ErrUsernameTaken):
+			utils.BadRequestResponse(w, err)
+		case errors.Is(err, services.ErrInvalidUsername):
+			utils.BadRequestResponse(w, err)
 		case errors.Is(err, services.ErrInvalidUsername):
 			utils.BadRequestResponse(w, err)
 		case errors.Is(err, models.ErrUserNotFound):
@@ -284,28 +231,34 @@ func (h *AuthHandler) HandleChangeEmail(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     "access_token",
-		Value:    "",
-		Path:     "/",
-		MaxAge:   -1,
-		Domain:   h.cookieDomain,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: h.cookieSameSiteMode,
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    "",
-		Path:     "/",
-		MaxAge:   -1,
-		Domain:   h.cookieDomain,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: h.cookieSameSiteMode,
-	})
+	h.deleteCookie(w, "access_token")
+	h.deleteCookie(w, "refresh_token")
 
 	//nolint:errcheck
 	utils.WriteJSON(w, http.StatusOK, nil, nil)
+}
+
+func (h *AuthHandler) addCookie(w http.ResponseWriter, name, value string, maxAge int) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     name,
+		Value:    value,
+		Path:     "/",
+		MaxAge:   maxAge,
+		Domain:   h.cookieDomain,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: h.cookieSameSiteMode,
+	})
+}
+func (h *AuthHandler) deleteCookie(w http.ResponseWriter, name string) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     name,
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		Domain:   h.cookieDomain,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: h.cookieSameSiteMode,
+	})
 }

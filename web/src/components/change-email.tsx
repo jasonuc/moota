@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { changeEmailFormSchema } from "@/schemas/settings";
 import { useChangeEmail } from "@/services/mutations/user";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -36,8 +37,14 @@ export default function ChangeEmail() {
       .then(() => {
         toast("Email changed successfully");
       })
-      .catch(() => {
-        toast("Error occurred while trying to change email");
+      .catch((err: AxiosError<{ error: string }>) => {
+        form.setError("newEmail", {
+          message:
+            typeof err.response?.data.error === "string"
+              ? err.response?.data.error
+              : "Invalid Email",
+        });
+        toast.error("Error occurred while trying to change email");
       });
     form.reset();
   }

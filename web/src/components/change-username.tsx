@@ -11,6 +11,7 @@ import { useCurrentUserProfile } from "@/hooks/use-current-user-profile";
 import { changeUsernameFormSchema } from "@/schemas/settings";
 import { useChangeUsername } from "@/services/mutations/user";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -43,8 +44,14 @@ export default function ChangeUsername() {
       .then(() => {
         toast("Username changed successfully!");
       })
-      .catch(() => {
-        toast("Error occured while trying to change username");
+      .catch((err: AxiosError<{ error: string }>) => {
+        form.setError("newUsername", {
+          message:
+            typeof err.response?.data.error === "string"
+              ? err.response?.data.error
+              : "Invalid Username",
+        });
+        toast.error("Error occured while trying to change username");
       });
     form.reset();
   }

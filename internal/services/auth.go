@@ -18,12 +18,14 @@ import (
 )
 
 var (
-	ErrUserAlreadyExists     = errors.New("user already exists")
-	ErrInvalidCredentials    = errors.New("invalid credentials")
-	ErrInvalidUsername       = errors.New("invalid username")
-	ErrInvalidEmail          = errors.New("invalid email")
-	ErrInvalidRefreshToken   = errors.New("invalid refresh token")
-	ErrTokenExpiredOrRevoked = errors.New("token expired or revoked")
+	ErrInvalidCredentials             = errors.New("invalid credentials")
+	ErrInvalidUsername                = errors.New("invalid username")
+	ErrInvalidEmail                   = errors.New("invalid email")
+	ErrInvalidRefreshToken            = errors.New("invalid refresh token")
+	ErrTokenExpiredOrRevoked          = errors.New("token expired or revoked")
+	ErrUsernameTooLong                = errors.New("username must be between 3 and 30 characters")
+	ErrUsernameMustContainOnlyLetters = errors.New("username must contain only letters")
+	ErrUsernameTaken                  = errors.New("username already in use")
 )
 
 type AuthService interface {
@@ -64,11 +66,11 @@ func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*m
 
 	_, err = s.store.User.GetByUsername(ctx, dto.Email)
 	if err == nil {
-		return nil, nil, ErrInvalidUsername
+		return nil, nil, ErrUsernameTaken
 	}
 
-	if !isValidUsername(dto.Username) {
-		return nil, nil, ErrInvalidUsername
+	if err := isValidUsername(dto.Username); err != nil {
+		return nil, nil, err
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(dto.Password), bcrypt.DefaultCost)
@@ -228,7 +230,7 @@ func (s *authService) ChangeUserUsername(ctx context.Context, userID string, dto
 	tx := s.store.WithTx(transaction)
 
 	if _, err := tx.User.GetByUsername(ctx, dto.NewUsername); err == nil {
-		return nil, ErrInvalidUsername
+		return nil, ErrUsernameTaken
 	}
 
 	user, err := tx.User.GetByID(ctx, userID)
@@ -236,8 +238,8 @@ func (s *authService) ChangeUserUsername(ctx context.Context, userID string, dto
 		return nil, err
 	}
 
-	if !isValidUsername(dto.NewUsername) {
-		return nil, ErrInvalidUsername
+	if err := isValidUsername(dto.NewUsername); err != nil {
+		return nil, err
 	}
 
 	user.Username = dto.NewUsername
@@ -376,14 +378,14 @@ func (s *authService) generateRefreshToken(user *models.User) (*models.RefreshTo
 	}, nil
 }
 
-func isValidUsername(username string) bool {
-	if len(username) < 3 || len(username) > 8 {
-		return false
+func isValidUsername(username string) error {
+	if len(username) < 3 || len(username) > 30 {
+		return ErrUsernameTooLong
 	}
 	for _, char := range username {
 		if !unicode.IsLetter(char) {
-			return false
+			return ErrUsernameMustContainOnlyLetters
 		}
 	}
-	return true
+	return nil
 }
