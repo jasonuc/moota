@@ -1,9 +1,6 @@
-import { useGetUserProfile } from "@/services/queries/user";
-import { useAuth } from "./use-auth";
+import { useGetCurrentUserProfile } from "@/services/queries/user";
 
 export function useCurrentUserProfile() {
-  const { user } = useAuth();
-  const { data: currentUserProfile } = useGetUserProfile(user?.username);
-
+  const { data: currentUserProfile } = useGetCurrentUserProfile();
   return currentUserProfile;
 }

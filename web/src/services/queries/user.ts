@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUsernameFromUserId, getUserProfile } from "../api/user";
+import { useAuth } from "@/hooks/use-auth";
 
 export const useGetUserProfile = (username?: string) =>
   useQuery({
@@ -8,11 +9,14 @@ export const useGetUserProfile = (username?: string) =>
     enabled: !!username,
   });
 
-export const useGetCurrentUserProfile = (username?: string) =>
-  useQuery({
-    queryKey: ["current-user-profile", { username }],
-    queryFn: () => getUserProfile(username!),
+export const useGetCurrentUserProfile = () => {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["current-user-profile", { username: user?.username }],
+    queryFn: () => getUserProfile(user!.username),
+    enabled: !!user,
   });
+};
 
 export const useGetUsernameFromUserId = (userId?: string) =>
   useQuery({
