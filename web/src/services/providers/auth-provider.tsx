@@ -111,6 +111,21 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     [checkStatus, navigate, clearError]
   );
 
+  const refresh = useCallback(async () => {
+    setIsLoading(true);
+    checkStatus()
+      .catch((err: AxiosError<{ error: string }>) => {
+        setState((prev) => ({
+          ...prev,
+          error: err?.response?.data?.error || "Something went wrong",
+          isInitialized: true,
+        }));
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [checkStatus]);
+
   const logout = useCallback(async () => {
     setIsLoading(true);
     clearError();
@@ -147,8 +162,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         isLoggedIn,
         user,
         error,
-        login,
         register,
+        login,
+        refresh,
         logout,
       }}
     >
