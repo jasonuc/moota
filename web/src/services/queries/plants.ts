@@ -32,7 +32,7 @@ export const useGetUserPlants = (
 
 export const useGetPlant = (plantId?: string) =>
   useQuery({
-    queryKey: ["plant", plantId],
+    queryKey: ["plant", { plantId: plantId }],
     queryFn: () => getPlant(plantId!),
     enabled: !!plantId,
   });

@@ -7,7 +7,7 @@ export const useKillPlant = () => {
     mutationFn: (plantId: string) => killPlant(plantId),
     onSuccess: (_, plantId) =>
       queryClient.removeQueries({
-        queryKey: ["plant", plantId],
+        queryKey: ["plant", { plantId }],
         exact: true,
       }),
   });
@@ -19,8 +19,8 @@ export const useChangePlantNickname = () => {
     mutationFn: (payload: { plantId: string; newNickname: string }) =>
       changePlantNickname(payload.plantId, payload.newNickname),
     onSuccess: (_, variables) =>
-      queryClient.removeQueries({
-        queryKey: ["plant", variables.plantId],
+      queryClient.refetchQueries({
+        queryKey: ["plant", { plantId: variables.plantId }],
         exact: true,
       }),
   });
@@ -36,7 +36,7 @@ export const useWaterPlant = () => {
     }) => waterPlant(payload.plantId, payload.latitude, payload.longitude),
     onSuccess: (_, variables) =>
       queryClient.refetchQueries({
-        queryKey: ["plant", variables.plantId],
+        queryKey: ["plant", { plantId: variables.plantId }],
         exact: true,
       }),
   });
