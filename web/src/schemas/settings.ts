@@ -3,8 +3,8 @@ import { z } from "zod";
 export const changeUsernameFormSchema = z.object({
   newUsername: z
     .string()
-    .min(3, "Name must be at least 2 characters")
-    .max(50, "Name cannot exceed 50 characters")
+    .min(3, "Name must be at least 3 characters")
+    .max(30, "Name cannot exceed 30 characters")
     .trim(),
 });
 
