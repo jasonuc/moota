@@ -196,7 +196,7 @@ func (s *authService) RefreshTokens(ctx context.Context, tokenRefresh string) (*
 }
 
 func (s *authService) VerifyAccessToken(ctx context.Context, accessToken string) (string, error) {
-	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -207,7 +207,7 @@ func (s *authService) VerifyAccessToken(ctx context.Context, accessToken string)
 		return "", err
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
+	claims, ok := token.Claims.(*jwt.RegisteredClaims)
 	if ok && token.Valid {
 		userID, err := claims.GetSubject()
 		if err != nil {
@@ -332,12 +332,11 @@ func (s *authService) generateAccessToken(user *models.User) (string, error) {
 	now := time.Now()
 	accessExp := time.Now().Add(s.accessTokenTTL)
 
-	claims := jwt.MapClaims{
-		"sub":      user.ID,
-		"username": user.Username,
-		"exp":      accessExp.Unix(),
-		"iat":      now.Unix(),
-		"iss":      s.issuer,
+	claims := jwt.RegisteredClaims{
+		Subject:   user.ID,
+		ExpiresAt: jwt.NewNumericDate(accessExp),
+		IssuedAt:  jwt.NewNumericDate(now),
+		Issuer:    s.issuer,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
