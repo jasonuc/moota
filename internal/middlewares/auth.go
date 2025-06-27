@@ -26,13 +26,7 @@ func NewAuthMiddleware(authService services.AuthService) AuthMiddleware {
 func (m *authMiddleware) Authorise(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accessToken, err := r.Cookie("access_token")
-
-		if err != nil {
-			utils.UnauthorizedResponse(w)
-			return
-		}
-
-		if accessToken.Value == "" {
+		if err != nil || accessToken.Value == "" {
 			utils.UnauthorizedResponse(w)
 			return
 		}
