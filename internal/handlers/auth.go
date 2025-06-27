@@ -91,7 +91,7 @@ func (h *AuthHandler) HandleLoginRequest(w http.ResponseWriter, r *http.Request)
 	utils.WriteJSON(w, http.StatusOK, nil, nil)
 }
 
-func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) HandleAccessTokenRefresh(w http.ResponseWriter, r *http.Request) {
 	refreshToken, err := r.Cookie("refresh_token")
 	if err != nil {
 		switch {
@@ -103,12 +103,10 @@ func (h *AuthHandler) HandleTokenRefresh(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	tokenPair, err := h.authService.RefreshTokens(r.Context(), refreshToken.Value)
+	tokenPair, err := h.authService.RefreshAccessToken(r.Context(), refreshToken.Value)
 	if err != nil {
 		switch {
-		case errors.Is(err, services.ErrInvalidRefreshToken):
-			utils.InvalidCredentialsResponse(w)
-		case errors.Is(err, services.ErrTokenExpiredOrRevoked):
+		case errors.Is(err, services.ErrInvalidRefreshToken) || errors.Is(err, services.ErrTokenExpiredOrRevoked):
 			utils.InvalidCredentialsResponse(w)
 		default:
 			utils.ServerErrorResponse(w, err)
@@ -250,6 +248,7 @@ func (h *AuthHandler) addCookie(w http.ResponseWriter, name, value string, maxAg
 		SameSite: h.cookieSameSiteMode,
 	})
 }
+
 func (h *AuthHandler) deleteCookie(w http.ResponseWriter, name string) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     name,

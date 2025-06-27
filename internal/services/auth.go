@@ -31,7 +31,7 @@ var (
 type AuthService interface {
 	Register(context.Context, dto.UserRegisterReq) (*models.User, *models.TokenPair, error)
 	Login(context.Context, dto.UserLoginReq) (*models.TokenPair, error)
-	RefreshTokens(context.Context, string) (*models.TokenPair, error)
+	RefreshAccessToken(context.Context, string) (*models.TokenPair, error)
 	VerifyAccessToken(context.Context, string) (string, error)
 	ChangeUserUsername(context.Context, string, dto.ChangeUsernameReq) (*models.User, error)
 	ChangeUserEmail(context.Context, string, dto.ChangeEmailReq) (*models.User, error)
@@ -142,7 +142,7 @@ func (s *authService) Login(ctx context.Context, dto dto.UserLoginReq) (*models.
 	}, nil
 }
 
-func (s *authService) RefreshTokens(ctx context.Context, tokenRefresh string) (*models.TokenPair, error) {
+func (s *authService) RefreshAccessToken(ctx context.Context, refreshToken string) (*models.TokenPair, error) {
 	transaction, err := s.store.Begin()
 	if err != nil {
 		return nil, store.ErrTransactionCouldNotStart
@@ -151,7 +151,7 @@ func (s *authService) RefreshTokens(ctx context.Context, tokenRefresh string) (*
 	defer transaction.Rollback()
 	tx := s.store.WithTx(transaction)
 
-	tokenHash := sha256.Sum256([]byte(tokenRefresh))
+	tokenHash := sha256.Sum256([]byte(refreshToken))
 
 	token, err := tx.RefreshToken.GetByHash(ctx, tokenHash[:])
 	if err != nil {
@@ -167,21 +167,8 @@ func (s *authService) RefreshTokens(ctx context.Context, tokenRefresh string) (*
 		return nil, err
 	}
 
-	if err := tx.RefreshToken.Revoke(ctx, token.ID); err != nil {
-		return nil, err
-	}
-
 	accessToken, err := s.generateAccessToken(user)
 	if err != nil {
-		return nil, err
-	}
-
-	refreshToken, err := s.generateRefreshToken(user)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := tx.RefreshToken.Insert(ctx, refreshToken); err != nil {
 		return nil, err
 	}
 
@@ -191,7 +178,7 @@ func (s *authService) RefreshTokens(ctx context.Context, tokenRefresh string) (*
 
 	return &models.TokenPair{
 		AccessToken:  accessToken,
-		RefreshToken: refreshToken.Plain,
+		RefreshToken: refreshToken,
 	}, nil
 }
 

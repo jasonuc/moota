@@ -30,7 +30,7 @@ func (app *application) routes() http.Handler {
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", app.authHandler.HandleRegisterRequest)
 			r.Post("/login", app.authHandler.HandleLoginRequest)
-			r.Post("/refresh", app.authHandler.HandleTokenRefresh)
+			r.Post("/refresh", app.authHandler.HandleAccessTokenRefresh)
 			r.Post("/logout", app.authHandler.HandleLogout)
 
 			r.Route("/u/{userID}", func(r chi.Router) {
