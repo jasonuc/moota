@@ -3,7 +3,7 @@ import { changeUsername, changeEmail, changePassword } from "../api/user";
 import { useAuth } from "@/hooks/use-auth";
 
 export const useChangeUsername = () => {
-  const { refresh } = useAuth();
+  const { refetch } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: {
@@ -16,13 +16,13 @@ export const useChangeUsername = () => {
         queryKey: ["current-user-profile"],
         exact: false,
       });
-      refresh();
+      refetch();
     },
   });
 };
 
 export const useChangeEmail = () => {
-  const { refresh } = useAuth();
+  const { refetch } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: { userId: string; newEmail: string }) =>
@@ -31,13 +31,13 @@ export const useChangeEmail = () => {
       queryClient.refetchQueries({
         queryKey: ["user", { userId: variables.userId }],
       });
-      refresh();
+      refetch();
     },
   });
 };
 
 export const useChangePassword = () => {
-  const { refresh } = useAuth();
+  const { refetch } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: {
@@ -50,7 +50,7 @@ export const useChangePassword = () => {
       queryClient.refetchQueries({
         queryKey: ["user", { userId: variables.userId }],
       });
-      refresh();
+      refetch();
     },
   });
 };

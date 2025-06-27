@@ -10,7 +10,7 @@ export const AuthContext = createContext<{
   error?: string | null;
   register: (creds: RegisterCredentials) => Promise<void>;
   login: (creds: LoginCredentials) => Promise<void>;
-  refresh: () => Promise<void>;
+  refetch: () => Promise<void>;
   logout: () => void;
 }>({
   isLoading: true,
@@ -18,6 +18,6 @@ export const AuthContext = createContext<{
   isInitialized: false,
   register: async () => {},
   login: async () => {},
-  refresh: async () => {},
+  refetch: async () => {},
   logout: () => {},
 });

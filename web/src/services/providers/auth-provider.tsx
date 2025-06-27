@@ -33,9 +33,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const checkStatus = useCallback(async () => {
-    const response = await ax.get<{ user: User | null }>("/whoami", {
-      withCredentials: true,
-    });
+    const response = await ax.get<{ user: User | null }>("/whoami");
 
     setState((prev) => ({
       ...prev,
@@ -67,9 +65,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       clearError();
 
       try {
-        await ax.post("/auth/register", creds, {
-          withCredentials: true,
-        });
+        await ax.post("/auth/register", creds);
 
         await checkStatus();
         navigate("/home");
@@ -92,9 +88,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       clearError();
 
       try {
-        await ax.post("/auth/login", creds, {
-          withCredentials: true,
-        });
+        await ax.post("/auth/login", creds);
 
         await checkStatus();
         navigate("/home");
@@ -111,7 +105,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     [checkStatus, navigate, clearError]
   );
 
-  const refresh = useCallback(async () => {
+  const refetch = useCallback(async () => {
     setIsLoading(true);
     checkStatus()
       .catch((err: AxiosError<{ error: string }>) => {
@@ -154,6 +148,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [navigate, clearError]);
 
+  useEffect(() => {
+    window.addEventListener("auth:logout", logout);
+    return () => window.removeEventListener("auth:logout", logout);
+  }, [logout]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -164,7 +163,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         error,
         register,
         login,
-        refresh,
+        refetch,
         logout,
       }}
     >
