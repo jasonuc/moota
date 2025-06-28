@@ -200,6 +200,7 @@ func TestGracePeriodMechanics(t *testing.T) {
 		}
 
 		waterTime := baseTime.Add(1 * time.Hour)
+		//nolint:errcheck
 		plant.Action(PlantActionWater, waterTime)
 
 		expectedGraceEnd := waterTime.Add(wateringGracePeriod)
@@ -218,6 +219,7 @@ func TestGracePeriodMechanics(t *testing.T) {
 		}
 
 		waterTime := baseTime.Add(3 * time.Hour)
+		//nolint:errcheck
 		plant.Action(PlantActionWater, waterTime)
 
 		expectedNewGraceEnd := waterTime.Add(wateringGracePeriod)
@@ -366,6 +368,7 @@ func TestPerfectCareScenario(t *testing.T) {
 		currentTime := baseTime
 		for i := 0; i < 10; i++ {
 			currentTime = currentTime.Add(3 * time.Hour)
+			//nolint:errcheck
 			plant.Action(PlantActionWater, currentTime)
 			plant.Refresh(currentTime.Add(30 * time.Minute))
 		}
@@ -391,6 +394,7 @@ func TestCasualCareScenario(t *testing.T) {
 		currentTime := baseTime
 		for i := 0; i < 5; i++ {
 			currentTime = currentTime.Add(8 * time.Hour)
+			//nolint:errcheck
 			plant.Action(PlantActionWater, currentTime)
 			plant.Refresh(currentTime.Add(30 * time.Minute))
 		}
