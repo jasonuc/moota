@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { startSentenceWithUppercase } from "@/lib/utils";
 
 export default function ChangePassword() {
   const { user } = useAuth();
@@ -58,7 +59,7 @@ export default function ChangePassword() {
         form.setError("oldPassword", {
           message:
             typeof err.response?.data.error === "string"
-              ? err.response?.data.error
+              ? startSentenceWithUppercase(err.response?.data.error)
               : "Invalid Password",
         });
         toast("Error occured while trying to change password");

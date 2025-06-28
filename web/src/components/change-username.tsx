@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { startSentenceWithUppercase } from "@/lib/utils";
 
 export default function ChangeUsername() {
   const { user } = useAuth();
@@ -48,7 +49,7 @@ export default function ChangeUsername() {
         form.setError("newUsername", {
           message:
             typeof err.response?.data.error === "string"
-              ? err.response?.data.error
+              ? startSentenceWithUppercase(err.response?.data.error)
               : "Invalid Username",
         });
         toast.error("Error occured while trying to change username");

@@ -9,12 +9,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
+import { startSentenceWithUppercase } from "@/lib/utils";
 import { loginFormSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 export default function LoginForm() {
+  const { login, error: authError, isLoading } = useAuth();
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -23,10 +26,15 @@ export default function LoginForm() {
     },
   });
 
-  const { login, isLoading } = useAuth();
-
   async function onSubmit(values: z.infer<typeof loginFormSchema>) {
     await login(values);
+    if (authError) {
+      toast.error("Error occured while trying to login", {
+        description: startSentenceWithUppercase(authError),
+        descriptionClassName: "!text-white",
+      });
+      form.reset();
+    }
   }
 
   return (

@@ -7,6 +7,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useAuth } from "@/hooks/use-auth";
+import { startSentenceWithUppercase } from "@/lib/utils";
 import { changeEmailFormSchema } from "@/schemas/settings";
 import { useChangeEmail } from "@/services/mutations/user";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,7 +42,7 @@ export default function ChangeEmail() {
         form.setError("newEmail", {
           message:
             typeof err.response?.data.error === "string"
-              ? err.response?.data.error
+              ? startSentenceWithUppercase(err.response?.data.error)
               : "Invalid Email",
         });
         toast.error("Error occurred while trying to change email");

@@ -9,13 +9,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
+import { startSentenceWithUppercase } from "@/lib/utils";
 import { registerFormSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
-// TODO: This needs a lot of work when it comes to handling errors coming from the server: like username or email already in use.
 export default function RegisterForm() {
+  const { register, error: authError, isLoading } = useAuth();
   const form = useForm<z.infer<typeof registerFormSchema>>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -26,8 +28,6 @@ export default function RegisterForm() {
     },
   });
 
-  const { register, isLoading } = useAuth();
-
   async function onSubmit(values: z.infer<typeof registerFormSchema>) {
     const passwordMatch = values.password === values.confirmPassword;
     if (!passwordMatch) {
@@ -37,11 +37,19 @@ export default function RegisterForm() {
       });
       return;
     }
+
     await register({
       username: values.username,
       email: values.email,
       password: values.password,
     });
+
+    if (authError) {
+      toast.error("Error occured while trying to create an account", {
+        description: startSentenceWithUppercase(authError),
+        descriptionClassName: "!text-white",
+      });
+    }
   }
 
   return (
