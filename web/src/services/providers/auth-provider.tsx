@@ -3,7 +3,7 @@ import { LoginCredentials, RegisterCredentials } from "@/types/auth";
 import { User } from "@/types/user";
 import { AxiosError } from "axios";
 import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { ax } from "../api";
 
 interface AuthProviderProps {
@@ -148,10 +148,15 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [navigate, clearError]);
 
+  const { pathname } = useLocation();
+
   useEffect(() => {
+    const nonProtectedRoutes = ["/", "/login", "/register"];
+    if (nonProtectedRoutes.includes(pathname) && !isLoggedIn) return;
+
     window.addEventListener("auth:logout", logout);
     return () => window.removeEventListener("auth:logout", logout);
-  }, [logout]);
+  }, [isLoggedIn, pathname, logout]);
 
   return (
     <AuthContext.Provider
