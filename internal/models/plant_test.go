@@ -15,12 +15,12 @@ func TestAction(t *testing.T) {
 	lastAction := simTime.Add(-7 * time.Hour)
 
 	plant := &Plant{
-		Hp:              100.0,
-		Soil:            &Soil{SoilMeta: DefaultSoilMetaLoam},
-		LevelMeta:       NewLeveLMeta(1, 0),
-		TimePlanted:     timePlanted,
-		LastWateredTime: lastWatered,
-		LastActionTime:  lastAction,
+		Hp:            100.0,
+		Soil:          &Soil{SoilMeta: DefaultSoilMetaLoam},
+		LevelMeta:     NewLeveLMeta(1, 0),
+		TimePlanted:   timePlanted,
+		LastWateredAt: lastWatered,
+		LastActionAt:  lastAction,
 	}
 	t.Run("water plant after cooldown", func(t *testing.T) {
 		now := simTime.Add(2 * time.Hour)
@@ -29,24 +29,24 @@ func TestAction(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.True(t, alive, "expected plant to be alive")
-		assert.EqualValues(t, plant.LastWateredTime, now)
-		assert.EqualValues(t, plant.LastActionTime, now)
+		assert.EqualValues(t, plant.LastWateredAt, now)
+		assert.EqualValues(t, plant.LastActionAt, now)
 		assert.Equal(t, plant.XP, int64(wateringPlantXpGain))
 	})
 
 	t.Run("Water plant during cooldown", func(t *testing.T) {
 		lastWatered := simTime.Add(-1 * time.Hour)
 		lastAction := simTime.Add(-1 * time.Hour)
-		plant.LastWateredTime = lastWatered
-		plant.LastActionTime = lastAction
+		plant.LastWateredAt = lastWatered
+		plant.LastActionAt = lastAction
 
 		now := simTime
 
 		alive, err := plant.Action(PlantActionWater, now)
 		assert.ErrorIs(t, err, ErrPlantInCooldown)
 		assert.True(t, alive, "expected plant to be alive")
-		assert.EqualValues(t, plant.LastWateredTime, lastWatered)
-		assert.EqualValues(t, plant.LastActionTime, lastAction)
+		assert.EqualValues(t, plant.LastWateredAt, lastWatered)
+		assert.EqualValues(t, plant.LastActionAt, lastAction)
 	})
 }
 
@@ -54,7 +54,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases when plant has not been interacted with for over 2 days", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(2 * 24 * time.Hour)
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredTime: currentTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionAt: currentTime, LastWateredAt: currentTime}
 
 		plant.preActionHook(futureTime)
 
@@ -66,7 +66,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases when plant has not been watered for over 7 hours", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(13 * time.Hour)
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionTime: futureTime, LastWateredTime: currentTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionAt: futureTime, LastWateredAt: currentTime}
 
 		plant.preActionHook(futureTime)
 
@@ -78,7 +78,7 @@ func TestPreActionHook(t *testing.T) {
 	t.Run("hp decreases down to zero if neglected for a long time", func(t *testing.T) {
 		currentTime := time.Now()
 		futureTime := currentTime.Add(7 * 24 * time.Hour)
-		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionTime: currentTime, LastWateredTime: currentTime}
+		plant := &Plant{LevelMeta: LevelMeta{Level: 1, XP: 0}, Hp: 50.0, LastActionAt: currentTime, LastWateredAt: currentTime}
 
 		plant.preActionHook(futureTime)
 
@@ -137,10 +137,10 @@ func TestRefresh(t *testing.T) {
 		lastActionTime := time.Date(2025, 4, 24, 12, 0, 0, 0, time.UTC) // 7 days earlier
 
 		plant := &Plant{
-			LevelMeta:       LevelMeta{Level: 1, XP: 0},
-			Hp:              50.0,
-			LastActionTime:  lastActionTime,
-			LastWateredTime: lastActionTime,
+			LevelMeta:     LevelMeta{Level: 1, XP: 0},
+			Hp:            50.0,
+			LastActionAt:  lastActionTime,
+			LastWateredAt: lastActionTime,
 		}
 
 		plant.Refresh(timeForRefresh)
@@ -156,10 +156,10 @@ func TestRefresh(t *testing.T) {
 		lastActionTime := baseTime
 
 		plant := &Plant{
-			LevelMeta:       LevelMeta{Level: 1, XP: 0},
-			Hp:              50.0,
-			LastActionTime:  lastActionTime,
-			LastWateredTime: lastActionTime,
+			LevelMeta:     LevelMeta{Level: 1, XP: 0},
+			Hp:            50.0,
+			LastActionAt:  lastActionTime,
+			LastWateredAt: lastActionTime,
 		}
 
 		plant.Refresh(timeForRefresh)

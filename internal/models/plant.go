@@ -38,17 +38,17 @@ func ValidPlantAction(action int) bool {
 }
 
 type Plant struct {
-	ID              string     `json:"id"`
-	Nickname        string     `json:"nickname"`
-	Hp              float64    `json:"hp"`
-	Dead            bool       `json:"dead"`
-	OwnerID         string     `json:"ownerID"`
-	Soil            *Soil      `json:"soil,omitempty"`
-	Tempers         *Tempers   `json:"tempers,omitempty"`
-	TimePlanted     time.Time  `json:"timePlanted"`
-	TimeOfDeath     *time.Time `json:"timeOfDeath"`
-	LastWateredTime time.Time  `json:"lastWateredAt"`
-	LastActionTime  time.Time  `json:"lastActionTime"`
+	ID            string     `json:"id"`
+	Nickname      string     `json:"nickname"`
+	Hp            float64    `json:"hp"`
+	Dead          bool       `json:"dead"`
+	OwnerID       string     `json:"ownerID"`
+	Soil          *Soil      `json:"soil,omitempty"`
+	Tempers       *Tempers   `json:"tempers,omitempty"`
+	TimePlanted   time.Time  `json:"timePlanted"`
+	TimeOfDeath   *time.Time `json:"timeOfDeath"`
+	LastWateredAt time.Time  `json:"lastWateredAt"`
+	LastActionAt  time.Time  `json:"lastActionAt"`
 	SeedMeta
 	LevelMeta
 	CircleMeta
@@ -109,15 +109,15 @@ func (p *Plant) Action(action PlantAction, t time.Time) (bool, error) {
 
 	switch action {
 	case PlantActionWater:
-		if t.Sub(p.LastActionTime) > minWateringInterval || p.TimePlanted.Equal(p.LastActionTime) {
+		if t.Sub(p.LastActionAt) > minWateringInterval || p.TimePlanted.Equal(p.LastActionAt) {
 			p.addXp(wateringPlantXpGain)
 			p.changeHp(wateringPlantHpGain)
-			p.LastWateredTime = t
+			p.LastWateredAt = t
 		} else {
 			return p.Alive(), ErrPlantInCooldown
 		}
 	}
-	p.LastActionTime = t
+	p.LastActionAt = t
 
 	return p.Alive(), nil
 }
@@ -129,7 +129,7 @@ func (p *Plant) Refresh(t time.Time) bool {
 
 func (p *Plant) preActionHook(t time.Time) {
 	// Hp reduction for plant neglect
-	hoursSinceLastAction := t.Sub(p.LastActionTime).Hours()
+	hoursSinceLastAction := t.Sub(p.LastActionAt).Hours()
 	decreaseMult := math.Floor(hoursSinceLastAction - 24)
 	if decreaseMult > 0 {
 		alive := p.changeHp(-hpPenaltyPlantNeglect * decreaseMult)
@@ -139,7 +139,7 @@ func (p *Plant) preActionHook(t time.Time) {
 	}
 
 	// Hp reduction for lack of watering
-	hoursSinceLastWatered := math.Floor(t.Sub(p.LastWateredTime).Hours())
+	hoursSinceLastWatered := math.Floor(t.Sub(p.LastWateredAt).Hours())
 	decreaseMult = math.Floor(hoursSinceLastWatered - 12)
 	if decreaseMult > 0 {
 		p.changeHp(-hpPenaltyLackOfWater * decreaseMult)
