@@ -64,7 +64,7 @@ func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*m
 		return nil, nil, ErrInvalidEmail
 	}
 
-	_, err = s.store.User.GetByUsername(ctx, dto.Email)
+	_, err = s.store.User.GetByUsername(ctx, dto.Username)
 	if err == nil {
 		return nil, nil, ErrUsernameTaken
 	}
