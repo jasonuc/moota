@@ -105,6 +105,10 @@ func (s *plantService) GetPlant(ctx context.Context, plantID string) (*models.Pl
 		return nil, err
 	}
 
+	if err := transaction.Commit(); err != nil {
+		return nil, err
+	}
+
 	return plant, nil
 }
 
@@ -141,7 +145,16 @@ func (s *plantService) ActionOnPlant(ctx context.Context, plantID string, dto dt
 		return nil, ErrInvalidPlantAction
 	}
 
-	plant, err := s.GetPlant(ctx, plantID)
+	transaction, err := s.store.Begin()
+	if err != nil {
+		return nil, store.ErrTransactionCouldNotStart
+	}
+	//nolint:errcheck
+	defer transaction.Rollback()
+
+	tx := s.store.WithTx(transaction)
+
+	plant, err := tx.Plant.Get(ctx, plantID, &store.GetPlantsOpts{})
 	if err != nil {
 		return nil, err
 	}
@@ -155,23 +168,33 @@ func (s *plantService) ActionOnPlant(ctx context.Context, plantID string, dto dt
 		return nil, ErrOutsidePlantInteractionRadius
 	}
 
-	_, err = plant.Action(models.PlantAction(dto.Action), time.Now())
+	now := time.Now()
+	_, err = plant.Action(models.PlantAction(dto.Action), now)
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.store.Plant.Update(ctx, plant)
+	err = tx.Plant.Update(ctx, plant)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.GetPlant(ctx, plantID)
+	if err := transaction.Commit(); err != nil {
+		return nil, err
+	}
+
+	return plant, nil
 }
 
 func (s *plantService) GetUserDeceasedPlants(ctx context.Context, userID string) ([]*models.Plant, error) {
 	userPlants, err := s.store.Plant.GetByOwnerID(ctx, userID, &store.GetPlantsOpts{IncludeDeceased: true})
 	if err != nil {
 		return nil, err
+	}
+
+	now := time.Now()
+	for _, plant := range userPlants {
+		plant.Refresh(now)
 	}
 
 	deceasedPlants := make([]*models.Plant, 0)

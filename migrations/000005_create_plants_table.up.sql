@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS plants (
 	time_planted TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	last_watered_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	last_action_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	last_refreshed_at TIMESTAMPTZ,
+	grace_period_ends_at TIMESTAMPTZ,
 	time_of_death TIMESTAMPTZ,
 	centre GEOGRAPHY (POINT) NOT NULL,
 	radius_m DOUBLE PRECISION NOT NULL,
