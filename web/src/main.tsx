@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")!).render(
             <Toaster />
           </GeolocationProvider>
         </AuthProvider>
-        <ReactQueryDevtools />
+        {process.env.NODE_ENV === "development" && <ReactQueryDevtools />}
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>
