@@ -22,12 +22,12 @@ type userStore struct {
 }
 
 func (s *userStore) Insert(ctx context.Context, user *models.User) error {
-	q := `INSERT INTO users (username, email, password_hash, level, xp)
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id, created_at, updated_at;`
+	q := `INSERT INTO users (username, email, password_hash, level, xp, title)
+   	VALUES ($1, $2, $3, $4, $5, $6)
+   	RETURNING id, created_at, updated_at;`
 
 	err := s.db.QueryRowContext(
-		ctx, q, user.Username, user.Email, user.PasswordHash, user.Level, user.XP,
+		ctx, q, user.Username, user.Email, user.PasswordHash, user.Level, user.XP, user.Title,
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
@@ -38,7 +38,7 @@ func (s *userStore) Insert(ctx context.Context, user *models.User) error {
 
 func (s *userStore) GetByEmail(ctx context.Context, email string) (*models.User, error) {
 	q := `SELECT id, username, email, password_hash, created_at, updated_at, level, xp, title
-		FROM users WHERE email = $1;`
+   	FROM users WHERE email = $1;`
 
 	user := &models.User{}
 	err := s.db.QueryRowContext(ctx, q, email).Scan(
@@ -57,7 +57,7 @@ func (s *userStore) GetByEmail(ctx context.Context, email string) (*models.User,
 
 func (s *userStore) GetByID(ctx context.Context, id string) (*models.User, error) {
 	q := `SELECT id, username, email, password_hash, created_at, updated_at, level, xp, title
-		FROM users WHERE id = $1;`
+   	FROM users WHERE id = $1;`
 
 	user := &models.User{}
 	err := s.db.QueryRowContext(ctx, q, id).Scan(
@@ -76,7 +76,7 @@ func (s *userStore) GetByID(ctx context.Context, id string) (*models.User, error
 
 func (s *userStore) GetByUsername(ctx context.Context, username string) (*models.User, error) {
 	q := `SELECT id, username, email, password_hash, created_at, updated_at, level, xp, title
-		FROM users WHERE username = $1;`
+   	FROM users WHERE username = $1;`
 
 	user := &models.User{}
 	err := s.db.QueryRowContext(ctx, q, username).Scan(
@@ -95,7 +95,7 @@ func (s *userStore) GetByUsername(ctx context.Context, username string) (*models
 
 func (s *userStore) Update(ctx context.Context, updatedUser *models.User) error {
 	q := `UPDATE users SET username = $1, email = $2, password_hash = $3, level = $4, xp = $5, title = $6, updated_at = NOW()
-		WHERE id = $7;`
+   	WHERE id = $7;`
 
 	res, err := s.db.ExecContext(ctx, q,
 		updatedUser.Username, updatedUser.Email, updatedUser.PasswordHash,
