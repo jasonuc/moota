@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
-import { startSentenceWithUppercase } from "@/lib/utils";
+import { formatDistance, startSentenceWithUppercase } from "@/lib/utils";
 import { usePlantSeed } from "@/services/mutations/seeds";
 import { useGetUserSeeds } from "@/services/queries/seeds";
 import { Seed } from "@/types/seed";
@@ -27,7 +27,7 @@ import { toast } from "sonner";
 
 export default function SeedsPage() {
   const { user } = useAuth();
-  const { latitude, longitude } = useGeolocation();
+  const { latitude, longitude, accuracy } = useGeolocation();
   const navigate = useNavigate();
 
   const { withinAllowance } = useGeolocation();
@@ -104,19 +104,20 @@ export default function SeedsPage() {
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    Are you sure you want to plant here?
+                    {withinAllowance
+                      ? "Plant your seed here?"
+                      : "Device location too imprecise"}
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    I hereby agree to always visit this location so I am not a
-                    plant killer.
+                    {withinAllowance
+                      ? "By planting here, you agree to visit regularly to care for your plant."
+                      : "For better accuracy, try using a mobile device. If you're already on mobile, move outside or closer to a window for better GPS signal."}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel className="hover:cursor-pointer md:min-h-12">
                     <XIcon />
-                    {withinAllowance
-                      ? "No"
-                      : "Inacurate location, cannot plant seed."}
+                    {withinAllowance ? "No" : "Close"}
                   </AlertDialogCancel>
                   {withinAllowance && (
                     <AlertDialogAction
