@@ -38,7 +38,7 @@ func parseConfig() config {
 
 	cfg.server.port = getIntEnv("PORT", 8080)
 
-	cfg.static.path = getStringEnv("STATIC_PATH", "./web/dist")
+	cfg.static.path = getStringEnv("STATIC_FILES_PATH", "./web/dist")
 
 	cfg.db.dsn = getStringEnv("DB_DSN", "postgresql://postgres:postgres@localhost:5432/moota?sslmode=disable&connect_timeout=10")
 	cfg.db.maxOpenConns = getIntEnv("DB_MAX_OPEN_CONNS", 15)
