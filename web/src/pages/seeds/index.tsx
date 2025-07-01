@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
-import { formatDistance, startSentenceWithUppercase } from "@/lib/utils";
+import { startSentenceWithUppercase } from "@/lib/utils";
 import { usePlantSeed } from "@/services/mutations/seeds";
 import { useGetUserSeeds } from "@/services/queries/seeds";
 import { Seed } from "@/types/seed";
@@ -27,7 +27,7 @@ import { toast } from "sonner";
 
 export default function SeedsPage() {
   const { user } = useAuth();
-  const { latitude, longitude, accuracy } = useGeolocation();
+  const { latitude, longitude } = useGeolocation();
   const navigate = useNavigate();
 
   const { withinAllowance } = useGeolocation();
