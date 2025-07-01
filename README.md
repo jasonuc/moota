@@ -40,7 +40,6 @@ make dbu
 
 cd web
 pnpm install
-cp .env.sample .env
 
 make dev
 ```
@@ -48,7 +47,7 @@ make dev
 The app will be available at:
 
 - **[http://moota.localhost]()** (if using Caddy proxy)
-- **[http://localhost:5173]()** (direct frontend access)
+- **[http://localhost:5173]()** or **[http://localhost:8080]()** (direct frontend access)
 
 ## Contributing
 
