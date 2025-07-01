@@ -4,22 +4,16 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
 type config struct {
-	env  string
-	cors struct {
-		allowedOrigins   []string
-		allowedMethods   []string
-		allowedHeaders   []string
-		exposedHeaders   []string
-		allowCredentials bool
-		maxAge           int
-	}
+	env    string
 	server struct {
 		port int
+	}
+	static struct {
+		path string
 	}
 	db struct {
 		dsn             string
@@ -44,15 +38,7 @@ func parseConfig() config {
 
 	cfg.server.port = getIntEnv("PORT", 8080)
 
-	cfg.cors.allowedOrigins = getStringArrayEnv("CORS_ALLOWED_ORIGINS", []string{
-		"https://moota.localhost",
-		"http://localhost:5173",
-	})
-	cfg.cors.allowedMethods = getStringArrayEnv("CORS_ALLOWED_METHODS", []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
-	cfg.cors.allowedHeaders = getStringArrayEnv("CORS_ALLOWED_HEADERS", []string{"Accept", "Content-Type"})
-	cfg.cors.exposedHeaders = getStringArrayEnv("CORS_EXPOSED_HEADERS", []string{"Link"})
-	cfg.cors.allowCredentials = getBoolEnv("CORS_ALLOW_CREDENTIALS", true)
-	cfg.cors.maxAge = getIntEnv("CORS_MAX_AGE", 300)
+	cfg.static.path = getStringEnv("STATIC_PATH", "./web/dist")
 
 	cfg.db.dsn = getStringEnv("DB_DSN", "postgresql://postgres:postgres@localhost:5432/moota?sslmode=disable&connect_timeout=10")
 	cfg.db.maxOpenConns = getIntEnv("DB_MAX_OPEN_CONNS", 15)
@@ -103,26 +89,4 @@ func getTimeDurationEnv(key string, fallback time.Duration) time.Duration {
 	}
 
 	return duration
-}
-
-func getStringArrayEnv(key string, fallback []string) []string {
-	origins, ok := os.LookupEnv(key)
-	if !ok || origins == "" {
-		return fallback
-	}
-	return strings.Split(origins, ",")
-}
-
-func getBoolEnv(key string, fallback bool) bool {
-	val, ok := os.LookupEnv(key)
-	if !ok {
-		return fallback
-	}
-
-	boolVal, err := strconv.ParseBool(val)
-	if err != nil {
-		return fallback
-	}
-
-	return boolVal
 }

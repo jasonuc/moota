@@ -12,15 +12,9 @@ import (
 func (app *application) routes() http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   app.cfg.cors.allowedOrigins,
-		AllowedMethods:   app.cfg.cors.allowedMethods,
-		AllowedHeaders:   app.cfg.cors.allowedHeaders,
-		ExposedHeaders:   app.cfg.cors.exposedHeaders,
-		AllowCredentials: app.cfg.cors.allowCredentials,
-		MaxAge:           app.cfg.cors.maxAge,
-		Debug:            app.cfg.env == "development",
-	}))
+	if app.cfg.env == "development" {
+		r.Use(cors.AllowAll().Handler)
+	}
 
 	r.Use(middleware.Logger)
 
@@ -93,6 +87,8 @@ func (app *application) routes() http.Handler {
 			})
 		})
 	})
+
+	app.serveStaticFiles(r)
 
 	return r
 }

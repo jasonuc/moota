@@ -3,9 +3,5 @@
 }
 
 moota.localhost {
-	reverse_proxy localhost:5173
-}
-
-api.moota.localhost {
 	reverse_proxy localhost:8080
 }
