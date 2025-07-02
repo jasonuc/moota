@@ -6,7 +6,6 @@ import PlantTempers from "@/components/plant-tempers";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
-import { PLANT_INTERACTION_RADIUS } from "@/lib/constants";
 import {
   cn,
   formatHp,
@@ -133,6 +132,7 @@ export default function IndividualPlantPage() {
           Lon: plant?.centre.Lon ?? 0,
         }}
         showUser={withinAllowance}
+        plantRadiusM={plant?.radiusM}
       />
 
       <div className="flex flex-col grow justify-end">
@@ -149,7 +149,7 @@ export default function IndividualPlantPage() {
               haversineDistance(
                 { Lat: plant?.centre.Lat ?? 0, Lon: plant?.centre.Lon ?? 0 },
                 { Lat: userLat ?? 0, Lon: userLon ?? 0 }
-              ) > PLANT_INTERACTION_RADIUS
+              ) > (plant?.radiusM ?? 0)
             }
           >
             Water <DropletIcon />

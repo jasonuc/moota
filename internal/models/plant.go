@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	PlantInteractionRadius = 20 // TODO: This value is still experimental
+	PlantInteractionRadius = 15 // TODO: This value is still experimental
 	wateringPlantXpGain    = 30
 	wateringPlantHpGain    = 5
 
