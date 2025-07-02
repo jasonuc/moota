@@ -128,8 +128,8 @@ func newSoil(soilMeta SoilMeta, centre Coordinates, radiusM float64) *Soil {
 
 	return &Soil{
 		CircleMeta: CircleMeta{
-			C:       centre,
-			radiusM: radiusM,
+			C: centre,
+			R: radiusM,
 		},
 		SoilMeta: soilMeta,
 	}

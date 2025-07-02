@@ -71,7 +71,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 
 	nickname := generateNickname()
 	seed.Planted = true
-	circleMeta := CircleMeta{radiusM: PlantInteractionRadius, C: centre}
+	circleMeta := CircleMeta{R: PlantInteractionRadius, C: centre}
 	if !soil.ContainsFullCircle(circleMeta) {
 		return nil, ErrPlantNotFullyInSoil
 	}
@@ -99,8 +99,8 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 		Tempers:   NewTempers(),
 		SeedMeta:  seed.SeedMeta,
 		CircleMeta: CircleMeta{
-			C:       centre,
-			radiusM: PlantInteractionRadius,
+			C: centre,
+			R: PlantInteractionRadius,
 		},
 		LastRefreshedAt:   nil,
 		GracePeriodEndsAt: nil,

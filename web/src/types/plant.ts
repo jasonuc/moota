@@ -9,6 +9,7 @@ type Plant = {
   hp: number;
   dead: boolean;
   ownerID: string;
+  radiusM: number;
   tempers: Tempers;
   timePlanted: string;
   timeOfDeath: string;
