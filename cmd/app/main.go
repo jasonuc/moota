@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/jasonuc/moota/internal/events"
 	"github.com/jasonuc/moota/internal/handlers"
 	"github.com/jasonuc/moota/internal/middlewares"
 	"github.com/jasonuc/moota/internal/services"
@@ -31,6 +32,7 @@ type application struct {
 	seedHandler  *handlers.SeedHandler
 	plantHandler *handlers.PlantHandler
 	userHandler  *handlers.UserHandler
+	statsHandler *handlers.StatHandler
 }
 
 func main() {
@@ -60,11 +62,15 @@ func main() {
 
 	authMiddlware := middlewares.NewAuthMiddleware(authService)
 
+	routers, err := events.NewRouters(store)
+	if err != nil {
+		logger.Panicf("error: %v\n", err)
+	}
 	authHandler := handlers.NewAuthHandler(authService, cfg.auth.cookieDomain, cfg.auth.cookieSameSiteMode)
-	seedHandler := handlers.NewSeedHandler(seedService)
+	seedHandler := handlers.NewSeedHandler(seedService, routers.EventBus)
 	plantHandler := handlers.NewPlantService(plantService)
 	userHandler := handlers.NewUserHandler(userService)
-
+	statsHandler := handlers.NewStatHandler(routers.SSERouter, store)
 	app := application{
 		cfg:    cfg,
 		logger: logger,
@@ -82,6 +88,7 @@ func main() {
 		seedHandler:  seedHandler,
 		plantHandler: plantHandler,
 		userHandler:  userHandler,
+		statsHandler: statsHandler,
 	}
 
 	if err := app.serve(); err != nil {

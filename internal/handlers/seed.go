@@ -5,21 +5,25 @@ import (
 	"math/rand/v2"
 	"net/http"
 
+	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/go-playground/validator/v10"
 	"github.com/jasonuc/moota/internal/dto"
+	"github.com/jasonuc/moota/internal/events"
 	"github.com/jasonuc/moota/internal/services"
 	"github.com/jasonuc/moota/internal/utils"
 )
 
 type SeedHandler struct {
+	eventBus    *cqrs.EventBus
 	seedService services.SeedService
 	validator   *validator.Validate
 }
 
-func NewSeedHandler(seedService services.SeedService) *SeedHandler {
+func NewSeedHandler(seedService services.SeedService, eventBus *cqrs.EventBus) *SeedHandler {
 	return &SeedHandler{
 		seedService: seedService,
 		validator:   validator.New(),
+		eventBus:    eventBus,
 	}
 }
 
@@ -51,6 +55,7 @@ func (h *SeedHandler) HandlePlantSeed(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, services.ErrNotPossibleToPlantSeed):
 			utils.BadRequestResponse(w, err)
 		default:
+			err := h.eventBus.Publish(r.Context(), events.SeedPlanted{})
 			utils.ServerErrorResponse(w, err)
 		}
 		return
