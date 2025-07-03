@@ -55,9 +55,13 @@ func (h *SeedHandler) HandlePlantSeed(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, services.ErrNotPossibleToPlantSeed):
 			utils.BadRequestResponse(w, err)
 		default:
-			err := h.eventBus.Publish(r.Context(), events.SeedPlanted{})
 			utils.ServerErrorResponse(w, err)
 		}
+		return
+	}
+	err = h.eventBus.Publish(r.Context(), events.SeedPlanted{})
+	if err != nil {
+		utils.ServerErrorResponse(w, err)
 		return
 	}
 
@@ -105,7 +109,11 @@ func (h *SeedHandler) HandleRequestForNewSeeds(w http.ResponseWriter, r *http.Re
 		}
 		return
 	}
-
+	err = h.eventBus.Publish(r.Context(), events.SeedGenerated{})
+	if err != nil {
+		utils.ServerErrorResponse(w, err)
+		return
+	}
 	//nolint:errcheck
 	utils.WriteJSON(w, http.StatusCreated, utils.Envelope{"seeds": seedGroups}, nil)
 }

@@ -33,6 +33,7 @@ type application struct {
 	plantHandler *handlers.PlantHandler
 	userHandler  *handlers.UserHandler
 	statsHandler *handlers.StatHandler
+	routers      *events.Routers
 }
 
 func main() {
@@ -89,6 +90,7 @@ func main() {
 		plantHandler: plantHandler,
 		userHandler:  userHandler,
 		statsHandler: statsHandler,
+		routers:      routers,
 	}
 
 	if err := app.serve(); err != nil {
