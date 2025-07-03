@@ -50,6 +50,8 @@ export default function ProfilePage() {
     }
   }, [useGetUserProfileErr, navigate]);
 
+  if (useGetUserProfileErr) return null;
+
   return (
     <div className="flex flex-col space-y-5 grow">
       <Header />
