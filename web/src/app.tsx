@@ -15,6 +15,7 @@ import PublicPlantPage from "./pages/plants/plantId/public";
 import ProfilePage from "./pages/profile";
 import SeedsPage from "./pages/seeds";
 import SettingsPage from "./pages/settings";
+import GeolocationProvider from "./services/providers/geolocation-provider";
 
 export default function App() {
   return (
@@ -27,14 +28,23 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
         </Route>
 
-        <Route element={<ProtectedLayout />}>
+        <Route
+          element={
+            <GeolocationProvider>
+              <ProtectedLayout />
+            </GeolocationProvider>
+          }
+        >
           <Route path="/home" element={<HomePage />} />
           <Route path="/seeds" element={<SeedsPage />} />
           <Route path="/plants" element={<UserPlantsPage />} />
+          <Route path="/plants/:plantId" element={<IndividualPlantPage />} />
+        </Route>
+
+        <Route element={<ProtectedLayout />}>
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/profile/:username" element={<ProfilePage />} />
           <Route path="/plants/graveyard" element={<PlantGraveyard />} />
-          <Route path="/plants/:plantId" element={<IndividualPlantPage />} />
           <Route path="/plants/:plantId/public" element={<PublicPlantPage />} />
         </Route>
 
@@ -42,9 +52,9 @@ export default function App() {
           path="/geolocation-dissallowed"
           element={<GeolocationDisallowedPage />}
         />
-
-        <Route path="*" element={<NotFoundPage />} />
       </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
