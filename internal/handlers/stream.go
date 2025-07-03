@@ -43,7 +43,7 @@ func (s *statsStream) NextStreamResponse(r *http.Request, msg *message.Message) 
 	err := json.Unmarshal(msg.Payload, &event)
 	if err != nil {
 		fmt.Println("cannot unmarshal: " + err.Error())
-		return "", false
+		return nil, false
 	}
 
 	stats := models.Stats{

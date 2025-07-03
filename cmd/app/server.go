@@ -5,11 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/jasonuc/moota/internal/events"
 )
 
 func (app *application) serve() error {
@@ -54,6 +57,19 @@ func (app *application) serve() error {
 		err := app.routers.SSERouter.Run(context.Background())
 		if err != nil {
 			panic(err)
+		}
+	}()
+	go func() {
+		// This goroutine simulates some events being published in the background
+		ctx := context.Background()
+		for {
+			if rand.Intn(2) == 0 {
+				_ = app.routers.EventBus.Publish(ctx, events.SeedPlanted{})
+			} else {
+				_ = app.routers.EventBus.Publish(ctx, events.SeedGenerated{})
+			}
+
+			time.Sleep(time.Millisecond * time.Duration(3000+rand.Intn(5000)))
 		}
 	}()
 	app.logger.Printf("server running on port %d\n", app.cfg.server.port)

@@ -126,8 +126,13 @@ func NewEventRouter(subscriber message.Subscriber, store *store.Store, eventBus 
 				if err != nil {
 					return err
 				}
+				count2, err := store.Seed.GetTotalCount(ctx)
+				if err != nil {
+					return err
+				}
 				statsUpdated := StatUpdated{
 					Plant: count,
+					Seed:  count2,
 				}
 
 				return eventBus.Publish(ctx, statsUpdated)
@@ -140,8 +145,13 @@ func NewEventRouter(subscriber message.Subscriber, store *store.Store, eventBus 
 				if err != nil {
 					return err
 				}
+				count2, err := store.Plant.GetTotalCount(ctx)
+				if err != nil {
+					return err
+				}
 				statsUpdated := StatUpdated{
-					Seed: count,
+					Seed:  count,
+					Plant: count2,
 				}
 
 				return eventBus.Publish(ctx, statsUpdated)
