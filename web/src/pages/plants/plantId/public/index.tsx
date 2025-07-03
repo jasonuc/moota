@@ -2,6 +2,7 @@ import DynamicNavigation from "@/components/dynamic-navigation";
 import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { SERVER_404_MESSAGE } from "@/lib/constants";
 import {
   cn,
   formatHp,
@@ -14,7 +15,7 @@ import { useGetUsernameFromUserId } from "@/services/queries/user";
 import { AxiosError } from "axios";
 import { ShareIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 
 export default function PublicPlantPage() {
@@ -22,13 +23,24 @@ export default function PublicPlantPage() {
   const { data: plant, error: useGetPlantErr } = useGetPlant(params.plantId);
   const { data: ownerUsername } = useGetUsernameFromUserId(plant?.ownerID);
   const [isImageVisible, setIsImageVisible] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (useGetPlantErr) {
       const err = useGetPlantErr as AxiosError<{ error: string }>;
-      toast.error(err.response?.data.error);
+      if (err.response?.data.error === SERVER_404_MESSAGE) {
+        navigate("/home");
+        toast.error("Plant does not exist", {
+          description: err.response?.data.error,
+          descriptionClassName: "!text-white",
+        });
+        return;
+      }
+      toast.error("A problem has occured on the server");
     }
-  }, [useGetPlantErr]);
+  }, [useGetPlantErr, navigate]);
+
+  if (useGetPlantErr) return null;
 
   return (
     <div className="flex flex-col space-y-5 grow">
