@@ -16,6 +16,7 @@ type PlantStore interface {
 	Insert(context.Context, *models.Plant) error
 	Update(context.Context, *models.Plant) error
 	Delete(context.Context, string) error
+	Count(context.Context) (int64, error)
 }
 
 type plantStore struct {
@@ -342,4 +343,11 @@ func (s *plantStore) Delete(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+func (s *plantStore) Count(ctx context.Context) (int64, error) {
+	q := `SELECT COUNT(*) FROM plants LIMIT 1`
+	var count int64
+	err := s.db.QueryRowContext(ctx, q).Scan(&count)
+	return count, err
 }
