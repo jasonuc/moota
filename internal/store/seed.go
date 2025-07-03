@@ -18,10 +18,50 @@ type SeedStore interface {
 	InsertSeedRequest(context.Context, string, time.Time, bool, int) error
 	MarkAsPlanted(context.Context, string) error
 	Delete(context.Context, string) error
+	GetTotalCount(ctx context.Context) (*models.SeedCount, error)
 }
+
+var _ SeedStore = (*seedStore)(nil)
 
 type seedStore struct {
 	db Querier
+}
+
+// Count implements SeedStore.
+func (s *seedStore) GetTotalCount(ctx context.Context) (*models.SeedCount, error) {
+	q := `SELECT s.planted, count(*) FROM seeds s
+			GROUP BY s.planted ORDER BY s.planted ASC;`
+
+	rows, err := s.db.QueryContext(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+	//nolint:errcheck
+	defer rows.Close()
+
+	seedCount := &models.SeedCount{}
+
+	for rows.Next() {
+		var planted bool
+		var count int64
+
+		err := rows.Scan(&planted, &count)
+		if err != nil {
+			return nil, err
+		}
+
+		if planted {
+			seedCount.Planted = count
+		} else {
+			seedCount.Unused = count
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return seedCount, nil
 }
 
 func (s *seedStore) GetCountByUsername(ctx context.Context, username string) (*models.SeedCount, error) {

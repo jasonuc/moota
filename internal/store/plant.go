@@ -16,11 +16,49 @@ type PlantStore interface {
 	Insert(context.Context, *models.Plant) error
 	Update(context.Context, *models.Plant) error
 	Delete(context.Context, string) error
-	Count(context.Context) (int64, error)
+	GetTotalCount(context.Context) (*models.PlantCount, error)
 }
+
+var _ PlantStore = (*plantStore)(nil)
 
 type plantStore struct {
 	db Querier
+}
+
+// GetTotalCount implements PlantStore.
+func (s *plantStore) GetTotalCount(ctx context.Context) (*models.PlantCount, error) {
+	q := `SELECT p.dead, count(*) AS plant_count FROM plants p
+			GROUP BY p.dead ORDER BY p.dead ASC;`
+
+	plantCount := new(models.PlantCount)
+
+	rows, err := s.db.QueryContext(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+	//nolint:errcheck
+	defer rows.Close()
+
+	for rows.Next() {
+		var dead bool
+		var count int64
+		if err := rows.Scan(&dead, &count); err != nil {
+			return nil, err
+		}
+
+		switch dead {
+		case true:
+			plantCount.Deceased = count
+		case false:
+			plantCount.Alive = count
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return plantCount, nil
 }
 
 type GetPlantsOpts struct {
@@ -343,11 +381,4 @@ func (s *plantStore) Delete(ctx context.Context, id string) error {
 	}
 
 	return nil
-}
-
-func (s *plantStore) Count(ctx context.Context) (int64, error) {
-	q := `SELECT COUNT(*) FROM plants LIMIT 1`
-	var count int64
-	err := s.db.QueryRowContext(ctx, q).Scan(&count)
-	return count, err
 }
