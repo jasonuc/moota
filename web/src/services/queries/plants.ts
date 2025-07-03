@@ -5,6 +5,8 @@ import {
   getUserNearbyPlants,
   getUserPlants,
 } from "../api/plants";
+import { AxiosError } from "axios";
+import { SERVER_404_MESSAGE } from "@/lib/constants";
 
 export const useGetUserNearbyPlants = (
   userId?: string,
@@ -35,6 +37,12 @@ export const useGetPlant = (plantId?: string) =>
     queryKey: ["plant", { plantId: plantId }],
     queryFn: () => getPlant(plantId!),
     enabled: !!plantId,
+    retry: (failureCount, error) => {
+      const err = error as AxiosError<{ error: string }>;
+      return (
+        failureCount < 3 && err.response?.data.error !== SERVER_404_MESSAGE
+      );
+    },
   });
 
 export const useGetUserDeceasedPlants = (userId?: string) =>

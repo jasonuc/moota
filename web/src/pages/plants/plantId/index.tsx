@@ -6,6 +6,7 @@ import PlantTempers from "@/components/plant-tempers";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useGeolocation } from "@/hooks/use-geolocation";
+import { SERVER_404_MESSAGE } from "@/lib/constants";
 import {
   cn,
   formatHp,
@@ -38,9 +39,17 @@ export default function IndividualPlantPage() {
   useEffect(() => {
     if (useGetPlantErr) {
       const err = useGetPlantErr as AxiosError<{ error: string }>;
-      toast.error(err.response?.data.error);
+      if (err.response?.data.error === SERVER_404_MESSAGE) {
+        navigate("/home");
+        toast.error("Plant does not exist", {
+          description: err.response?.data.error,
+          descriptionClassName: "!text-white",
+        });
+        return;
+      }
+      toast.error("A problem has occured on the server");
     }
-  }, [useGetPlantErr]);
+  }, [useGetPlantErr, navigate]);
 
   if (plant?.ownerID && user?.id) {
     if (plant.ownerID != user.id) {
@@ -77,6 +86,8 @@ export default function IndividualPlantPage() {
         );
       });
   };
+
+  if (useGetPlantErr) return null;
 
   return (
     <div className="flex flex-col space-y-5 grow">
