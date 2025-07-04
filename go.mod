@@ -32,6 +32,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/ThreeDotsLabs/watermill v1.4.6
 	github.com/ThreeDotsLabs/watermill-http/v2 v2.3.1
+	github.com/ThreeDotsLabs/watermill-sql/v3 v3.1.0
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/platforms v0.2.1 // indirect

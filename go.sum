@@ -10,6 +10,8 @@ github.com/ThreeDotsLabs/watermill v1.4.6 h1:rWoXlxdBgUyg/bZ3OO0pON+nESVd9r6tnLT
 github.com/ThreeDotsLabs/watermill v1.4.6/go.mod h1:lBnrLbxOjeMRgcJbv+UiZr8Ylz8RkJ4m6i/VN/Nk+to=
 github.com/ThreeDotsLabs/watermill-http/v2 v2.3.1 h1:M0iYM5HsGcoxtiQqprRlYZNZnGk3w5LsE9RbC2R8myQ=
 github.com/ThreeDotsLabs/watermill-http/v2 v2.3.1/go.mod h1:RwGHEzGsEEXC/rQNLWQqR83+WPlABgOgnv2kTB56Y4Y=
+github.com/ThreeDotsLabs/watermill-sql/v3 v3.1.0 h1:g4uE5Nm3Z6LVB3m+uMgHlN4ne4bDpwf3RJmXYRgMv94=
+github.com/ThreeDotsLabs/watermill-sql/v3 v3.1.0/go.mod h1:G8/otZYWLTCeYL2Ww3ujQ7gQ/3+jw5Bj0UtyKn7bBjA=
 github.com/ajg/form v1.5.1 h1:t9c7v8JUKu/XxOGBU0yjNpaMloxGEJhUkqFRq0ibGeU=
 github.com/ajg/form v1.5.1/go.mod h1:uL1WgH+h2mgNtvBq0339dVnzXdBETtL2LeUXaIv25UY=
 github.com/cenkalti/backoff/v3 v3.2.2 h1:cfUAAO3yvKMYKPrvhDuHSwQnhZNk/RMHKdZqKTxfm6M=

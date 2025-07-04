@@ -63,7 +63,7 @@ func main() {
 
 	authMiddlware := middlewares.NewAuthMiddleware(authService)
 
-	routers, err := events.NewRouters(store)
+	routers, err := events.NewRouters(store, db)
 	if err != nil {
 		logger.Panicf("error: %v\n", err)
 	}
