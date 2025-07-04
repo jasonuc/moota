@@ -57,6 +57,8 @@ type Client interface {
 	// Log allows implementors to use their own logging dependencies
 	Log(int, string, ...any)
 
+	Conn() *websocket.Conn
+
 	// Wait blocks until the client is done processing messages
 	Wait()
 }
@@ -115,6 +117,11 @@ type client struct {
 	conn   *websocket.Conn
 	egress chan []byte
 	logger *slog.Logger
+}
+
+// Conn implements Client.
+func (c *client) Conn() *websocket.Conn {
+	return c.conn
 }
 
 // NewClient returns a new Client from a *websocket.Conn. This can be passed to

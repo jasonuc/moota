@@ -59,7 +59,7 @@ func (h *SeedHandler) HandlePlantSeed(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	err = h.eventBus.Publish(r.Context(), events.SeedPlanted{})
+	err = h.eventBus.Publish(r.Context(), events.StatUpdated{})
 	if err != nil {
 		utils.ServerErrorResponse(w, err)
 		return

@@ -63,13 +63,9 @@ func (app *application) serve() error {
 	// 	// This goroutine simulates some events being published in the background
 	// 	ctx := context.Background()
 	// 	for {
-	// 		if rand.Intn(2) == 0 {
-	// 			slog.Info("publishing seed planted event")
-	// 			_ = app.routers.EventBus.Publish(ctx, events.SeedPlanted{})
-	// 		} else {
-	// 			slog.Info("publishing seed generated event")
-	// 			_ = app.routers.EventBus.Publish(ctx, events.SeedGenerated{})
-	// 		}
+
+	// 		slog.Info("publishing seed planted event")
+	// 		_ = app.routers.EventBus.Publish(ctx, events.StatUpdated{})
 
 	// 		time.Sleep(time.Millisecond * time.Duration(3000+rand.Intn(5000)))
 	// 	}

@@ -13,7 +13,7 @@ type StatHandler struct {
 }
 
 func NewWssStatHandler(broadcaster websocket.Broadcaster, store *store.Store) *StatHandler {
-	statsHandler := events.NewSockServer(broadcaster)
+	statsHandler := events.NewSockServer(broadcaster, store)
 	return &StatHandler{
 		SseHandler: statsHandler,
 	}

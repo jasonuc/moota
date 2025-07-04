@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -84,7 +85,7 @@ func NewSocketRouters(broadcast websocket.Broadcaster, store *store.Store, db *s
 	}, nil
 }
 
-func NewSockServer(manager websocket.Manager) http.HandlerFunc {
+func NewSockServer(manager websocket.Manager, store *store.Store) http.HandlerFunc {
 	upgrader := gw.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
 	// upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
@@ -94,6 +95,30 @@ func NewSockServer(manager websocket.Manager) http.HandlerFunc {
 		websocket.NewClient,
 		func(ctx context.Context, cf context.CancelFunc, c websocket.Client) {
 			manager.RegisterClient(ctx, cf, c)
+			count, err := store.Plant.GetTotalCount(ctx)
+			if err != nil {
+				slog.Error("error getting plant count", slog.Any("error", err))
+				return
+			}
+			count2, err := store.Seed.GetTotalCount(ctx)
+			if err != nil {
+				slog.Error("error getting seed count", slog.Any("error", err))
+				return
+			}
+			statsUpdated := StatUpdatedPayload{
+				Plant: count,
+				Seed:  count2,
+			}
+			msg, err := json.Marshal(statsUpdated)
+			if err != nil {
+				slog.Error("error marshaling stats", slog.Any("error", err))
+				return
+			}
+			if err := c.Conn().WriteMessage(gw.TextMessage, msg); err != nil {
+				slog.Error("error writing message", "error", err)
+				c.Log(int(slog.LevelError), fmt.Sprintf("error writing message: %v", err))
+				return
+			}
 		},
 		func(c websocket.Client) {
 			manager.UnregisterClient(c)
