@@ -31,4 +31,9 @@ type SeedCount = {
   unused: number;
 };
 
-export type { User, UserProfile };
+type Stats = {
+  plant: PlantCount;
+  seed: SeedCount;
+};
+
+export type { User, UserProfile, PlantCount, SeedCount, Stats };

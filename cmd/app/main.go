@@ -4,10 +4,12 @@ import (
 	"log"
 	"os"
 
+	"github.com/jasonuc/moota/internal/events"
 	"github.com/jasonuc/moota/internal/handlers"
 	"github.com/jasonuc/moota/internal/middlewares"
 	"github.com/jasonuc/moota/internal/services"
 	"github.com/jasonuc/moota/internal/store"
+	"github.com/jasonuc/moota/internal/websocket"
 	"github.com/joho/godotenv"
 )
 
@@ -31,6 +33,10 @@ type application struct {
 	seedHandler  *handlers.SeedHandler
 	plantHandler *handlers.PlantHandler
 	userHandler  *handlers.UserHandler
+	statsHandler *handlers.StatHandler
+	routers      *events.Routers
+
+	broadcaster websocket.Broadcaster
 }
 
 func main() {
@@ -60,11 +66,16 @@ func main() {
 
 	authMiddlware := middlewares.NewAuthMiddleware(authService)
 
+	broadcaster := websocket.NewBroadcaster()
+	routers, err := events.NewSocketRouters(broadcaster, store, db)
+	if err != nil {
+		logger.Panicf("error: %v\n", err)
+	}
 	authHandler := handlers.NewAuthHandler(authService, cfg.auth.cookieDomain, cfg.auth.cookieSameSiteMode)
-	seedHandler := handlers.NewSeedHandler(seedService)
-	plantHandler := handlers.NewPlantService(plantService)
+	seedHandler := handlers.NewSeedHandler(seedService, routers.EventBus)
+	plantHandler := handlers.NewPlantService(plantService, routers.EventBus)
 	userHandler := handlers.NewUserHandler(userService)
-
+	statsHandler := handlers.NewWssStatHandler(broadcaster, store)
 	app := application{
 		cfg:    cfg,
 		logger: logger,
@@ -82,6 +93,9 @@ func main() {
 		seedHandler:  seedHandler,
 		plantHandler: plantHandler,
 		userHandler:  userHandler,
+		statsHandler: statsHandler,
+		routers:      routers,
+		broadcaster:  broadcaster,
 	}
 
 	if err := app.serve(); err != nil {

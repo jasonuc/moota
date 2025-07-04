@@ -36,7 +36,9 @@ func (app *application) routes() http.Handler {
 				r.Patch("/change-username", app.authHandler.HandleChangeUsername)
 			})
 		})
-
+		r.Route("/stats", func(r chi.Router) {
+			r.Get("/", app.statsHandler.SseHandler)
+		})
 		r.Route("/whoami", func(r chi.Router) {
 			r.Use(app.authMiddleware.Authorise)
 			r.Get("/", app.userHandler.HandleWhoAmI)

@@ -38,7 +38,7 @@ func (e *ErrSeedRequestInCooldown) Error() string {
 }
 
 var (
-	SeedRequestCooldownDuration = 7 * 24 * time.Hour
+	SeedRequestCooldownDuration = 1 * time.Minute
 )
 
 type seedService struct {

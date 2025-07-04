@@ -12,6 +12,12 @@ export default defineConfig(() => ({
         target: "http://localhost:8080",
         changeOrigin: true,
       },
+      "/api/stats": {
+        target: "ws://localhost:8080",
+        ws: true,
+        changeOrigin: true,
+        rewriteWsOrigin: true,
+      },
     },
   },
   resolve: {

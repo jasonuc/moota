@@ -43,6 +43,16 @@ func (app *application) serve() error {
 
 		serverShutdownErr <- nil
 	}()
+	go func() {
+		err := app.routers.EventsRouter.Run(context.Background())
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	go func() {
+		app.broadcaster.Run(context.Background())
+	}()
 
 	app.logger.Printf("server running on port %d\n", app.cfg.server.port)
 	if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
