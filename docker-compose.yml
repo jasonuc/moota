@@ -1,7 +1,5 @@
 services:
   postgres:
-    # image: postgis/postgis:15-3.3
-    # container_name: moota-postgres
     build:
       context: .
       dockerfile: Dockerfile.database
