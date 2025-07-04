@@ -4,9 +4,11 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/go-playground/validator/v10"
 	"github.com/jasonuc/moota/internal/contextkeys"
 	"github.com/jasonuc/moota/internal/dto"
+	"github.com/jasonuc/moota/internal/events"
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/services"
 	"github.com/jasonuc/moota/internal/store"
@@ -15,13 +17,15 @@ import (
 
 type PlantHandler struct {
 	plantService services.PlantService
+	eventBus     *cqrs.EventBus
 	validator    *validator.Validate
 }
 
-func NewPlantService(plantService services.PlantService) *PlantHandler {
+func NewPlantService(plantService services.PlantService, eventBus *cqrs.EventBus) *PlantHandler {
 	return &PlantHandler{
 		plantService: plantService,
 		validator:    validator.New(),
+		eventBus:     eventBus,
 	}
 }
 
@@ -168,7 +172,11 @@ func (h *PlantHandler) HandleKillPlant(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
+	err = h.eventBus.Publish(r.Context(), events.StatUpdated{})
+	if err != nil {
+		utils.ServerErrorResponse(w, err)
+		return
+	}
 	//nolint:errcheck
 	utils.WriteJSON(w, http.StatusAccepted, nil, nil)
 }

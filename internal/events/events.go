@@ -20,14 +20,6 @@ import (
 	"github.com/jasonuc/moota/internal/websocket"
 )
 
-type SeedPlanted struct {
-	UserID string `json:"user_id"`
-	SeedID string `json:"seed_id"`
-}
-
-type SeedGenerated struct {
-	UserID string `json:"user_id"`
-}
 type StatUpdated struct {
 }
 
@@ -97,12 +89,12 @@ func NewSockServer(manager websocket.Manager, store *store.Store) http.HandlerFu
 			manager.RegisterClient(ctx, cf, c)
 			count, err := store.Plant.GetTotalCount(ctx)
 			if err != nil {
-				slog.Error("error getting plant count", slog.Any("error", err))
+				c.Log(int(slog.LevelError), fmt.Sprintf("error getting plant total count: %v", err))
 				return
 			}
 			count2, err := store.Seed.GetTotalCount(ctx)
 			if err != nil {
-				slog.Error("error getting seed count", slog.Any("error", err))
+				c.Log(int(slog.LevelError), fmt.Sprintf("error getting seed total count: %v", err))
 				return
 			}
 			statsUpdated := StatUpdatedPayload{
@@ -111,11 +103,10 @@ func NewSockServer(manager websocket.Manager, store *store.Store) http.HandlerFu
 			}
 			msg, err := json.Marshal(statsUpdated)
 			if err != nil {
-				slog.Error("error marshaling stats", slog.Any("error", err))
+				c.Log(int(slog.LevelError), fmt.Sprintf("error marshalling message: %v", err))
 				return
 			}
 			if err := c.Conn().WriteMessage(gw.TextMessage, msg); err != nil {
-				slog.Error("error writing message", "error", err)
 				c.Log(int(slog.LevelError), fmt.Sprintf("error writing message: %v", err))
 				return
 			}
@@ -159,7 +150,6 @@ func NewBroadcastEventRouter(broadcaster websocket.Broadcaster, subscriber messa
 		cqrs.NewEventHandler(
 			"StatUpdated",
 			func(ctx context.Context, event *StatUpdated) error {
-				slog.Info("StatUpdated")
 				count, err := store.Plant.GetTotalCount(ctx)
 				if err != nil {
 					return err

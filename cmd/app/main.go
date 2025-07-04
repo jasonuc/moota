@@ -73,9 +73,8 @@ func main() {
 	}
 	authHandler := handlers.NewAuthHandler(authService, cfg.auth.cookieDomain, cfg.auth.cookieSameSiteMode)
 	seedHandler := handlers.NewSeedHandler(seedService, routers.EventBus)
-	plantHandler := handlers.NewPlantService(plantService)
+	plantHandler := handlers.NewPlantService(plantService, routers.EventBus)
 	userHandler := handlers.NewUserHandler(userService)
-	// statsHandler := handlers.NewStatHandler(routers.SSERouter, store)
 	statsHandler := handlers.NewWssStatHandler(broadcaster, store)
 	app := application{
 		cfg:    cfg,
@@ -96,8 +95,7 @@ func main() {
 		userHandler:  userHandler,
 		statsHandler: statsHandler,
 		routers:      routers,
-
-		broadcaster: broadcaster,
+		broadcaster:  broadcaster,
 	}
 
 	if err := app.serve(); err != nil {

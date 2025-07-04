@@ -109,7 +109,7 @@ func (h *SeedHandler) HandleRequestForNewSeeds(w http.ResponseWriter, r *http.Re
 		}
 		return
 	}
-	err = h.eventBus.Publish(r.Context(), events.SeedGenerated{})
+	err = h.eventBus.Publish(r.Context(), events.StatUpdated{})
 	if err != nil {
 		utils.ServerErrorResponse(w, err)
 		return

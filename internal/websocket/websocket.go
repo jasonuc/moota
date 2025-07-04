@@ -101,12 +101,10 @@ func ServeWS(
 
 		// all writes will happen in this goroutine, ensuring only one write on
 		// the connection at a time
-		slog.Info("starting write forever")
 		go client.WriteForever(ctx, onDestroy, ping)
 
 		// all reads will happen in this goroutine, ensuring only one reader on
 		// the connection at a time
-		slog.Info("starting read forever")
 		go client.ReadForever(ctx, onDestroy, msgHandlers...)
 	}
 }
@@ -141,7 +139,6 @@ func NewClient(c *websocket.Conn) Client {
 
 // Write implements the Writer interface.
 func (c *client) Write(p []byte) (int, error) {
-	slog.Info("writing message")
 	c.egress <- p
 	return len(p), nil
 }
@@ -158,7 +155,6 @@ func (c *client) Close() error {
 // to the client, ensuring that all writes to the underlying connection are
 // performed here.
 func (c *client) WriteForever(ctx context.Context, onDestroy func(Client), ping time.Duration) {
-	slog.Info("starting write forever")
 	pingTicker := time.NewTicker(ping)
 	defer func() {
 		c.wg.Done()
@@ -169,25 +165,20 @@ func (c *client) WriteForever(ctx context.Context, onDestroy func(Client), ping 
 	for {
 		select {
 		case <-ctx.Done():
-			slog.Info("context done")
 			c.conn.WriteMessage(websocket.CloseMessage, nil)
 			return
 		case msgBytes, ok := <-c.egress:
-			slog.Info("writing message")
 			// ok will be false in case the egress channel is closed
 			if !ok {
-				slog.Info("egress channel closed")
 				c.conn.WriteMessage(websocket.CloseMessage, nil)
 				return
 			}
 			// write a message to the connection
 			if err := c.conn.WriteMessage(websocket.TextMessage, msgBytes); err != nil {
-				slog.Error("error writing message", "error", err)
 				c.Log(int(slog.LevelError), fmt.Sprintf("error writing message: %v", err))
 				return
 			}
 		case <-pingTicker.C:
-			slog.Info("writing ping")
 			if err := c.conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 				c.Log(int(slog.LevelError), fmt.Sprintf("error writing ping: %v", err))
 				return
@@ -200,7 +191,6 @@ func (c *client) WriteForever(ctx context.Context, onDestroy func(Client), ping 
 // supplied message handlers in their own goroutine. Each message will be processed
 // serially, but the handlers are executed concurrently.
 func (c *client) ReadForever(ctx context.Context, onDestroy func(Client), handlers ...MessageHandler) {
-	slog.Info("starting read forever")
 	defer func() {
 		c.wg.Done()
 		onDestroy(c)
@@ -404,14 +394,10 @@ func NewBroadcaster() Broadcaster {
 }
 
 func (bb *broadcaster) Broadcast(b []byte) error {
-	slog.Info("broadcasting")
 	bb.mu.Lock()
 	defer bb.mu.Unlock()
 	var errs []error
-	slog.Info("broadcasting to clients")
-	fmt.Println("broadcasting to clients", len(bb.clients))
 	for w := range bb.clients {
-		slog.Info("broadcasting to client")
 		_, err := w.Write(b)
 		if err != nil {
 			errs = append(errs, err)
