@@ -1,5 +1,5 @@
 import { GeolocationContext } from "@/contexts/geolocation-context";
-import { GEOLOCATION_DISTANCE_ACCURACY_ALLOWANCE } from "@/lib/constants";
+import { GEOLOCATION_INACURACCY_TOLERANCE } from "@/lib/constants";
 import { useGeolocation } from "@uidotdev/usehooks";
 import { LucideAlertTriangle } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -41,7 +41,7 @@ export default function GeolocationProvider({
   useEffect(() => {
     if (geolocation.accuracy !== null) {
       setWithinAllowance(
-        geolocation.accuracy <= GEOLOCATION_DISTANCE_ACCURACY_ALLOWANCE
+        geolocation.accuracy <= GEOLOCATION_INACURACCY_TOLERANCE
       );
     }
   }, [geolocation.accuracy]);

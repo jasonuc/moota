@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	PlantInteractionRadius = 20 // TODO: This value is still experimental
+	PlantInteractionRadius = 15 // TODO: This value is still experimental
 	wateringPlantXpGain    = 30
 	wateringPlantHpGain    = 5
 
@@ -71,7 +71,7 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 
 	nickname := generateNickname()
 	seed.Planted = true
-	circleMeta := CircleMeta{radiusM: PlantInteractionRadius, C: centre}
+	circleMeta := CircleMeta{R: PlantInteractionRadius, C: centre}
 	if !soil.ContainsFullCircle(circleMeta) {
 		return nil, ErrPlantNotFullyInSoil
 	}
@@ -99,8 +99,8 @@ func NewPlant(seed *Seed, soil *Soil, centre Coordinates) (*Plant, error) {
 		Tempers:   NewTempers(),
 		SeedMeta:  seed.SeedMeta,
 		CircleMeta: CircleMeta{
-			C:       centre,
-			radiusM: PlantInteractionRadius,
+			C: centre,
+			R: PlantInteractionRadius,
 		},
 		LastRefreshedAt:   nil,
 		GracePeriodEndsAt: nil,

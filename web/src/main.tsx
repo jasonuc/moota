@@ -8,7 +8,6 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import InDevelopmentBanner from "./components/in-development-banner";
 import "./index.css";
-import GeolocationProvider from "./services/providers/geolocation-provider";
 
 const queryClient = new QueryClient();
 
@@ -17,11 +16,9 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <GeolocationProvider>
-            <InDevelopmentBanner />
-            <App />
-            <Toaster />
-          </GeolocationProvider>
+          <InDevelopmentBanner />
+          <App />
+          <Toaster />
         </AuthProvider>
         {import.meta.env.DEV && <ReactQueryDevtools />}
       </QueryClientProvider>

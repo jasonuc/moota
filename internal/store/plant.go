@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"strings"
 
 	"github.com/jasonuc/moota/internal/models"
 )
@@ -287,7 +288,7 @@ func (s *plantStore) Get(ctx context.Context, id string, opts *GetPlantsOpts) (*
 		&soilCentreText, &soilRadiusM, &plant.Soil.Type, &plant.Soil.WaterRetention, &plant.Soil.NutrientRichness, &plant.Soil.CreatedAt, &plant.TimeOfDeath,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == sql.ErrNoRows || strings.Contains(err.Error(), ErrInvalidUUIDSyntax) {
 			return nil, models.ErrPlantNotFound
 		}
 		return nil, err

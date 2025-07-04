@@ -3,6 +3,7 @@ import Header from "@/components/header";
 import Top3Plants from "@/components/top-3-plants";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { SERVER_404_MESSAGE } from "@/lib/constants";
 import { getDicebearGlassUrl } from "@/lib/utils";
 import { useGetUserProfile } from "@/services/queries/user";
 import { AxiosError } from "axios";
@@ -43,12 +44,18 @@ export default function ProfilePage() {
     if (useGetUserProfileErr) {
       navigate("/home");
       const err = useGetUserProfileErr as AxiosError<{ error: string }>;
-      toast.error("User does not exist", {
-        description: err.response?.data.error,
-        descriptionClassName: "!text-white",
-      });
+      if (err.response?.data.error === SERVER_404_MESSAGE) {
+        toast.error("User does not exist", {
+          description: err.response?.data.error,
+          descriptionClassName: "!text-white",
+        });
+        return;
+      }
+      toast.error("A problem has occured on the server");
     }
   }, [useGetUserProfileErr, navigate]);
+
+  if (useGetUserProfileErr) return null;
 
   return (
     <div className="flex flex-col space-y-5 grow">

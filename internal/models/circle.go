@@ -8,14 +8,14 @@ type Circle interface {
 }
 
 type CircleMeta struct {
-	C       Coordinates `json:"centre"`
-	radiusM float64
+	C Coordinates `json:"centre"`
+	R float64     `json:"radiusM"`
 }
 
 func NewCircleMeta(centre Coordinates, radiusM float64) CircleMeta {
 	return CircleMeta{
-		C:       centre,
-		radiusM: radiusM,
+		C: centre,
+		R: radiusM,
 	}
 }
 
@@ -24,7 +24,7 @@ func (c CircleMeta) Centre() Coordinates {
 }
 
 func (c CircleMeta) RadiusM() float64 {
-	return c.radiusM
+	return c.R
 }
 
 func (c CircleMeta) ContainsPoint(p Coordinates) bool {
