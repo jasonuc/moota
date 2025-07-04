@@ -7,6 +7,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"slices"
+	"strings"
 	"time"
 	"unicode"
 
@@ -364,7 +366,12 @@ func (s *authService) generateRefreshToken(user *models.User) (*models.RefreshTo
 	}, nil
 }
 
+var invalidUsernames = []string{"moota"}
+
 func isValidUsername(username string) error {
+	if slices.Contains(invalidUsernames, strings.ToLower(username)) {
+		return ErrInvalidUsername
+	}
 	if len(username) < 3 || len(username) > 30 {
 		return ErrUsernameTooLong
 	}
