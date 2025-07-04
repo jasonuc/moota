@@ -53,23 +53,7 @@ func (app *application) serve() error {
 	go func() {
 		app.broadcaster.Run(context.Background())
 	}()
-	// go func() {
-	// 	err := app.routers.SSERouter.Run(context.Background())
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// }()
-	// go func() {
-	// 	// This goroutine simulates some events being published in the background
-	// 	ctx := context.Background()
-	// 	for {
 
-	// 		slog.Info("publishing seed planted event")
-	// 		_ = app.routers.EventBus.Publish(ctx, events.StatUpdated{})
-
-	// 		time.Sleep(time.Millisecond * time.Duration(3000+rand.Intn(5000)))
-	// 	}
-	// }()
 	app.logger.Printf("server running on port %d\n", app.cfg.server.port)
 	if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		return err
