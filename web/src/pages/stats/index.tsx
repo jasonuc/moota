@@ -1,26 +1,21 @@
 import { Stats } from "@/types/user";
-import { useEffect, useState } from "react";
+import {
+  useEventSource,
+  useEventSourceListener,
+} from "@react-nano/use-event-source";
+import { useState } from "react";
 
 export default function StatsPage() {
-  const [stockData, setStockData] = useState<Stats | null>(null);
+  const [stockData, setMesages] = useState<Stats | null>(null);
 
-  useEffect(() => {
-    // opening a connection to the server to begin receiving events from it
-    const eventSource = new EventSource("http://localhost:5173/api/stats");
-
-    // attaching a handler to receive message events
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log("stockData", data);
-      setStockData(data);
-    };
-
-    // terminating the connection on component unmount
-    return () => {
-        eventSource.close(); // Cleanup on unmount
-      };
-  }, []);
-  if (!stockData) {
+  const [eventSource, eventSourceStatus] = useEventSource("api/stats", false);
+  useEventSourceListener(eventSource, ["data"], (evt) => {
+    setMesages(JSON.parse(evt.data));
+  });
+  if (eventSourceStatus === "error") {
+    return <div>EventSource error</div>;
+  }
+  if (eventSourceStatus === "init") {
     return <div>Loading...</div>;
   }
   return (

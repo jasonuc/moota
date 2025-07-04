@@ -3,16 +3,20 @@ package events
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"log/slog"
+	"net/http"
+	"time"
 
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill-http/v2/pkg/http"
-	wmsql "github.com/ThreeDotsLabs/watermill-sql/v3/pkg/sql"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
+	gw "github.com/gorilla/websocket"
 	"github.com/jasonuc/moota/internal/models"
 	"github.com/jasonuc/moota/internal/store"
+	"github.com/jasonuc/moota/internal/websocket"
 )
 
 type SeedPlanted struct {
@@ -23,15 +27,16 @@ type SeedPlanted struct {
 type SeedGenerated struct {
 	UserID string `json:"user_id"`
 }
-
 type StatUpdated struct {
+}
+
+type StatUpdatedPayload struct {
 	Plant *models.PlantCount `json:"plant,omitempty"`
 	Seed  *models.SeedCount  `json:"seed,omitempty"`
 }
 
 type Routers struct {
 	EventsRouter *message.Router
-	SSERouter    http.SSERouter
 	EventBus     *cqrs.EventBus
 }
 
@@ -40,36 +45,9 @@ func NewPubSub() (message.Publisher, message.Subscriber) {
 		gochannel.Config{
 			OutputChannelBuffer: 10000,
 		},
-		watermill.NewStdLogger(true, true),
+		watermill.NopLogger{},
 	)
 	return pubSub, pubSub
-}
-
-func NewPostgresPublisher(db *sql.DB) *wmsql.Publisher {
-	publisher, err := wmsql.NewPublisher(
-		db,
-		wmsql.PublisherConfig{
-			SchemaAdapter: wmsql.DefaultPostgreSQLSchema{},
-		},
-		watermill.NewStdLogger(true, true),
-	)
-	if err != nil {
-		panic(err)
-	}
-	return publisher
-}
-
-func NewPostgresSubscriber(db *sql.DB) (message.Subscriber, error) {
-	subscriber, err := wmsql.NewSubscriber(
-		db,
-		wmsql.SubscriberConfig{
-			SchemaAdapter:    wmsql.DefaultPostgreSQLSchema{},
-			OffsetsAdapter:   wmsql.DefaultPostgreSQLOffsetsAdapter{},
-			InitializeSchema: true,
-		},
-		watermill.NewStdLogger(true, false),
-	)
-	return subscriber, err
 }
 
 func NewEventBus(pubSub message.Publisher) (*cqrs.EventBus, error) {
@@ -79,15 +57,14 @@ func NewEventBus(pubSub message.Publisher) (*cqrs.EventBus, error) {
 			GeneratePublishTopic: func(params cqrs.GenerateEventPublishTopicParams) (string, error) {
 				return params.EventName, nil
 			},
+
 			Marshaler: cqrs.JSONMarshaler{},
-			Logger:    watermill.NewStdLogger(true, true),
+			// Logger:    // watermill.NewStdLogger(true, true),
 		},
 	)
 }
 
-func NewRouters(store *store.Store, db *sql.DB) (*Routers, error) {
-
-	// publisher := NewPostgresPublisher(db)
+func NewSocketRouters(broadcast websocket.Broadcaster, store *store.Store, db *sql.DB) (*Routers, error) {
 
 	publisher, subscriber := NewPubSub()
 
@@ -96,111 +73,40 @@ func NewRouters(store *store.Store, db *sql.DB) (*Routers, error) {
 		return nil, err
 	}
 
-	eventsRouter, err := NewEventRouter2(subscriber, store, eventBus)
-	if err != nil {
-		return nil, err
-	}
-
-	// subscriber, err := NewPostgresSubscriber(db)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	sseRouter, err := NewSseRouter(subscriber)
+	eventsRouter, err := NewBroadcastEventRouter(broadcast, subscriber, store, eventBus)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Routers{
 		EventsRouter: eventsRouter,
-		SSERouter:    sseRouter,
 		EventBus:     eventBus,
 	}, nil
 }
 
-func NewSseRouter(subscriber message.Subscriber) (http.SSERouter, error) {
-	sseRouter, err := http.NewSSERouter(
-		http.SSERouterConfig{
-			UpstreamSubscriber: subscriber,
+func NewSockServer(manager websocket.Manager) http.HandlerFunc {
+	upgrader := gw.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
+	// upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+
+	h := websocket.ServeWS(
+		upgrader,
+		websocket.DefaultSetupConn,
+		websocket.NewClient,
+		func(ctx context.Context, cf context.CancelFunc, c websocket.Client) {
+			manager.RegisterClient(ctx, cf, c)
 		},
-		watermill.NewStdLogger(true, true),
-	)
-	return sseRouter, err
-}
+		func(c websocket.Client) {
+			manager.UnregisterClient(c)
 
-func NewEventRouter(db *sql.DB, store *store.Store, eventBus *cqrs.EventBus) (*message.Router, error) {
-	logger := watermill.NewStdLogger(true, true)
-	eventsRouter, err := message.NewRouter(message.RouterConfig{}, logger)
-	if err != nil {
-		return nil, err
-	}
-
-	eventsRouter.AddMiddleware(middleware.Recoverer)
-
-	eventProcessor, err := cqrs.NewEventProcessorWithConfig(
-		eventsRouter,
-		cqrs.EventProcessorConfig{
-			GenerateSubscribeTopic: func(params cqrs.EventProcessorGenerateSubscribeTopicParams) (string, error) {
-				return params.EventName, nil
-			},
-			SubscriberConstructor: func(params cqrs.EventProcessorSubscriberConstructorParams) (message.Subscriber, error) {
-				return NewPostgresSubscriber(db)
-			},
-			Marshaler: cqrs.JSONMarshaler{},
-			Logger:    logger,
 		},
+		50*time.Second,
+		[]websocket.MessageHandler{func(c websocket.Client, b []byte) { c.Write(b) }},
 	)
-	if err != nil {
-		return nil, err
-	}
 
-	err = eventProcessor.AddHandlers(
-		cqrs.NewEventHandler(
-			"UpdatePlantCount",
-			func(ctx context.Context, event *SeedPlanted) error {
-				count, err := store.Plant.GetTotalCount(ctx)
-				if err != nil {
-					return err
-				}
-				count2, err := store.Seed.GetTotalCount(ctx)
-				if err != nil {
-					return err
-				}
-				statsUpdated := StatUpdated{
-					Plant: count,
-					Seed:  count2,
-				}
-
-				return eventBus.Publish(ctx, statsUpdated)
-			},
-		),
-		cqrs.NewEventHandler(
-			"UpdateSeedCount",
-			func(ctx context.Context, event *SeedGenerated) error {
-				count, err := store.Seed.GetTotalCount(ctx)
-				if err != nil {
-					return err
-				}
-				count2, err := store.Plant.GetTotalCount(ctx)
-				if err != nil {
-					return err
-				}
-				statsUpdated := StatUpdated{
-					Seed:  count,
-					Plant: count2,
-				}
-
-				return eventBus.Publish(ctx, statsUpdated)
-			},
-		),
-	)
-	if err != nil {
-		return nil, err
-	}
-	return eventsRouter, nil
+	return h
 }
-func NewEventRouter2(subscriber message.Subscriber, store *store.Store, eventBus *cqrs.EventBus) (*message.Router, error) {
-	logger := watermill.NewStdLogger(true, true)
-	eventsRouter, err := message.NewRouter(message.RouterConfig{}, logger)
+func NewBroadcastEventRouter(broadcaster websocket.Broadcaster, subscriber message.Subscriber, store *store.Store, eventBus *cqrs.EventBus) (*message.Router, error) {
+	eventsRouter, err := message.NewRouter(message.RouterConfig{}, watermill.NopLogger{})
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +123,7 @@ func NewEventRouter2(subscriber message.Subscriber, store *store.Store, eventBus
 				return subscriber, nil
 			},
 			Marshaler: cqrs.JSONMarshaler{},
-			Logger:    logger,
+			// Logger:    logger,
 		},
 	)
 	if err != nil {
@@ -226,8 +132,9 @@ func NewEventRouter2(subscriber message.Subscriber, store *store.Store, eventBus
 
 	err = eventProcessor.AddHandlers(
 		cqrs.NewEventHandler(
-			"UpdatePlantCount",
-			func(ctx context.Context, event *SeedPlanted) error {
+			"StatUpdated",
+			func(ctx context.Context, event *StatUpdated) error {
+				slog.Info("StatUpdated")
 				count, err := store.Plant.GetTotalCount(ctx)
 				if err != nil {
 					return err
@@ -236,31 +143,12 @@ func NewEventRouter2(subscriber message.Subscriber, store *store.Store, eventBus
 				if err != nil {
 					return err
 				}
-				statsUpdated := StatUpdated{
+				statsUpdated := StatUpdatedPayload{
 					Plant: count,
 					Seed:  count2,
 				}
-
-				return eventBus.Publish(ctx, statsUpdated)
-			},
-		),
-		cqrs.NewEventHandler(
-			"UpdateSeedCount",
-			func(ctx context.Context, event *SeedGenerated) error {
-				count, err := store.Seed.GetTotalCount(ctx)
-				if err != nil {
-					return err
-				}
-				count2, err := store.Plant.GetTotalCount(ctx)
-				if err != nil {
-					return err
-				}
-				statsUpdated := StatUpdated{
-					Seed:  count,
-					Plant: count2,
-				}
-
-				return eventBus.Publish(ctx, statsUpdated)
+				msg, _ := json.Marshal(statsUpdated)
+				return broadcaster.Broadcast(msg)
 			},
 		),
 	)

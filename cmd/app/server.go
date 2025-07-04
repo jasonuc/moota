@@ -51,18 +51,23 @@ func (app *application) serve() error {
 	}()
 
 	go func() {
-		err := app.routers.SSERouter.Run(context.Background())
-		if err != nil {
-			panic(err)
-		}
+		app.broadcaster.Run(context.Background())
 	}()
+	// go func() {
+	// 	err := app.routers.SSERouter.Run(context.Background())
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// }()
 	// go func() {
 	// 	// This goroutine simulates some events being published in the background
 	// 	ctx := context.Background()
 	// 	for {
 	// 		if rand.Intn(2) == 0 {
+	// 			slog.Info("publishing seed planted event")
 	// 			_ = app.routers.EventBus.Publish(ctx, events.SeedPlanted{})
 	// 		} else {
+	// 			slog.Info("publishing seed generated event")
 	// 			_ = app.routers.EventBus.Publish(ctx, events.SeedGenerated{})
 	// 		}
 

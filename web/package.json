@@ -21,6 +21,7 @@
     "@radix-ui/react-progress": "^1.1.7",
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
+    "@react-nano/use-event-source": "^0.16.0",
     "@tailwindcss/vite": "^4.1.8",
     "@tanstack/react-query": "^5.81.2",
     "@tanstack/react-query-devtools": "^5.77.0",
