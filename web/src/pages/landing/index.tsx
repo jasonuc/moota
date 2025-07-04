@@ -136,7 +136,11 @@ export default function LandingPage() {
 
             <div className="text-center mb-12">
               <h2 className="text-4xl font-heading text-foreground mb-4">
-                {stats.plant.alive} plants alive
+                {stats.plant.alive === 0
+                  ? `Be the first to plant!`
+                  : stats.plant.alive === 1
+                  ? `1 Plant Alive`
+                  : `${stats.plant.alive} Plants Alive`}
               </h2>
             </div>
 
