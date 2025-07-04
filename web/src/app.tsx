@@ -15,14 +15,12 @@ import PublicPlantPage from "./pages/plants/plantId/public";
 import ProfilePage from "./pages/profile";
 import SeedsPage from "./pages/seeds";
 import SettingsPage from "./pages/settings";
-import StatsPage from "./pages/stats";
 
 export default function App() {
   return (
     <Routes>
       <Route element={<BaseLayout />}>
         <Route index element={<LandingPage />} />
-        <Route path="/stats" element={<StatsPage />} />
 
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />

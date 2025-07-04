@@ -3,6 +3,7 @@ import { LogoWithText } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import UserButton from "@/components/user-button";
 import { useAuth } from "@/hooks/use-auth";
+import { useStats } from "@/hooks/use-stats";
 import {
   CompassIcon,
   DumbbellIcon,
@@ -22,6 +23,8 @@ export default function LandingPage() {
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  const { stats } = useStats();
 
   const bannerMessages = [
     "Location-Based Adventure Game",
@@ -130,6 +133,12 @@ export default function LandingPage() {
               anywhere, return to care for them, and transform daily routines
               into epic gaming adventures.
             </p>
+
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-heading text-foreground mb-4">
+                {stats.plant.alive} plants alive
+              </h2>
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
               <Button

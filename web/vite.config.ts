@@ -10,7 +10,15 @@ export default defineConfig(() => ({
     proxy: {
       "/api": {
         target: "http://localhost:8080",
+        // ws: true,
         changeOrigin: true,
+        rewriteWsOrigin: true,
+      },
+      "/api/stats": {
+        target: "ws://localhost:8080",
+        ws: true,
+        changeOrigin: true,
+        rewriteWsOrigin: true,
       },
     },
   },
