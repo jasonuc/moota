@@ -15,7 +15,6 @@ func (app *application) serveStaticFiles(r chi.Router) {
 
 	if _, err := os.Stat(staticPath); os.IsNotExist(err) {
 		app.logger.Panicf("static files directory not found: %s", staticPath)
-		return
 	}
 
 	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir(filepath.Join(staticPath, "assets")))))
