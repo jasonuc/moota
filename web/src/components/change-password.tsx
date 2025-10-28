@@ -42,7 +42,7 @@ export default function ChangePassword() {
         { message: "Passwords do not match" },
         {
           shouldFocus: true,
-        }
+        },
       );
       return;
     }

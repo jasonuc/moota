@@ -8,7 +8,7 @@ const ax = axios.create({
 
 ax.interceptors.response.use(
   (response) => response,
-  refreshAccessTokenMiddleware
+  refreshAccessTokenMiddleware,
 );
 
 interface AxiosRequestConfigExtended extends AxiosRequestConfig {

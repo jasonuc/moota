@@ -11,7 +11,7 @@ import { GhostIcon } from "lucide-react";
 
 function generateDeceasedPlantEpitaph(
   botanicalName: string,
-  nickname: string
+  nickname: string,
 ): string {
   const templates = [
     "{nickname} was the most magnificent {botanical} that ever graced this earth.",

@@ -4,7 +4,7 @@ import { AlertCircleIcon, XIcon } from "lucide-react";
 export default function InDevelopmentBanner() {
   const [showInDevelopmentBanner, setShowInDevelopmentBanner] = useLocalStorage(
     "show-in-development-banner",
-    true
+    true,
   );
 
   if (!showInDevelopmentBanner) return null;

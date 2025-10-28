@@ -22,7 +22,7 @@ export const changeEmail = async (userId: string, newEmail: string) =>
 export const changePassword = async (
   userId: string,
   oldPassword: string,
-  newPassword: string
+  newPassword: string,
 ) =>
   await ax.patch(`/auth/u/${userId}/change-password`, {
     oldPassword,

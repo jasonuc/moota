@@ -47,7 +47,7 @@ export default function PlantMap({
             <CardTitle
               className={cn(
                 "p-1 w-fit border-b-2 border-r-2 rounded-none rounded-br-md text-xs flex items-center justify-center font-semibold bg-white/90 backdrop-blur-sm",
-                { isAtPlant: "text-green-600" }
+                { isAtPlant: "text-green-600" },
               )}
             >
               <LocateFixedIcon size={15} className="mr-1" />
@@ -83,19 +83,19 @@ export default function PlantMap({
                     <line
                       x1={`${Math.max(
                         5,
-                        Math.min(95, (plantX / mapWidth) * 100)
+                        Math.min(95, (plantX / mapWidth) * 100),
                       )}%`}
                       y1={`${Math.max(
                         5,
-                        Math.min(95, (plantY / mapHeight) * 100)
+                        Math.min(95, (plantY / mapHeight) * 100),
                       )}%`}
                       x2={`${Math.max(
                         5,
-                        Math.min(95, (userX / mapWidth) * 100)
+                        Math.min(95, (userX / mapWidth) * 100),
                       )}%`}
                       y2={`${Math.max(
                         5,
-                        Math.min(95, (userY / mapHeight) * 100)
+                        Math.min(95, (userY / mapHeight) * 100),
                       )}%`}
                       stroke="#3b82f6"
                       strokeWidth="2"
@@ -115,7 +115,7 @@ export default function PlantMap({
                         (Math.max(5, Math.min(95, (plantY / mapHeight) * 100)) +
                           Math.max(
                             5,
-                            Math.min(95, (userY / mapHeight) * 100)
+                            Math.min(95, (userY / mapHeight) * 100),
                           )) /
                           2 -
                         5
@@ -131,11 +131,11 @@ export default function PlantMap({
                     style={{
                       left: `${Math.max(
                         5,
-                        Math.min(95, (userX / mapWidth) * 100)
+                        Math.min(95, (userX / mapWidth) * 100),
                       )}%`,
                       top: `${Math.max(
                         5,
-                        Math.min(95, (userY / mapHeight) * 100)
+                        Math.min(95, (userY / mapHeight) * 100),
                       )}%`,
                     }}
                   >
@@ -152,11 +152,11 @@ export default function PlantMap({
                 style={{
                   left: `${Math.max(
                     5,
-                    Math.min(95, (plantX / mapWidth) * 100)
+                    Math.min(95, (plantX / mapWidth) * 100),
                   )}%`,
                   top: `${Math.max(
                     5,
-                    Math.min(95, (plantY / mapHeight) * 100)
+                    Math.min(95, (plantY / mapHeight) * 100),
                   )}%`,
                 }}
               >

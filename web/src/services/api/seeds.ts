@@ -10,7 +10,7 @@ export const getUserSeeds = async (userId: string) => {
 export const plantSeed = async (
   seedId: string,
   latitude: number,
-  longitude: number
+  longitude: number,
 ) => {
   await ax.post<{ plant: Plant }>(`/seeds/${seedId}`, {
     latitude,

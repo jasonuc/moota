@@ -73,8 +73,8 @@ export default function IndividualPlantPage() {
           {
             icon: <DropletIcon />,
             position: "top-center",
-          }
-        )
+          },
+        ),
       )
       .catch((error: AxiosError<{ error: string }>) => {
         toast.info(
@@ -82,7 +82,7 @@ export default function IndividualPlantPage() {
           {
             description: "This plant was not watered",
             position: "top-center",
-          }
+          },
         );
       });
   };
@@ -159,7 +159,7 @@ export default function IndividualPlantPage() {
             disabled={
               haversineDistance(
                 { Lat: plant?.centre.Lat ?? 0, Lon: plant?.centre.Lon ?? 0 },
-                { Lat: userLat ?? 0, Lon: userLon ?? 0 }
+                { Lat: userLat ?? 0, Lon: userLon ?? 0 },
               ) > (plant?.radiusM ?? 0)
             }
           >

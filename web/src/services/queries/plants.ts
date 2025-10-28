@@ -11,7 +11,7 @@ import { SERVER_404_MESSAGE } from "@/lib/constants";
 export const useGetUserNearbyPlants = (
   userId?: string,
   lat?: number | null,
-  lon?: number | null
+  lon?: number | null,
 ) =>
   useQuery({
     queryKey: ["plants", { userId, lat, lon, deceased: false }],
@@ -23,7 +23,7 @@ export const useGetUserNearbyPlants = (
 export const useGetUserPlants = (
   userId?: string,
   lat?: number | null,
-  lon?: number | null
+  lon?: number | null,
 ) =>
   useQuery({
     queryKey: ["plants", { userId, lat, lon, deceased: false }],

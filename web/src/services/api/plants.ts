@@ -4,14 +4,14 @@ import { ax } from "./index";
 export const getUserNearbyPlants = async (
   userId: string,
   lat: number,
-  lon: number
+  lon: number,
 ) =>
   (
     await ax.get<{ plants: PlantWithDistanceMFromUser[] }>(
       `/plants/u/${userId}`,
       {
         params: { lat: lat, lon: lon },
-      }
+      },
     )
   ).data.plants.slice(0, 4);
 
@@ -21,7 +21,7 @@ export const getUserPlants = async (userId: string, lat: number, lon: number) =>
       `/plants/u/${userId}`,
       {
         params: { lat: lat, lon: lon },
-      }
+      },
     )
   ).data.plants;
 
@@ -34,7 +34,7 @@ export const killPlant = async (plantId: string) =>
 export const waterPlant = async (
   plantId: string,
   latitude: number,
-  longitude: number
+  longitude: number,
 ) =>
   (
     await ax.post<{ plant: Plant }>(`plants/${plantId}/action`, {
@@ -46,7 +46,7 @@ export const waterPlant = async (
 
 export const changePlantNickname = async (
   plantId: string,
-  newNickname: string
+  newNickname: string,
 ) =>
   (
     await ax.patch<{ plant: Plant }>(`plants/${plantId}`, {

@@ -79,7 +79,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         setIsLoading(false);
       }
     },
-    [checkStatus, navigate, clearError]
+    [checkStatus, navigate, clearError],
   );
 
   const login = useCallback(
@@ -102,7 +102,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         setIsLoading(false);
       }
     },
-    [checkStatus, navigate, clearError]
+    [checkStatus, navigate, clearError],
   );
 
   const refetch = useCallback(async () => {

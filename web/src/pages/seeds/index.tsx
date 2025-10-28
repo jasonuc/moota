@@ -39,7 +39,7 @@ export default function SeedsPage() {
       const err = useGetUserSeedsErr as AxiosError<{ error: string }>;
       toast.error("Error occured on the server", {
         description: `Seeds could not be fetched. ${startSentenceWithUppercase(
-          err.response?.data.error ?? ""
+          err.response?.data.error ?? "",
         )}`,
         descriptionClassName: "!text-white",
       });
@@ -63,7 +63,7 @@ export default function SeedsPage() {
             description: "There is another plant in the area",
             descriptionClassName: "!text-white",
             position: "top-center",
-          }
+          },
         );
       });
   };

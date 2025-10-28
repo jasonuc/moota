@@ -41,7 +41,7 @@ export default function GeolocationProvider({
   useEffect(() => {
     if (geolocation.accuracy !== null) {
       setWithinAllowance(
-        geolocation.accuracy <= GEOLOCATION_INACURACCY_TOLERANCE
+        geolocation.accuracy <= GEOLOCATION_INACURACCY_TOLERANCE,
       );
     }
   }, [geolocation.accuracy]);

@@ -65,7 +65,7 @@ export function getDicebearGlassUrl(seed?: string): string {
 
 export function haversineDistance(
   coord1: Coordinates,
-  coord2: Coordinates
+  coord2: Coordinates,
 ): number {
   const R = EARTH_RADIUS_M;
   const dLat = (coord2.Lat - coord1.Lat) * (Math.PI / 180);

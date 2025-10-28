@@ -24,18 +24,20 @@ export default function NoSeeds() {
       })
       .catch(
         (
-          err: AxiosError<{ error: { message: string; timeAvailable: string } }>
+          err: AxiosError<{
+            error: { message: string; timeAvailable: string };
+          }>,
         ) => {
           toast.warning(
             startSentenceWithUppercase(err.response?.data.error.message ?? ""),
             {
               description: `You can request seeds again on ${formatDate(
                 err.response?.data.error.timeAvailable ?? "",
-                "dd/MM/yy"
+                "dd/MM/yy",
               )}`,
-            }
+            },
           );
-        }
+        },
       );
   };
 

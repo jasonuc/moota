@@ -11,7 +11,7 @@ export default function HomePage() {
   const { data: nearbyPlants, isPlaceholderData } = useGetUserNearbyPlants(
     user?.id,
     latitude,
-    longitude
+    longitude,
   );
 
   return (

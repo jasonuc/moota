@@ -35,7 +35,7 @@ export default function KillPlantButton({
       </>,
       {
         icon: <GhostIcon />,
-      }
+      },
     );
   };
 
