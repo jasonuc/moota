@@ -18,7 +18,7 @@ type PlantHandler struct {
 	validator    *validator.Validate
 }
 
-func NewPlantService(plantService services.PlantService) *PlantHandler {
+func NewPlantHandler(plantService services.PlantService) *PlantHandler {
 	return &PlantHandler{
 		plantService: plantService,
 		validator:    validator.New(),

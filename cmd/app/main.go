@@ -62,7 +62,7 @@ func main() {
 
 	authHandler := handlers.NewAuthHandler(authService, cfg.auth.cookieDomain, cfg.auth.cookieSameSiteMode)
 	seedHandler := handlers.NewSeedHandler(seedService)
-	plantHandler := handlers.NewPlantService(plantService)
+	plantHandler := handlers.NewPlantHandler(plantService)
 	userHandler := handlers.NewUserHandler(userService)
 
 	app := application{
