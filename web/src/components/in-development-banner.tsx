@@ -14,7 +14,7 @@ export default function InDevelopmentBanner() {
       <div className="flex items-center gap-x-1.5">
         <AlertCircleIcon className="size-3" />
         <small className="font-semibold">
-          Currently in development. Breaking changes could occur.
+          Currently in development. Breaking changes may occur.
         </small>
       </div>
 
