@@ -23,5 +23,18 @@ jobs:
         with:
           go-version: stable
 
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install web dependencies
+        run: npm install
+        working-directory: ./web
+
+      - name: Build web
+        run: npm run build
+        working-directory: ./web
+
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
