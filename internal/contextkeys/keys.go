@@ -9,9 +9,7 @@ type contextKey string
 
 var (
 	userIDKey contextKey = "userID"
-)
 
-var (
 	ErrInvalidCtxVal = errors.New("invalid context value")
 )
 
