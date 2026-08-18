@@ -61,12 +61,8 @@ func NewAuthService(store *store.Store, acessSecret []byte, refreshTTL, acessTTL
 }
 
 func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*models.User, *models.TokenPair, error) {
-	_, err := s.store.User.GetByEmail(ctx, dto.Email)
-	if err == nil {
-		return nil, nil, ErrInvalidEmail
-	}
 
-	_, err = s.store.User.GetByUsername(ctx, dto.Username)
+	_, err := s.store.User.GetByUsername(ctx, dto.Username)
 	if err == nil {
 		return nil, nil, ErrUsernameTaken
 	}
@@ -82,7 +78,6 @@ func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*m
 
 	user := &models.User{
 		Username:     dto.Username,
-		Email:        dto.Email,
 		PasswordHash: hashedPassword,
 		LevelMeta:    models.NewLeveLMeta(1, 0),
 	}
@@ -115,7 +110,7 @@ func (s *authService) Register(ctx context.Context, dto dto.UserRegisterReq) (*m
 }
 
 func (s *authService) Login(ctx context.Context, dto dto.UserLoginReq) (*models.TokenPair, error) {
-	user, err := s.store.User.GetByEmail(ctx, dto.Email)
+	user, err := s.store.User.GetByUsername(ctx, dto.Username)
 	if err != nil {
 		return nil, ErrInvalidCredentials
 	}
