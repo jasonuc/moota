@@ -27,7 +27,7 @@ func (s *userStore) Insert(ctx context.Context, user *models.User) error {
    	RETURNING id, created_at, updated_at;`
 
 	err := s.db.QueryRowContext(
-		ctx, q, user.Username, user.Email, user.PasswordHash, user.Level, user.XP, user.Title,
+		ctx, q, user.Username, nullIfEmpty(user.Email), user.PasswordHash, user.Level, user.XP, user.Title,
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
@@ -41,8 +41,10 @@ func (s *userStore) GetByEmail(ctx context.Context, email string) (*models.User,
    	FROM users WHERE email = $1;`
 
 	user := &models.User{}
+	var emailVal sql.NullString
+
 	err := s.db.QueryRowContext(ctx, q, email).Scan(
-		&user.ID, &user.Username, &user.Email, &user.PasswordHash,
+		&user.ID, &user.Username, &emailVal, &user.PasswordHash,
 		&user.CreatedAt, &user.UpdatedAt, &user.Level, &user.XP, &user.Title,
 	)
 
@@ -52,6 +54,8 @@ func (s *userStore) GetByEmail(ctx context.Context, email string) (*models.User,
 		}
 		return nil, err
 	}
+
+	user.Email = emailVal.String
 	return user, nil
 }
 
@@ -98,7 +102,7 @@ func (s *userStore) Update(ctx context.Context, updatedUser *models.User) error 
    	WHERE id = $7;`
 
 	res, err := s.db.ExecContext(ctx, q,
-		updatedUser.Username, updatedUser.Email, updatedUser.PasswordHash,
+		updatedUser.Username, nullIfEmpty(updatedUser.Email), updatedUser.PasswordHash,
 		updatedUser.Level, updatedUser.XP, updatedUser.Title, updatedUser.ID,
 	)
 	if err != nil {
