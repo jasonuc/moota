@@ -3,10 +3,9 @@ import { z } from "zod";
 export const registerFormSchema = z.object({
   username: z
     .string()
-    .min(3, "Name must be at least 3 characters")
-    .max(30, "Name cannot exceed 30 characters")
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username cannot exceed 30 characters")
     .trim(),
-  email: z.string().email("Please enter a valid email address").trim(),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -17,6 +16,9 @@ export const registerFormSchema = z.object({
 });
 
 export const loginFormSchema = z.object({
-  email: z.string().email("Please enter a valid email address").trim(),
+  username: z
+    .string()
+    .min(1, "Username is required")
+    .trim(),
   password: z.string().min(1, "Password is required"),
 });

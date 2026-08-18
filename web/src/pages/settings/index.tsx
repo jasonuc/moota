@@ -1,4 +1,3 @@
-import ChangeEmail from "@/components/change-email";
 import ChangePassword from "@/components/change-password";
 import ChangeUsername from "@/components/change-username";
 import Header from "@/components/header";
@@ -27,22 +26,16 @@ export default function SettingsPage() {
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
-          <AccordionTrigger>Change email</AccordionTrigger>
-          <AccordionContent>
-            <ChangeEmail />
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-3">
           <AccordionTrigger>Change password</AccordionTrigger>
           <AccordionContent>
             <ChangePassword />
           </AccordionContent>
         </AccordionItem>
-        <AccordionItem value="item-4">
+        <AccordionItem value="item-3">
           <AccordionTrigger>Request a title</AccordionTrigger>
           <AccordionContent>Coming soon</AccordionContent>
         </AccordionItem>
-        <AccordionItem value="item-5">
+        <AccordionItem value="item-4">
           <AccordionTrigger
             hideChevron
             className="hover:cursor-pointer"

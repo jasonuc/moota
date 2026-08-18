@@ -1,11 +1,10 @@
 type RegisterCredentials = {
   username: string;
-  email: string;
   password: string;
 };
 
 type LoginCredentials = {
-  email: string;
+  username: string;
   password: string;
 };
 
