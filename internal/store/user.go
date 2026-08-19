@@ -64,8 +64,10 @@ func (s *userStore) GetByID(ctx context.Context, id string) (*models.User, error
    	FROM users WHERE id = $1;`
 
 	user := &models.User{}
+	var emailVal sql.NullString
+
 	err := s.db.QueryRowContext(ctx, q, id).Scan(
-		&user.ID, &user.Username, &user.Email, &user.PasswordHash,
+		&user.ID, &user.Username, &emailVal, &user.PasswordHash,
 		&user.CreatedAt, &user.UpdatedAt, &user.Level, &user.XP, &user.Title,
 	)
 
@@ -75,6 +77,8 @@ func (s *userStore) GetByID(ctx context.Context, id string) (*models.User, error
 		}
 		return nil, err
 	}
+
+	user.Email = emailVal.String
 	return user, nil
 }
 
@@ -83,8 +87,10 @@ func (s *userStore) GetByUsername(ctx context.Context, username string) (*models
    	FROM users WHERE username = $1;`
 
 	user := &models.User{}
+	var emailVal sql.NullString
+
 	err := s.db.QueryRowContext(ctx, q, username).Scan(
-		&user.ID, &user.Username, &user.Email, &user.PasswordHash,
+		&user.ID, &user.Username, &emailVal, &user.PasswordHash,
 		&user.CreatedAt, &user.UpdatedAt, &user.Level, &user.XP, &user.Title,
 	)
 
@@ -94,6 +100,8 @@ func (s *userStore) GetByUsername(ctx context.Context, username string) (*models
 		}
 		return nil, err
 	}
+
+	user.Email = emailVal.String
 	return user, nil
 }
 
